@@ -20,6 +20,9 @@ import { useWithdraw } from "../hooks/use-withdraw"
 import { useEncryptedBalance } from "../hooks/use-encrypted-balance"
 import { useTokens } from "../hooks/use-tokens"
 import { formatEther, parseEther } from "viem"
+import { useReadContract } from "wagmi"
+import { EERC_CONTRACT } from "../lib/contracts"
+import { sepolia } from "wagmi/chains"
 
 type Token = {
   symbol: string
@@ -73,7 +76,7 @@ export default function WithdrawPage() {
       name: t.isNative ? "Encrypted ETH" : `Encrypted ${t.symbol}`,
       balance: decryptedBalance ? parseFloat(decryptedBalance) : 0,
       priceUsd: 1600,
-      tokenId: 0n,
+      tokenId: 0n, // Will be fetched dynamically in onConfirmWithdraw
       tokenAddress: t.address,
     }))
     return list
@@ -169,14 +172,28 @@ export default function WithdrawPage() {
       setWithdrawError(null)
       setConfirming("execute")
       
+      // Fetch the actual tokenId from the contract
+      const { createPublicClient, http } = await import('viem')
+      const client = createPublicClient({
+        chain: sepolia,
+        transport: http()
+      })
+      
+      const tokenId = await client.readContract({
+        address: EERC_CONTRACT.address,
+        abi: EERC_CONTRACT.abi,
+        functionName: 'tokenIds',
+        args: [selectedToken!.tokenAddress as `0x${string}`]
+      })
+      
       const withdrawParams = {
-        tokenId: selectedToken!.tokenId,
-        amount: parseEther(amount),
+        tokenId: tokenId as bigint,
+        amount: BigInt(Math.floor(parseFloat(amount) * (10 ** selectedTokenDecimals))),
         recipient: recipient,
       }
 
       // Convert decrypted balance to bigint for withdraw function
-      const currentBalance = decryptedBalance ? BigInt(Math.floor(parseFloat(decryptedBalance) * 1e18)) : 0n
+      const currentBalance = decryptedBalance ? BigInt(Math.floor(parseFloat(decryptedBalance) * (10 ** selectedTokenDecimals))) : 0n
       await withdraw(withdrawParams, currentBalance)
       
       setConfirming(false)
