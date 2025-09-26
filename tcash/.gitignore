@@ -1,0 +1,252 @@
+# ========================================
+# Environment & Secrets
+# ========================================
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Private keys and sensitive data
+*.pem
+*.key
+*.p12
+*.pfx
+wallet.json
+keystore/
+secrets/
+
+# ========================================
+# Dependencies & Build Artifacts
+# ========================================
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Frontend (Next.js)
+front/.next/
+front/out/
+front/dist/
+front/build/
+front/.turbo/
+
+# Backend
+backend/dist/
+backend/build/
+backend/logs/
+backend/uploads/
+
+# ========================================
+# Smart Contracts
+# ========================================
+
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+contracts/.openzeppelin/
+
+# Hardhat
+contracts/artifacts/
+contracts/cache/
+contracts/typechain-types/
+
+# Contract deployment artifacts
+contracts/deployments/*/solcInputs/
+contracts/deployments/*/.chainId
+contracts/deployments/*/run-*.json
+
+# ========================================
+# FH-ERC
+# ========================================
+
+# FH-ERC build artifacts
+fhERC/artifacts/
+fhERC/cache/
+fhERC/typechain-types/
+
+# FH-ERC generated types
+fhERC/generated-types/
+
+# FH-ERC circuit compilation
+fhERC/circom/build/
+fhERC/circom/*.r1cs
+fhERC/circom/*.wasm
+fhERC/circom/*.zkey
+fhERC/circom/*.vkey
+fhERC/circom/*.sym
+
+# FH-ERC verifier contracts (auto-generated)
+fhERC/contracts/verifiers/*Verifier.sol
+
+# FH-ERC test artifacts
+fhERC/coverage/
+fhERC/.nyc_output/
+
+
+# ========================================
+# Development & Testing
+# ========================================
+
+# Coverage reports
+coverage/
+.nyc_output/
+*.lcov
+
+# Testing
+.coverage/
+junit.xml
+test-results/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# FH-ERC test artifacts
+fhERC/test/coverage/
+fhERC/test/.nyc_output/
+fhERC/deployments/
+
+# ========================================
+# Database & Storage
+# ========================================
+
+# MongoDB
+*.db
+*.sqlite
+*.sqlite3
+data/
+dumps/
+
+# Redis
+dump.rdb
+
+# ========================================
+# OS & Editor Files
+# ========================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.sublime-*
+
+# ========================================
+# Temporary & Cache Files
+# ========================================
+
+# Temporary folders
+tmp/
+temp/
+.tmp/
+.cache/
+.parcel-cache/
+
+# Package manager
+.yarn/
+.pnp.*
+.npm/
+.eslintcache
+
+# ========================================
+# Self.xyz & Blockchain Specific
+# ========================================
+
+# Proof artifacts (can be large)
+proofs/
+*.proof
+*.witness
+
+# Contract verification artifacts
+verification/
+flattened/
+
+# Gas reports
+gas-report.txt
+gasReporterOutput.json
+
+# ========================================
+# Documentation (Private)
+# ========================================
+
+# Internal docs that shouldn't be public
+CLAUDE.md
+plan.md
+plan2.md
+internal-docs/
+TODO.md
+NOTES.md
+
+# ========================================
+# Backup & Archive Files
+# ========================================
+
+*.bak
+*.backup
+*.orig
+*.rej
+*.patch
+*.tar.gz
+*.zip
+*.7z
+
+# ========================================
+# CI/CD & Deployment
+# ========================================
+
+# Docker
+.dockerignore
+Dockerfile.local
+docker-compose.override.yml
+
+# Deployment
+.serverless/
+.vercel/
+.netlify/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# ========================================
+# Mobile & Self App Testing
+# ========================================
+
+# Self mobile app testing artifacts
+self-test-data/
+qr-codes/
+test-screenshots/
