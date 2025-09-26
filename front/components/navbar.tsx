@@ -40,8 +40,7 @@ export default function Navbar() {
                   <button onClick={() => router.push('/swap')} className="text-white/75 hover:text-white transition-colors">Swap</button>
                   <button onClick={() => router.push('/withdraw')} className="text-white/75 hover:text-white transition-colors">Withdraw</button>
                   <button onClick={() => router.push('/onboarding')} className="text-white/75 hover:text-white transition-colors">Onboarding</button>
-                  <button onClick={() => router.push('/kyc-test')} className="text-white/75 hover:text-white transition-colors">KYC Test</button>
-                  <button onClick={() => router.push('/demo')} className="text-white/75 hover:text-white transition-colors">Demo</button>
+                  
                 </div>
               )}
               <div className="flex items-center gap-3">
