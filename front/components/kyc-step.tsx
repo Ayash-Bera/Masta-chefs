@@ -204,7 +204,7 @@ export function KYCStep({
               setShowKYCForm(true);
               showToast('info', '🔐 KYC Verification Started', 'Please generate your Self.xyz proof to continue.');
             }}
-            className="w-full rounded-full bg-white/10 border border-white/15 text-white hover:bg-white/15 px-5 py-3 font-medium"
+            className="w-full rounded-full bg-white/10 border border-white/15 text-white hover:bg-[#bfff00] hover:text-[#0a0b0e] hover:border-[#bfff00] transition-colors px-5 py-3 font-medium"
           >
             Start KYC Verification
           </Button>
@@ -215,7 +215,7 @@ export function KYCStep({
                 onSkip();
               }}
               variant="outline"
-              className="w-full rounded-full border-white/15 text-white/70 hover:bg-white/10 px-5 py-3 bg-transparent"
+              className="w-full rounded-full border-white/15 text-white/70 hover:bg-[#bfff00] hover:text-[#0a0b0e] hover:border-[#bfff00] transition-colors px-5 py-3 bg-transparent"
             >
               Skip for Now
             </Button>
