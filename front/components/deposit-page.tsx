@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, useEffect } from "react"
+import { useMemo, useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import {
   Shield,
@@ -183,6 +183,48 @@ export default function DepositPage() {
     hasProofReady,
     signature
   } = useRegistration(refetchRegistrationStatus)
+
+  const autoRegisterTriggered = useRef(false)
+
+  useEffect(() => {
+    if (!mounted) return
+    if (autoRegisterTriggered.current) return
+    if (typeof window === "undefined") return
+
+    const kycStatus = window.localStorage.getItem("kycStatus")
+
+    if (kycStatus !== "completed") {
+      return
+    }
+
+    if (isRegistered) {
+      window.localStorage.removeItem("kycStatus")
+      return
+    }
+
+    if (!address || !isConnected) {
+      console.warn("⚠️ Cannot auto-register: wallet not connected")
+      return
+    }
+
+    if (isPreparingRegistration || isRegistering || isRegistrationConfirming) {
+      return
+    }
+
+    autoRegisterTriggered.current = true
+    window.localStorage.removeItem("kycStatus")
+    console.log("🚀 Auto-triggering registration after KYC completion")
+    register()
+  }, [
+    mounted,
+    isRegistered,
+    address,
+    isConnected,
+    isPreparingRegistration,
+    isRegistering,
+    isRegistrationConfirming,
+    register,
+  ])
 
   // Get user's public key from registrar contract
   const { 
