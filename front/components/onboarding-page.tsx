@@ -577,7 +577,8 @@ export default function OnboardingPage() {
                         console.log('KYC completed:', kycData);
                         // Store KYC data in state or localStorage
                         localStorage.setItem('kycData', JSON.stringify(kycData));
-                        next();
+                        localStorage.setItem('kycStatus', 'completed');
+                        router.push('/deposit');
                       }}
                       onKYCError={(error) => {
                         console.error('KYC error:', error);
