@@ -98,7 +98,7 @@ export function CustomToast({ type, title, description, onClose }: CustomToastPr
 // Toast container with glassmorphism styling
 export function ToastContainer({ children }: { children: React.ReactNode }) {
   return (
-    <div className="fixed top-4 right-4 z-[9999] space-y-2 w-80">
+    <div className="fixed bottom-4 right-4 z-[9999] space-y-2 w-80">
       {children}
     </div>
   );
