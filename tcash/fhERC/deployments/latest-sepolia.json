@@ -1,0 +1,24 @@
+{
+  "network": "sepolia",
+  "chainId": 11155111,
+  "deployer": "0xe87758C6CCcf3806C9f1f0C8F99f6Dcae36E5449",
+  "deploymentTimestamp": "2025-09-21T15:52:49.310Z",
+  "contracts": {
+    "registrationVerifier": "0x8D7cd1c2bEcA4eb4cE7aa0fA37eCB61ea125171f",
+    "mintVerifier": "0x5952b85E23388130A0D2C34B1151A4d60414d998",
+    "withdrawVerifier": "0x463f717e81182B3949b7d0382d30471984921f2f",
+    "transferVerifier": "0xd1077A0D78b8F6969f16c7409CdaB566B6d62486",
+    "burnVerifier": "0x4cc020E6eC340401cdb4f89fC09E5ad3920E5E46",
+    "babyJubJub": "0x4874490A0a70036D72A8F542Fea0c2d5273Ac86b",
+    "registrar": "0x200C0a7C5B49871e41789F5E585Ddb3359e13e8B",
+    "encryptedERC": "0xD5afc45c69644CBd63f362D64B4198a7d81e53C7",
+    "testERC20": "0xd7f834eF5d3A089e3Ec3A9E08EA035926D6A0bA1"
+  },
+  "metadata": {
+    "isConverter": true,
+    "decimals": 2,
+    "testTokensMinted": "10000",
+    "erc20Name": "Test Token",
+    "erc20Symbol": "TEST"
+  }
+}
