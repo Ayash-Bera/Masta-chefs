@@ -5,6 +5,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useMemo, useRef } from "react";
+import { useRouter } from "next/navigation";
 import * as THREE from "three";
 
 gsap.registerPlugin(SplitText);
@@ -226,6 +227,7 @@ export default function InfiniteHero() {
 	const h1Ref = useRef<HTMLHeadingElement>(null);
 	const pRef = useRef<HTMLParagraphElement>(null);
 	const ctaRef = useRef<HTMLDivElement>(null);
+	const router = useRouter();
 
 	useGSAP(
 		() => {
@@ -298,15 +300,13 @@ export default function InfiniteHero() {
 						ref={h1Ref}
 						className="mx-auto max-w-2xl lg:max-w-4xl text-[clamp(2.25rem,6vw,4rem)] font-extralight leading-[0.95] tracking-tight"
 					>
-						The road dissolves in light, the horizon remains unseen.
+						Batch. Swap. Withdraw. Privacy, on-chain.
 					</h1>
 					<p
 						ref={pRef}
 						className="mx-auto mt-4 max-w-2xl md:text-balance text-sm/6 md:text-base/7 font-light tracking-tight text-white/70"
 					>
-						Minimal structures fade into a vast horizon where presence and
-						absence merge. A quiet tension invites the eye to wander without
-						end.
+						Every deposit locks in, every swap converges, every withdrawal emerges unlinked. Auditable for regulators, invisible to observers.
 					</p>
 
 					<div
@@ -316,6 +316,7 @@ export default function InfiniteHero() {
 						<button
 							type="button"
 							className="group relative overflow-hidden border border-white/30 bg-gradient-to-r from-white/20 to-white/10 px-4 py-2 text-sm rounded-lg font-medium tracking-wide text-white backdrop-blur-sm transition-[border-color,background-color,box-shadow] duration-500 hover:border-white/50 hover:bg-white/20 hover:shadow-lg hover:shadow-white/10 cursor-pointer"
+							onClick={() => router.push("/onboarding")}
 						>
 							Learn more
 						</button>
