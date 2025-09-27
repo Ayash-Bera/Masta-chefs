@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+import { useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import dynamic from "next/dynamic"
+import { useRouter } from "next/navigation"
+import { useAccount } from "wagmi"
 import {
   Shield,
   Zap,
@@ -39,6 +40,15 @@ const InfiniteHero = dynamic(() => import("@/components/ui/infinite-hero"), {
 })
 
 export default function TZunamiApp() {
+  const router = useRouter()
+  const { address } = useAccount()
+
+  useEffect(() => {
+    if (address) {
+      router.replace("/onboarding")
+    }
+  }, [address, router])
+
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden" style={{ scrollBehavior: "smooth" }}>
       {/* Metallic gradient defs (reusable across icons) */}
