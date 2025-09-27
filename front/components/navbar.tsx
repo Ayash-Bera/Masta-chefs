@@ -80,6 +80,7 @@ export default function Navbar() {
                   </button>
                   
                 </div>
+                
               )}
               <div className="flex items-center gap-3">
                 <button
