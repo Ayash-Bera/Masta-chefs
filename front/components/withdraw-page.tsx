@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAccount } from "wagmi"
+import { usePriceOracle } from "../hooks/use-price-oracle"
 import {
   ChevronDown,
   Info,
@@ -36,6 +37,19 @@ type Token = {
 export default function WithdrawPage() {
   const router = useRouter()
   const { address } = useAccount()
+  
+  // Real-time price oracle integration
+  const { 
+    ethPrice, 
+    isLoading: isPriceLoading, 
+    error: priceError,
+    isOnSepolia,
+    refreshPrice,
+    formattedPrice,
+    isPriceStale,
+    getTokenPrice,
+    getFormattedTokenPrice
+  } = usePriceOracle()
   
   // Withdraw hook integration
   // Token discovery
@@ -75,7 +89,7 @@ export default function WithdrawPage() {
       symbol: t.isNative ? "eETH" : `e${t.symbol}`,
       name: t.isNative ? "Encrypted ETH" : `Encrypted ${t.symbol}`,
       balance: decryptedBalance ? parseFloat(decryptedBalance) : 0,
-      priceUsd: 1600,
+      priceUsd: getTokenPrice(t.isNative ? 'ETH' : t.symbol), // Dynamic pricing based on token type
       tokenId: 0n, // Will be fetched dynamically in onConfirmWithdraw
       tokenAddress: t.address,
     }))
@@ -326,14 +340,27 @@ export default function WithdrawPage() {
                   className="rounded-2xl backdrop-blur-xl border border-white/15 p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06),0_10px_28px_rgba(0,0,0,0.45)]"
                   style={{ background: "transparent" }}
                 >
-                  <div className="flex items-center justify-between">
-                    <label className="text-white text-base font-semibold">Token & Amount</label>
-                    <div className="text-xs text-white">
-                      1 {selectedToken.symbol} ≈ ${selectedToken.priceUsd.toLocaleString()}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid sm:grid-cols-[1fr_auto] gap-4 items-stretch">
+                    <div className="flex items-center justify-between">
+                      <label className="text-white text-base font-semibold">Token & Amount</label>
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs text-white flex items-center gap-1">
+                          {isPriceLoading ? (
+                            <div className="flex items-center gap-1">
+                              Loading price...
+                            </div>
+                          ) : priceError ? (
+                            <div className="flex items-center gap-1 text-red-400">
+                              Price error
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              1 {selectedToken.symbol} ≈ {getFormattedTokenPrice(selectedToken.symbol)}
+                              {!isOnSepolia && ' (fallback)'}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>                  <div className="mt-4 grid sm:grid-cols-[1fr_auto] gap-4 items-stretch">
                     {/* Token selector */}
                     <button
                       onClick={() => setShowTokenModal(true)}
