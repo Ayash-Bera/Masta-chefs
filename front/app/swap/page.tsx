@@ -72,11 +72,18 @@ export default function TsunamiSwap() {
   const [insufficientBalance, setInsufficientBalance] = useState(false)
   
   // Encrypted balance hooks for selected tokens
-  const { decryptedBalance: fromBalance, formattedEncryptedBalance: fromBalanceFormatted, isLoading: isLoadingFromBalance } = useEncryptedBalance(fromToken.address, fromToken.decimals)
-  const { decryptedBalance: toBalance, formattedEncryptedBalance: toBalanceFormatted, isLoading: isLoadingToBalance } = useEncryptedBalance(toToken.address, toToken.decimals)
+  const { decryptedBalance: fromBalance, formattedEncryptedBalance: fromBalanceFormatted, isLoading: isLoadingFromBalance } = useEncryptedBalance(fromToken?.address, fromToken?.decimals || 18)
+  const { decryptedBalance: toBalance, formattedEncryptedBalance: toBalanceFormatted, isLoading: isLoadingToBalance } = useEncryptedBalance(toToken?.address, toToken?.decimals || 18)
   
   // Stealth swap hooks
   const { createIntent, contribute, execute, isLoading: isSwapLoading, error: swapError } = useStealthSwap()
+  
+  // Alias functions for user's code compatibility
+  const contributeToSwap = contribute
+  const executeSwap = execute
+  
+  // Mock adapter address - replace with real deployed address
+  const ONE_INCH_ADAPTER = { address: '0x0000000000000000000000000000000000000000' as `0x${string}` }
   const [currentIntentId, setCurrentIntentId] = useState<string | null>(null)
   const { intent, refetch: refetchIntent } = useSwapIntent(currentIntentId)
   
@@ -88,6 +95,19 @@ export default function TsunamiSwap() {
   
   // Paymaster for gas payments
   const { depositForGas, withdrawDeposit, isLoading: isPaymasterLoading } = useStealthPaymaster()
+
+  // Additional state variables for enhanced functionality
+  const [swapMode, setSwapMode] = useState<"regular" | "stealth">("regular")
+  const [selectedTokenAddress, setSelectedTokenAddress] = useState<string | null>(null)
+  const [intentId, setIntentId] = useState<string | null>(null)
+  const [contributionAmount, setContributionAmount] = useState<string>("")
+  const [isCreatingIntent, setIsCreatingIntent] = useState(false)
+  const [isContributing, setIsContributing] = useState(false)
+  const [isExecuting, setIsExecuting] = useState(false)
+  
+  // Mock tokens data - replace with real token fetching
+  const tokens = tokenList
+  const tokensLoading = false
 
   // UI state
   const [selectingSide, setSelectingSide] = useState<"from" | "to" | null>(null)
@@ -200,13 +220,20 @@ export default function TsunamiSwap() {
       const deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
       const policy = "0x" + "0".repeat(64) // Mock policy hash
       
-      const intentId = await createIntent(
-        fromToken.address,
-        toToken.address,
-        BigInt(Math.floor(amt * 1e18)), // Convert to wei
-        BigInt(deadline),
-        policy
-      )
+      const result = await createIntent({
+        tokenIn: fromToken.address,
+        tokenOut: toToken.address,
+        minOut: BigInt(Math.floor(amt * 1e18)), // Convert to wei
+        deadline: 3600, // 1 hour in seconds
+        slippageBps: Math.floor(slippage * 100)
+      })
+      
+      if (!result.success) {
+        throw new Error(result.error || "Failed to create intent")
+      }
+      
+      // For now, use a mock intent ID since parsing from logs isn't implemented
+      const intentId = "0x" + "0".repeat(64)
       
       setIntentId(intentId)
       addToast("Intent created successfully!")
@@ -236,7 +263,10 @@ export default function TsunamiSwap() {
       
       addToast("Contributing to stealth swap...")
       
-      await contributeToSwap(intentId, BigInt(Math.floor(amt * 1e18)))
+      await contributeToSwap({
+        intentId,
+        amount: BigInt(Math.floor(amt * 1e18))
+      })
       
       addToast("Contribution successful!")
       
@@ -262,12 +292,11 @@ export default function TsunamiSwap() {
       // Mock 1inch calldata - in production this would come from 1inch API
       const mockCalldata = "0x" + "0".repeat(200)
       
-      await executeSwap(
+      await executeSwap({
         intentId,
-        ONE_INCH_ADAPTER.address,
-        mockCalldata,
-        BigInt(Math.floor(Number.parseFloat(toAmount) * 1e18))
-      )
+        routerCalldata: mockCalldata,
+        expectedMinOut: BigInt(Math.floor(Number.parseFloat(toAmount) * 1e18))
+      })
       
       addToast("Swap executed successfully!")
       setSuccessOpen(true)
@@ -539,7 +568,7 @@ export default function TsunamiSwap() {
                 <div className="">
                   <label className="text-white text-base font-semibold mb-3 block">From:</label>
                   <div className="text-sm text-white mb-3 font-medium">
-                    Balance: {isLoadingFromBalance ? "Loading..." : fromBalanceFormatted} {fromToken.symbol}
+                    Balance: {isLoadingFromBalance ? "Loading..." : fromBalanceFormatted} {fromToken?.symbol || ""}
                   </div>
 
                   {/* Token / Network pill */}
@@ -589,7 +618,7 @@ export default function TsunamiSwap() {
                 <div className="">
                   <label className="text-white text-base font-semibold mb-3 block">To:</label>
                   <div className="text-sm text-white mb-3 font-medium">
-                    Balance: {isLoadingToBalance ? "Loading..." : toBalanceFormatted} {toToken.symbol}
+                    Balance: {isLoadingToBalance ? "Loading..." : toBalanceFormatted} {toToken?.symbol || ""}
                   </div>
 
                   {/* Token / Network pill */}
