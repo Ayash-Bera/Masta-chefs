@@ -14,12 +14,13 @@ contract DeployStealthKYC is Script {
     // Self.xyz Hub V2 addresses
     address constant SELF_HUB_V2_ALFAJORES =
         0x68c931C9a534D37aa78094877F46fE46a49F1A51;
+    address constant SELF_HUB_V2_SEPOLIA =
+        0x68c931C9a534D37aa78094877F46fE46a49F1A51; // Same as Alfajores for now
     address constant SELF_HUB_V2_CELO =
         0xe57F4773bd9c9d8b6Cd70431117d353298B9f5BF;
 
-    // Default deployment parameters for stealth KYC
-    uint256 constant DEFAULT_SCOPE =
-        0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef;
+    // Default deployment parameters for stealth KYC - Workshop style
+    string constant DEFAULT_SCOPE_SEED = "tcash-stealth-kyc";
     bytes32 constant DEFAULT_CONFIG_ID =
         0x0000000000000000000000000000000000000000000000000000000000000001;
     bool constant DEFAULT_REQUIRE_OFAC_CHECK = true;
@@ -42,7 +43,7 @@ contract DeployStealthKYC is Script {
 
         console.log("Network:", networkName);
         console.log("Self.xyz Hub V2:", hubV2Address);
-        console.log("Scope:", vm.toString(DEFAULT_SCOPE));
+        console.log("Scope Seed:", DEFAULT_SCOPE_SEED);
         console.log("Config ID:", vm.toString(DEFAULT_CONFIG_ID));
         console.log("OFAC Check:", DEFAULT_REQUIRE_OFAC_CHECK);
         console.log("Minimum Age:", DEFAULT_MINIMUM_AGE);
@@ -62,11 +63,10 @@ contract DeployStealthKYC is Script {
         console.log("Deploying StealthKYCVerifier contract...");
         StealthKYCVerifier stealthKYCVerifier = new StealthKYCVerifier(
             hubV2Address,
-            DEFAULT_SCOPE,
+            DEFAULT_SCOPE_SEED,
             DEFAULT_CONFIG_ID,
             DEFAULT_REQUIRE_OFAC_CHECK,
             DEFAULT_MINIMUM_AGE,
-            excludedCountries,
             allowedDocumentTypes
         );
 
@@ -110,7 +110,7 @@ contract DeployStealthKYC is Script {
         // Verify basic contract state
         require(address(stealthContract) != address(0), "Deployment failed");
         require(stealthContract.getConfigId() == DEFAULT_CONFIG_ID, "Config ID mismatch");
-        require(stealthContract.scope() == DEFAULT_SCOPE, "Scope mismatch");
+        // Note: scope is now derived from scopeSeed internally by Self.xyz
         require(stealthContract.owner() == expectedOwner, "Owner mismatch");
 
         // Verify stealth-specific functionality exists
@@ -146,11 +146,16 @@ contract DeployStealthKYC is Script {
         if (chainId == 44787) {
             // Alfajores
             return SELF_HUB_V2_ALFAJORES;
+        } else if (chainId == 11142220) {
+            // Celo Sepolia (actual chain ID)
+            return SELF_HUB_V2_SEPOLIA;
         } else if (chainId == 42220) {
             // Celo Mainnet
             return SELF_HUB_V2_CELO;
         } else {
-            revert("Unsupported network");
+            // Fallback to Sepolia for unknown networks (for testing)
+            console.log("Warning: Unknown chain ID, using Sepolia hub address");
+            return SELF_HUB_V2_SEPOLIA;
         }
     }
 
@@ -158,10 +163,12 @@ contract DeployStealthKYC is Script {
         uint256 chainId = block.chainid;
         if (chainId == 44787) {
             return "Celo Alfajores Testnet";
+        } else if (chainId == 11142220) {
+            return "Celo Sepolia Testnet";
         } else if (chainId == 42220) {
             return "Celo Mainnet";
         } else {
-            return "Unknown Network";
+            return string(abi.encodePacked("Unknown Network (Chain ID: ", vm.toString(chainId), ")"));
         }
     }
 
@@ -174,6 +181,9 @@ contract DeployStealthKYC is Script {
         if (chainId == 44787) {
             // Alfajores
             baseUrl = "https://alfajores.celoscan.io/address/";
+        } else if (chainId == 11142220) {
+            // Celo Sepolia
+            baseUrl = "https://celo-sepolia.blockscout.com/address/";
         } else if (chainId == 42220) {
             // Celo Mainnet
             baseUrl = "https://celoscan.io/address/";
