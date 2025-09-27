@@ -2,17 +2,19 @@
 
 import { Shield } from "lucide-react"
 import { usePathname } from "next/navigation"
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import { useAccount, useConnect, useDisconnect, useSignMessage } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
 import { useInstantNavigation } from "@/hooks/use-instant-navigation"
+import { getCachedPrivateKey, getDerivedPrivateKey } from '@/lib/signing-cache'
 
 export default function Navbar() {
   const pathname = usePathname()
   const { address } = useAccount()
   const { connect } = useConnect()
   const { disconnect } = useDisconnect()
+  const { signMessageAsync } = useSignMessage()
   const [mounted, setMounted] = useState(false)
   const { navigate, replace, prefetch } = useInstantNavigation()
   
@@ -23,6 +25,24 @@ export default function Navbar() {
       replace('/')
     }
   }, [mounted, address, pathname, replace])
+
+  // One-time unlock: after wallet connects on first page load, trigger a single signature
+  useEffect(() => {
+    const run = async () => {
+      if (!address) return
+      try {
+        const cached = getCachedPrivateKey(address)
+        if (!cached) {
+          await getDerivedPrivateKey(address, signMessageAsync)
+          // Optional UX: toast to indicate successful unlock
+          // toast("Decryption unlocked for this session")
+        }
+      } catch (e) {
+        // silent; user may cancel
+      }
+    }
+    run()
+  }, [address, signMessageAsync])
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">

@@ -6,7 +6,8 @@ import { createPublicClient, http } from 'viem';
 import { EERC_CONTRACT } from '../lib/contracts';
 import { sepolia } from 'wagmi/chains';
 import { useSignMessage } from 'wagmi';
-import { getDecryptedBalance, i0 } from '../lib/balances/balances';
+import { getDecryptedBalance } from '../lib/balances/balances';
+import { getDerivedPrivateKey, getCachedPrivateKey } from '../lib/signing-cache';
 
 export function useEncryptedBalance(tokenAddress?: `0x${string}`, tokenDecimals: number = 18) {
   const { address } = useAccount();
@@ -21,7 +22,6 @@ export function useEncryptedBalance(tokenAddress?: `0x${string}`, tokenDecimals:
     query: {
       enabled: !!address && (!!tokenAddress || true),
     },
-    scopeKey: tokenAddress ? `encbal:${tokenAddress}` : 'encbal:native',
   });
 
   // Debug the contract call result
@@ -106,11 +106,11 @@ export function useEncryptedBalance(tokenAddress?: `0x${string}`, tokenDecimals:
             }
           }
           
-          // Use the exact same deterministic message used during registration
-          const registrationMessage = `eERC\nRegistering user with\n Address:${address.toLowerCase()}`;
-          const signature = await signMessageAsync({ message: registrationMessage });
-          
-          const privateKey = i0(signature);
+          // Derive or reuse the deterministic private key without duplicate prompts
+          let privateKey = getCachedPrivateKey(address);
+          if (!privateKey) {
+            privateKey = await getDerivedPrivateKey(address, signMessageAsync);
+          }
           console.log('🔍 Derived private key:', privateKey.toString());
           
           const balance = await getDecryptedBalance(privateKey, [], [], ebLocal as any, tokenDecimals);
