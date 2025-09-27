@@ -1,7 +1,7 @@
 "use client"
 import { Shield } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
-import { useAccount, useChainId, useConnect, useDisconnect } from 'wagmi'
+import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
@@ -10,12 +10,17 @@ export default function Navbar() {
   const router = useRouter()
   const pathname = usePathname()
   const { address } = useAccount()
-  const chainId = useChainId()
   const { connect } = useConnect()
   const { disconnect } = useDisconnect()
   const [mounted, setMounted] = useState(false)
   
   useEffect(() => setMounted(true), [])
+
+  useEffect(() => {
+    if (mounted && !address && pathname !== '/') {
+      router.replace('/')
+    }
+  }, [mounted, address, pathname, router])
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
