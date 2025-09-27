@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.30;
-
+pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -14,7 +13,7 @@ import "./IUniversalEncryptedERC.sol";
  * @notice ERC-4337 paymaster that accepts gas payment in eERC tokens
  * @dev Integrates with fhERC UniversalEncryptedERC for private gas payments
  */
-contract StealthPaymaster is IPaymaster, Ownable, ReentrancyGuard {
+contract StealthPaymaster is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     IUniversalEncryptedERC public fhERC;
@@ -46,19 +45,19 @@ contract StealthPaymaster is IPaymaster, Ownable, ReentrancyGuard {
     error InvalidGasPrice();
     error InvalidRate();
     error EntryPointOnly();
-
+    error FhERCNotSet();
+    error InsufficientBalance();
     modifier onlyEntryPoint() {
         if (msg.sender != address(entryPoint)) revert EntryPointOnly();
         _;
     }
 
-    constructor(IEntryPoint _entryPoint) {
+    constructor(IEntryPoint _entryPoint) Ownable(msg.sender) {
         entryPoint = _entryPoint;
-        _transferOwnership(msg.sender);
     }
 
     function setFhERC(address _fhERC) external onlyOwner {
-        require(_fhERC != address(0), "fhERC=0");
+        if (_fhERC == address(0)) revert FhERCNotSet();
         fhERC = IUniversalEncryptedERC(_fhERC);
     }
 
@@ -104,7 +103,7 @@ contract StealthPaymaster is IPaymaster, Ownable, ReentrancyGuard {
      * @param amount Amount to withdraw
      */
     function withdrawDeposit(address token, uint256 amount) external nonReentrant {
-        require(userDeposits[msg.sender][token] >= amount, "Insufficient balance");
+        if (userDeposits[msg.sender][token] < amount) revert InsufficientBalance();
         
         userDeposits[msg.sender][token] -= amount;
         
@@ -134,7 +133,7 @@ contract StealthPaymaster is IPaymaster, Ownable, ReentrancyGuard {
         UserOperation calldata userOp,
         bytes32 userOpHash,
         uint256 maxCost
-    ) external override onlyEntryPoint returns (bytes memory context, uint256 validationData) {
+    ) external onlyEntryPoint returns (bytes memory context, uint256 validationData) {
         // Decode paymaster data: [token_address][max_token_amount]
         if (userOp.paymasterAndData.length < 52) {
             return ("", 1); // Validation failed
@@ -197,7 +196,7 @@ contract StealthPaymaster is IPaymaster, Ownable, ReentrancyGuard {
         PostOpMode mode,
         bytes calldata context,
         uint256 actualGasCost
-    ) external override onlyEntryPoint {
+    ) external onlyEntryPoint {
         (
             address user,
             address token,

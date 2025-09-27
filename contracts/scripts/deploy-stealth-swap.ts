@@ -21,40 +21,40 @@ async function main() {
     addresses: {}
   };
 
-  // 1. Deploy OneInchAdapter with correct router for chain
+  // 1. Deploy OneInchAdapter with correct LOP for chain
   console.log("\n📦 1. Deploying OneInchAdapter...");
   
-  let routerAddress: string;
+  let lopAddress: string;
   const chainId = Number((await ethers.provider.getNetwork()).chainId);
   
-  // Get correct 1inch router for chain
+  // Get correct 1inch LOP for chain
   switch (chainId) {
     case 1: // Ethereum Mainnet
-      routerAddress = "0x111111125421ca6dc452d289314280a0f8842a65";
+      lopAddress = "0x111111125421ca6dc452d289314280a0f8842a65";
       break;
     case 8453: // Base Mainnet
-      routerAddress = "0x111111125421ca6dc452d289314280a0f8842a65";
+      lopAddress = "0x111111125421ca6dc452d289314280a0f8842a65";
       break;
     case 11155111: // Sepolia Testnet
-      routerAddress = "0x111111125421ca6dc452d289314280a0f8842a65";
+      lopAddress = "0x111111125421ca6dc452d289314280a0f8842a65";
       break;
     case 84532: // Base Sepolia
-      routerAddress = "0x111111125421ca6dc452d289314280a0f8842a65";
+      lopAddress = "0x111111125421ca6dc452d289314280a0f8842a65";
       break;
     default:
       throw new Error(`Unsupported chain ID: ${chainId}`);
   }
 
   const OneInchAdapterFactory = await ethers.getContractFactory("OneInchAdapter");
-  const oneInchAdapter = await OneInchAdapterFactory.deploy(routerAddress);
+  const oneInchAdapter = await OneInchAdapterFactory.deploy(lopAddress);
   await oneInchAdapter.waitForDeployment();
   
   const adapterAddress = await oneInchAdapter.getAddress();
   deploymentData.contracts.oneInchAdapter = adapterAddress;
-  deploymentData.addresses.router = routerAddress;
+  deploymentData.addresses.lop = lopAddress;
   
   console.log("✅ OneInchAdapter deployed to:", adapterAddress);
-  console.log("   Router address:", routerAddress);
+  console.log("   LOP address:", lopAddress);
 
   // 2. Deploy StealthFactory
   console.log("\n📦 2. Deploying StealthFactory...");
@@ -139,7 +139,7 @@ async function main() {
   if (fhERCAddress) {
     console.log("fhERC:", fhERCAddress);
   }
-  console.log("1inch Router:", routerAddress);
+  console.log("1inch LOP:", lopAddress);
 
   // 7. Save deployment data
   const deploymentsDir = join(__dirname, "../deployments");
@@ -162,7 +162,7 @@ async function main() {
   if (network.name !== "hardhat" && network.name !== "localhost") {
     console.log("\n🔍 Contract Verification Commands:");
     console.log("=".repeat(50));
-    console.log(`npx hardhat verify --network ${network.name} ${adapterAddress} "${routerAddress}"`);
+    console.log(`npx hardhat verify --network ${network.name} ${adapterAddress} "${lopAddress}"`);
     console.log(`npx hardhat verify --network ${network.name} ${factoryAddress}`);
     console.log(`npx hardhat verify --network ${network.name} ${poolAddress}`);
     
@@ -178,7 +178,7 @@ async function main() {
     oneInchAdapter: adapterAddress,
     stealthFactory: factoryAddress,
     stealthSwapPool: poolAddress,
-    router: routerAddress,
+    lop: lopAddress,
     fhERC: fhERCAddress
   };
 }

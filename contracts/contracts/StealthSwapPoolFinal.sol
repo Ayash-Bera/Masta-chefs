@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.30;
+pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -43,17 +43,17 @@ contract StealthSwapPoolFinal is IStealthSwapPool, ReentrancyGuard, Ownable {
     error InvalidRouter();
     error TooManyParticipants();
     error InsufficientLiquidity();
-
+    error InsufficientParticipants();
+    error TokenNotSupported();
     event AdapterAllowed(address indexed adapter, bool allowed);
     event FhERCSet(address indexed fhERC);
-    event IntentExpired(bytes32 indexed intentId, uint256 expiredAt);
+    event IntentExpiredEvent(bytes32 indexed intentId, uint256 expiredAt);
 
-    constructor() {
-        _transferOwnership(msg.sender);
+    constructor() Ownable(msg.sender) {
     }
 
     function setFhERC(address _fhERC) external onlyOwner {
-        require(_fhERC != address(0), "fhERC=0");
+        if (_fhERC == address(0)) revert FhERCNotSet();
         fhERC = IUniversalEncryptedERC(_fhERC);
         emit FhERCSet(_fhERC);
     }
@@ -70,7 +70,7 @@ contract StealthSwapPoolFinal is IStealthSwapPool, ReentrancyGuard, Ownable {
         uint256 deadline,
         bytes32 policy
     ) external override returns (bytes32 intentId) {
-        require(tokenIn != address(0) && tokenOut != address(0), "token=0");
+        if (tokenIn == address(0) || tokenOut == address(0)) revert TokenNotSupported();
         require(deadline > block.timestamp, "deadline");
         require(deadline <= block.timestamp + INTENT_TIMEOUT, "deadline-too-far");
 
@@ -142,7 +142,7 @@ contract StealthSwapPoolFinal is IStealthSwapPool, ReentrancyGuard, Ownable {
         IntentFull storage it = _intents[intentId];
         if (it.meta.deadline == 0) revert IntentNotFound();
         if (block.timestamp > it.meta.deadline) {
-            emit IntentExpired(intentId, block.timestamp);
+            emit IntentExpiredEvent(intentId, block.timestamp);
             revert IntentExpired();
         }
         if (it.executed) revert AlreadyExecuted();
@@ -150,7 +150,7 @@ contract StealthSwapPoolFinal is IStealthSwapPool, ReentrancyGuard, Ownable {
 
         uint256 amountIn = it.meta.total;
         if (amountIn == 0) revert InsufficientLiquidity();
-        require(it.participants.length >= MIN_PARTICIPANTS, "insufficient-participants");
+        if (it.participants.length < MIN_PARTICIPANTS) revert("InsufficientParticipants");
 
         // Validate router in calldata matches policy
         _validateRouterPolicy(routerCalldata, it.meta.policy);
@@ -164,9 +164,9 @@ contract StealthSwapPoolFinal is IStealthSwapPool, ReentrancyGuard, Ownable {
             IERC20(it.meta.tokenIn).safeIncreaseAllowance(adapter, amountIn);
         }
 
-        // Call adapter to execute swap
+        // Call adapter to execute swap via LOP
         bytes memory callData = abi.encodeWithSelector(
-            bytes4(keccak256("swapViaRouter(address,address,uint256,uint256,bytes)")),
+            bytes4(keccak256("swapViaLOP(address,address,uint256,uint256,bytes)")),
             it.meta.tokenIn,
             it.meta.tokenOut,
             amountIn,
@@ -210,7 +210,7 @@ contract StealthSwapPoolFinal is IStealthSwapPool, ReentrancyGuard, Ownable {
         require(block.timestamp > it.meta.deadline + 1 days, "not-expired-enough");
         require(!it.executed, "already-executed");
 
-        emit IntentExpired(intentId, block.timestamp);
+        emit IntentExpiredEvent(intentId, block.timestamp);
         delete _intents[intentId];
     }
 
@@ -241,12 +241,9 @@ contract StealthSwapPoolFinal is IStealthSwapPool, ReentrancyGuard, Ownable {
         
         // For basic validation, we check if the router matches current chain
         // More sophisticated policy validation can be added here
-        try RouterConfig.getRouterForChain(block.chainid) returns (address expectedRouter) {
-            // Policy validation logic here - for now, just ensure it's a valid router
-            // In production, decode the policy to validate slippage, router, etc.
-        } catch {
-            revert InvalidRouter();
-        }
+        // For now, just validate that calldata is not empty
+        // In production, decode the policy to validate slippage, router, etc.
+        if (routerCalldata.length == 0) revert InvalidRouter();
     }
 
     function _distributeOutputs(

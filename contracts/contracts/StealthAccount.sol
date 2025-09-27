@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.30;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -10,13 +10,17 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract StealthAccount is Ownable {
     event Executed(address indexed target, uint256 value, bytes data, bytes result);
     event Destroyed(address indexed to, uint256 balance);
+    
+    error TargetNotSet();
+    error ToNotSet();
+    error EthXferFailed();
+    error BalOfFailed();
 
-    constructor(address _owner) {
-        _transferOwnership(_owner);
+    constructor(address _owner) Ownable(_owner) {
     }
 
     function exec(address target, uint256 value, bytes calldata data) external onlyOwner returns (bytes memory result) {
-        require(target != address(0), "target=0");
+        if (target == address(0)) revert TargetNotSet();
         // solhint-disable-next-line avoid-low-level-calls
         (bool ok, bytes memory ret) = target.call{ value: value }(data);
         require(ok, _extractRevert(ret));
@@ -25,12 +29,12 @@ contract StealthAccount is Ownable {
     }
 
     function sweep(address token, address to) external onlyOwner {
-        require(to != address(0), "to=0");
+        if (to == address(0)) revert ToNotSet();
         if (token == address(0)) {
             // ETH
             // solhint-disable-next-line avoid-low-level-calls
             (bool ok, ) = to.call{ value: address(this).balance }("");
-            require(ok, "eth-xfer");
+            if (!ok) revert EthXferFailed();
         } else {
             // Minimal ERC20 sweep
             bytes4 sel = bytes4(keccak256("transfer(address,uint256)"));
@@ -40,7 +44,7 @@ contract StealthAccount is Ownable {
                 bytes memory d = abi.encodeWithSelector(bytes4(0x70a08231), address(this));
                 // solhint-disable-next-line avoid-low-level-calls
                 (bool ok, bytes memory ret) = token.call(d);
-                require(ok && ret.length >= 32, "balOf");
+                if (!ok || ret.length < 32) revert BalOfFailed();
                 bal = abi.decode(ret, (uint256));
             }
             if (bal > 0) {

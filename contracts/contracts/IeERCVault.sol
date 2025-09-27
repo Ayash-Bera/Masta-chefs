@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.30;
+pragma solidity ^0.8.19;
 
 /**
  * @title IeERCVault
  * @notice Interface for eERC vault operations needed by StealthSwapPool
  */
 interface IeERCVault {
+    struct Point {
+        uint256 x;
+        uint256 y;
+    }
+    
     struct EGCT {
-        struct Point {
-            uint256 x;
-            uint256 y;
-        }
         Point c1;
         Point c2;
     }

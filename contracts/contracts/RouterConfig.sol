@@ -1,28 +1,30 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.30;
+pragma solidity ^0.8.19;
 
 /**
  * @title RouterConfig
- * @notice Configuration contract for 1inch Router V6 addresses per chain.
- * @dev Based on official 1inch deployments: https://github.com/1inch/limit-order-protocol
+ * @notice Configuration contract for 1inch Limit Order Protocol (LOP) addresses per chain.
+ * @dev Based on official 1inch LOP deployments: https://github.com/1inch/limit-order-protocol
  */
 library RouterConfig {
-    // 1inch Router V6 addresses per chain (from official docs)
-    address public constant ETHEREUM_MAINNET = 0x111111125421ca6dc452d289314280a0f8842a65;
-    address public constant BSC_MAINNET = 0x111111125421ca6dc452d289314280a0f8842a65;
-    address public constant POLYGON_MAINNET = 0x111111125421ca6dc452d289314280a0f8842a65;
-    address public constant OPTIMISM_MAINNET = 0x111111125421ca6dc452d289314280a0f8842a65;
-    address public constant ARBITRUM_ONE = 0x111111125421ca6dc452d289314280a0f8842a65;
-    address public constant GNOSIS_CHAIN = 0x111111125421ca6dc452d289314280a0f8842a65;
-    address public constant AVALANCHE = 0x111111125421ca6dc452d289314280a0f8842a65;
-    address public constant FANTOM = 0x111111125421ca6dc452d289314280a0f8842a65;
-    address public constant AURORA = 0x111111125421ca6dc452d289314280a0f8842a65;
-    address public constant KAIA = 0x111111125421ca6dc452d289314280a0f8842a65;
-    address public constant BASE = 0x111111125421ca6dc452d289314280a0f8842a65;
-    address public constant ZKSYNC_ERA = 0x6fd4383cb451173d5f9304f041c7bcbf27d561ff;
+    // 1inch Limit Order Protocol (LOP) addresses per chain
+    // These are the actual LOP contract addresses, not Router V6
+    address public constant ETHEREUM_MAINNET = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Ethereum
+    address public constant BSC_MAINNET = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on BSC
+    address public constant POLYGON_MAINNET = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Polygon
+    address public constant OPTIMISM_MAINNET = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Optimism
+    address public constant ARBITRUM_ONE = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Arbitrum
+    address public constant GNOSIS_CHAIN = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Gnosis
+    address public constant AVALANCHE = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Avalanche
+    address public constant FANTOM = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Fantom
+    address public constant AURORA = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Aurora
+    address public constant KAIA = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Kaia
+    address public constant BASE = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Base
+    address public constant ZKSYNC_ERA = 0x6fd4383cB451173D5f9304F041C7BCBf27d561fF; // LOP on zkSync Era
 
     // Testnets (if available)
-    address public constant SEPOLIA = 0x111111125421ca6dc452d289314280a0f8842a65; // Assuming same as mainnet
+    address public constant SEPOLIA = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Sepolia
+    address public constant BASE_SEPOLIA = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Base Sepolia
     
     function getRouterForChain(uint256 chainId) internal pure returns (address) {
         if (chainId == 1) return ETHEREUM_MAINNET;
@@ -38,6 +40,7 @@ library RouterConfig {
         if (chainId == 8453) return BASE;
         if (chainId == 324) return ZKSYNC_ERA;
         if (chainId == 11155111) return SEPOLIA;
+        if (chainId == 84532) return BASE_SEPOLIA; // Base Sepolia testnet
         
         revert("Unsupported chain");
     }

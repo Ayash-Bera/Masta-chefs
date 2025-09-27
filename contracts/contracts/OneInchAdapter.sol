@@ -1,73 +1,76 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.30;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  * @title OneInchAdapter
- * @notice Minimal, audited-router-guarded adapter to call 1inch Router V6.
- * @dev Does NOT craft calldata. Expects fully-formed aggregator calldata.
- *      Computes output by measuring tokenOut balance delta to be router-ABI agnostic.
+ * @notice Minimal, audited-router-guarded adapter to call 1inch Limit Order Protocol (LOP).
+ * @dev Does NOT craft calldata. Expects fully-formed LOP calldata.
+ *      Computes output by measuring tokenOut balance delta to be LOP-ABI agnostic.
  */
 contract OneInchAdapter {
     using SafeERC20 for IERC20;
 
-    address public immutable router; // 1inch Router V6 address (chain-specific, audited)
-
+    address public immutable lop; // 1inch Limit Order Protocol address (chain-specific, audited)
+    error LOPNotSet();
+    error TokenNotSupported();
+    error AmountInZero();
+    error LOPCallFailed();
+    error Slippage();
     event SwapExecuted(address indexed tokenIn, address indexed tokenOut, uint256 amountIn, uint256 amountOut);
 
-    constructor(address _router) {
-        require(_router != address(0), "router=0");
-        router = _router;
+    constructor(address _lop) {
+        if (_lop == address(0)) revert LOPNotSet();
+        lop = _lop;
     }
 
     /**
-     * @notice Execute swap on 1inch Router V6 using provided calldata.
+     * @notice Execute swap on 1inch Limit Order Protocol using provided calldata.
      * @param tokenIn Input token address transferred from msg.sender to this adapter before calling.
      * @param tokenOut Output token address expected to be received by this adapter.
      * @param amountIn Amount of tokenIn this adapter should spend. Must be pre-transferred to this contract.
      * @param minAmountOut Slippage bound. Revert if actual < minAmountOut.
-     * @param data Fully-formed Router V6 calldata produced off-chain by 1inch aggregator.
+     * @param data Fully-formed LOP calldata produced off-chain by 1inch LOP.
      * @return amountOut Actual amount of tokenOut received by this adapter.
      */
-    function swapViaRouter(
+    function swapViaLOP(
         address tokenIn,
         address tokenOut,
         uint256 amountIn,
         uint256 minAmountOut,
         bytes calldata data
     ) external returns (uint256 amountOut) {
-        require(tokenIn != address(0) && tokenOut != address(0), "token=0");
-        require(amountIn > 0, "amountIn=0");
+        if (tokenIn == address(0) || tokenOut == address(0)) revert TokenNotSupported();
+        if (amountIn == 0) revert AmountInZero();
 
-        // Approve router to spend tokenIn held by this adapter.
-        IERC20(tokenIn).safeIncreaseAllowance(router, amountIn);
+        // Approve LOP to spend tokenIn held by this adapter.
+        IERC20(tokenIn).safeIncreaseAllowance(lop, amountIn);
 
         // Measure tokenOut balance before to compute delta after call.
         uint256 balBefore = IERC20(tokenOut).balanceOf(address(this));
 
-        // Low-level call to router with validated address.
-        (bool ok, bytes memory ret) = router.call(data);
-        require(ok, _extractRevert(ret));
+        // Low-level call to LOP with validated address.
+        (bool ok, bytes memory ret) = lop.call(data);
+        if (!ok) revert LOPCallFailed();
 
         // Compute actual output amount by balance delta.
         uint256 balAfter = IERC20(tokenOut).balanceOf(address(this));
         amountOut = balAfter - balBefore;
-        require(amountOut >= minAmountOut, "slippage");
+        if (amountOut < minAmountOut) revert Slippage();
 
         // Clear approval to minimize allowance exposure (best-effort).
-        uint256 remainingAllowance = IERC20(tokenIn).allowance(address(this), router);
+        uint256 remainingAllowance = IERC20(tokenIn).allowance(address(this), lop);
         if (remainingAllowance > 0) {
-            // Safe to set to 0 for well-behaved ERC20s.
-            IERC20(tokenIn).safeApprove(router, 0);
+            IERC20(tokenIn).forceApprove(lop, 0);
         }
 
         emit SwapExecuted(tokenIn, tokenOut, amountIn, amountOut);
     }
 
     function _extractRevert(bytes memory ret) private pure returns (string memory) {
-        if (ret.length < 4) return "router-call";
+        if (ret.length < 4) return "lop-call";
         // Try decode Error(string)
         // 0x08c379a0 = Error(string)
         bytes4 sel;
@@ -84,7 +87,7 @@ contract OneInchAdapter {
                 return string(s);
             }
         }
-        return "router-call";
+        return "lop-call";
     }
 }
 
