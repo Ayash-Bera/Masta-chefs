@@ -10,7 +10,7 @@ export interface KYCData {
 
 export interface VerificationConfig {
   configId: string;
-  scope: string;
+  scopeSeed: string; // Updated to match contract changes
   requireOfacCheck: boolean;
   minimumAge: number;
   excludedCountries: string[];
@@ -110,7 +110,7 @@ export interface SelfProof {
 
 export interface IdentityData {
   configId: string;
-  scope: string;
+  scopeSeed: string; // Updated to match contract changes
   userData?: any;
 }
 

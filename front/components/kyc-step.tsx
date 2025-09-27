@@ -243,11 +243,11 @@ export function KYCStep({
             </div>
           ) : (
             <div className="flex justify-center">
-              <SelfQRCode 
+              <SelfQRCode
                 sessionData={{
-                  scope: config?.scope || 'tsunami-wallet-kyc',
+                  scope: config?.scopeSeed || 'tcash-kyc',
                   configId: config?.configId || '1',
-                  endpoint: process.env.NEXT_PUBLIC_SELF_ENDPOINT || 'https://staging-api.self.xyz',
+                  endpoint: 'contract', // Direct contract integration
                   userId: walletAddress as string,
                   requirements: {
                     minimumAge: config?.minimumAge || 18,
@@ -258,10 +258,12 @@ export function KYCStep({
                 }}
                 userId={walletAddress as string}
                 onSuccess={() => {
-                  console.log('Self.xyz verification successful');
-                  showToast('success', 'Verification Successful', 'Your identity has been verified through Self.xyz');
-                  // The proof will come from the Self.xyz verification callback
-                  // For now, trigger the verification completion
+                  console.log('Self.xyz verification successful - contract event received');
+                  showToast('success', 'Verification Successful', 'Your identity has been verified through Self.xyz smart contract');
+                  // Refresh KYC data after successful verification
+                  setTimeout(() => {
+                    window.location.reload(); // Simple refresh to update UI state
+                  }, 2000);
                   onKYCComplete?.(null);
                 }}
                 onError={(error) => {

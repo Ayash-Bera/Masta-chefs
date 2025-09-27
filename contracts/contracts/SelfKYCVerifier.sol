@@ -29,10 +29,9 @@ contract SelfKYCVerifier is SelfVerificationRoot, Ownable, ReentrancyGuard, Paus
 
     struct VerificationConfig {
         bytes32 configId;
-        uint256 scope;
+        string scopeSeed;
         bool requireOfacCheck;
         uint256 minimumAge;
-        string[] excludedCountries;
         uint8[] allowedDocumentTypes;
         bool isActive;
     }
@@ -85,7 +84,7 @@ contract SelfKYCVerifier is SelfVerificationRoot, Ownable, ReentrancyGuard, Paus
 
     event ConfigurationUpdated(
         bytes32 indexed configId,
-        uint256 scope,
+        bytes32 indexed scopeHash,
         uint256 minimumAge,
         bool requireOfacCheck
     );
@@ -113,24 +112,22 @@ contract SelfKYCVerifier is SelfVerificationRoot, Ownable, ReentrancyGuard, Paus
 
     constructor(
         address _identityVerificationHubV2Address,
-        uint256 _scope,
+        string memory _scopeSeed,
         bytes32 _configId,
         bool _requireOfacCheck,
         uint256 _minimumAge,
-        string[] memory _excludedCountries,
         uint8[] memory _allowedDocumentTypes
-    ) SelfVerificationRoot(_identityVerificationHubV2Address, _scope) Ownable(msg.sender) {
+    ) SelfVerificationRoot(_identityVerificationHubV2Address, _stringToScope(_scopeSeed)) Ownable(msg.sender) {
         currentConfig = VerificationConfig({
             configId: _configId,
-            scope: _scope,
+            scopeSeed: _scopeSeed,
             requireOfacCheck: _requireOfacCheck,
             minimumAge: _minimumAge,
-            excludedCountries: _excludedCountries,
             allowedDocumentTypes: _allowedDocumentTypes,
             isActive: true
         });
 
-        emit ConfigurationUpdated(_configId, _scope, _minimumAge, _requireOfacCheck);
+        emit ConfigurationUpdated(_configId, keccak256(bytes(_scopeSeed)), _minimumAge, _requireOfacCheck);
     }
 
     // ========================================
@@ -223,14 +220,6 @@ contract SelfKYCVerifier is SelfVerificationRoot, Ownable, ReentrancyGuard, Paus
             }
             require(documentTypeAllowed, "SelfKYCVerifier: Document type not allowed");
         }
-
-        // Check excluded countries
-        for (uint i = 0; i < currentConfig.excludedCountries.length; i++) {
-            require(
-                keccak256(bytes(output.nationality)) != keccak256(bytes(currentConfig.excludedCountries[i])),
-                "SelfKYCVerifier: Nationality not allowed"
-            );
-        }
     }
 
     // ========================================
@@ -306,34 +295,31 @@ contract SelfKYCVerifier is SelfVerificationRoot, Ownable, ReentrancyGuard, Paus
     /**
      * @notice Update verification configuration
      * @param _configId New configuration ID
-     * @param _scope New scope
+     * @param _scopeSeed New scope seed
      * @param _requireOfacCheck Whether to require OFAC check
      * @param _minimumAge Minimum age requirement
-     * @param _excludedCountries Array of excluded country codes
      * @param _allowedDocumentTypes Array of allowed document types
      */
     function updateConfiguration(
         bytes32 _configId,
-        uint256 _scope,
+        string memory _scopeSeed,
         bool _requireOfacCheck,
         uint256 _minimumAge,
-        string[] memory _excludedCountries,
         uint8[] memory _allowedDocumentTypes
     ) external onlyOwner {
         currentConfig = VerificationConfig({
             configId: _configId,
-            scope: _scope,
+            scopeSeed: _scopeSeed,
             requireOfacCheck: _requireOfacCheck,
             minimumAge: _minimumAge,
-            excludedCountries: _excludedCountries,
             allowedDocumentTypes: _allowedDocumentTypes,
             isActive: true
         });
 
-        // Update the parent contract's configuration
-        _setScope(_scope);
+        // Note: Scope is set at deployment time and cannot be changed after deployment
+        // This is a limitation of the Self.xyz verification system
 
-        emit ConfigurationUpdated(_configId, _scope, _minimumAge, _requireOfacCheck);
+        emit ConfigurationUpdated(_configId, keccak256(bytes(_scopeSeed)), _minimumAge, _requireOfacCheck);
     }
 
     /**
@@ -397,6 +383,24 @@ contract SelfKYCVerifier is SelfVerificationRoot, Ownable, ReentrancyGuard, Paus
     // ========================================
     // Internal Helper Functions
     // ========================================
+
+    /**
+     * @notice Convert scope seed string to uint256 for Self.xyz compatibility
+     * @param scopeSeed The scope seed string (max 31 ASCII characters)
+     * @return The scope value as uint256
+     */
+    function _stringToScope(string memory scopeSeed) internal pure returns (uint256) {
+        bytes memory scopeBytes = bytes(scopeSeed);
+        require(scopeBytes.length <= 31, "SelfKYCVerifier: Scope seed too long (max 31 characters)");
+
+        uint256 result = 0;
+        for (uint256 i = 0; i < scopeBytes.length; i++) {
+            // Validate ASCII characters (0-127)
+            require(uint8(scopeBytes[i]) < 128, "SelfKYCVerifier: Scope seed must contain only ASCII characters");
+            result = (result << 8) | uint256(uint8(scopeBytes[i]));
+        }
+        return result;
+    }
 
     /**
      * @notice Maps attestation ID to document type
