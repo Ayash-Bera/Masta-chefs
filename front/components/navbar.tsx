@@ -62,7 +62,6 @@ export default function Navbar() {
                 >
                   {mounted && address ? `${address.slice(0,6)}...${address.slice(-4)}` : 'Connect'}
                 </button>
-                <span className="text-xs text-white/60">{mounted && chainId ? `Chain: ${chainId}` : ''}</span>
               </div>
             </div>
           </div>
