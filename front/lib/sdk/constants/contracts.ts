@@ -6,6 +6,12 @@ export const CONTRACT_ADDRESSES = {
     ALFAJORES: '0x...', // Legacy - to be deployed if needed
     CELO: '0x...' // Mainnet - to be deployed
   },
+  // Simple Compliant Procedure System - Self.xyz Compatible
+  COMPLIANT_PROCEDURE: {
+    SEPOLIA: '0x8aEAaeE4fDBAe89d1907d7C22ee863F3742be4B7', // Self.xyz compatible - Deployed on Celo Sepolia
+    ALFAJORES: '0x0000000000000000000000000000000000000000', // To be deployed if needed
+    CELO: '0x0000000000000000000000000000000000000000' // Mainnet - to be deployed
+  },
   // Legacy - Remove after migration
   // SELFKYC_VERIFIER: {
   //   SEPOLIA: '0xc34Bd4ddb76036514ade24acae2Ba975469f907C', // Deprecated
@@ -22,6 +28,7 @@ export const CONTRACT_ADDRESSES = {
 
 export const SELF_HUB_ADDRESSES = {
   ALFAJORES: '0x68c931C9a534D37aa78094877F46fE46a49F1A51',
+  SEPOLIA: '0x16ECBA51e18a4a7e61fdC417f0d47AFEeDfbed74', // Celo Sepolia Self.xyz Hub - Mock Passport Support
   CELO: '0xe57F4773bd9c9d8b6Cd70431117d353298B9f5BF'
 } as const;
 
@@ -69,6 +76,21 @@ export const DEFAULT_CONFIG = {
   MINIMUM_AGE: 18,
   ALLOWED_DOCUMENT_TYPES: [1, 2], // E-Passport, EU ID Card
   EXCLUDED_COUNTRIES: [] // Empty for testing
+} as const;
+
+// Compliant Procedure Configuration - Simple Implementation with Mock Passport Support
+export const COMPLIANCE_CONFIG = {
+  SCOPE_SEED: 'tcash-compliant-procedure-v1', // Compliant procedure scope
+  CONFIG_ID: '0x0000000000000000000000000000000000000000000000000000000000000002',
+  REQUIRE_OFAC_CHECK: true,
+  MINIMUM_AGE: 18,
+  ALLOWED_DOCUMENT_TYPES: [1, 2], // E-Passport, EU ID Card
+  EXCLUDED_COUNTRIES: [], // Empty for testing with mock passports
+  APP_NAME: 'Tsunami Wallet Compliance',
+  USER_DEFINED_DATA: 'Tsunami Wallet Compliance Verification - Mock Passport Testing',
+  // Mock passport testing configuration
+  MOCK_PASSPORT_ENABLED: true,
+  SELF_HUB_ADDRESS: '0x16ECBA51e18a4a7e61fdC417f0d47AFEeDfbed74'
 } as const;
 
 export const DOCUMENT_TYPES = {

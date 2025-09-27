@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation"
 import { useEncryptedBalance } from "@/hooks/use-encrypted-balance"
 import { useTokens } from "@/hooks/use-tokens"
 import { useAccount } from "wagmi"
+import { usePriceOracle } from "../hooks/use-price-oracle"
 
 type TokenRow = {
   symbol: string
@@ -31,6 +32,17 @@ export default function TsunamiDashboard() {
   const { address } = useAccount()
   const [mounted, setMounted] = useState(false)
   
+  // Real-time ETH/USD price from oracle
+  const { 
+    ethPrice, 
+    formattedPrice,
+    isLoading: isPriceLoading,
+    error: priceError,
+    isOnSepolia,
+    isPriceStale,
+    refreshPrice
+  } = usePriceOracle()
+  
   useEffect(() => setMounted(true), [])
 
   // Token discovery and per-token balance
@@ -42,8 +54,8 @@ export default function TsunamiDashboard() {
   const { decryptedBalance, isLoading } = useEncryptedBalance(selectedMeta?.address as any, selectedDecimals)
   const decryptedBalanceNum = useMemo(() => Number(decryptedBalance || 0), [decryptedBalance])
   const tokens: TokenRow[] = useMemo(() => selectedMeta ? [
-    { symbol: selectedSymbol, balance: decryptedBalanceNum, usd: decryptedBalanceNum * (selectedMeta.isNative ? 2000 : 1), icon: DollarSign },
-  ] : [], [selectedMeta, decryptedBalanceNum])
+    { symbol: selectedSymbol, balance: decryptedBalanceNum, usd: decryptedBalanceNum * (selectedMeta.isNative ? ethPrice : 0), icon: DollarSign },
+  ] : [], [selectedMeta, decryptedBalanceNum, ethPrice])
 
   const totalUsd = useMemo(() => tokens.reduce((sum, t) => sum + t.usd, 0), [tokens])
 
@@ -194,6 +206,56 @@ export default function TsunamiDashboard() {
             ))}
           </div>
         </section>
+
+        {/* ETH/USD Rate Widget */}
+        <div className="flex justify-end">
+          <div className="w-64">
+            <div className="backdrop-blur-3xl backdrop-saturate-200 border border-white/15 rounded-2xl px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_16px_56px_rgba(0,0,0,0.35)]" style={{ background: "rgba(255,255,255,0.06)" }}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-white/70" />
+                  <span className="text-sm text-white/70">ETH/USD</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {isPriceLoading ? (
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
+                  ) : priceError ? (
+                    <div className="w-2 h-2 bg-red-400 rounded-full" />
+                  ) : (
+                    <div className={`w-2 h-2 rounded-full ${
+                      isOnSepolia 
+                        ? (isPriceStale ? 'bg-yellow-400' : 'bg-green-400')
+                        : 'bg-gray-400'
+                    }`} />
+                  )}
+                  {isOnSepolia && (
+                    <button 
+                      onClick={refreshPrice}
+                      className="text-xs px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/15 text-white/70 transition-colors"
+                      title="Refresh price"
+                    >
+                      🔄
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="mt-1">
+                {isPriceLoading ? (
+                  <div className="text-white/50 text-sm">Loading...</div>
+                ) : priceError ? (
+                  <div className="text-red-400 text-sm">Error</div>
+                ) : (
+                  <div className="text-white font-semibold">
+                    {formattedPrice}
+                    {!isOnSepolia && (
+                      <span className="text-xs text-white/50 ml-1">(fallback)</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Compliance */}
         <div className="grid lg:grid-cols-5 gap-6">

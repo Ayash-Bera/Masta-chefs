@@ -22,6 +22,7 @@ import { useERC20 } from "@/hooks/use-erc20"
 import { useEncryptedBalance } from "@/hooks/use-encrypted-balance"
 import { useTokens } from "@/hooks/use-tokens"
 import { useReadContract, useAccount, useWriteContract, useWaitForTransactionReceipt, useChainId, useSwitchChain } from 'wagmi'
+import { usePriceOracle } from '../hooks/use-price-oracle'
 import { useRegistrationStatus } from '@/hooks/use-registration-status'
 import { useRegistration } from '@/hooks/use-registration'
 import { REGISTRAR_CONTRACT, EERC_CONTRACT, ERC20_TEST } from '@/lib/contracts'
@@ -59,6 +60,21 @@ export default function DepositPage() {
   const { address, isConnected, connector } = useAccount()
   const chainId = useChainId()
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
+  
+  // Real-time price oracle integration
+  const { 
+    ethPrice, 
+    ethPriceData, 
+    isLoading: isPriceLoading, 
+    error: priceError,
+    isOnSepolia,
+    refreshPrice,
+    formattedPrice,
+    isPriceStale,
+    getTokenPrice,
+    getFormattedTokenPrice
+  } = usePriceOracle()
+  
   // ETH balance hook
   const {
     balance: ethBalance,
@@ -96,7 +112,7 @@ export default function DepositPage() {
         decimals: ethDecimals,
         type: 'ETH' as TokenType,
         name: 'Ethereum',
-        priceUsd: 2000, // Approximate ETH price
+        priceUsd: getTokenPrice('ETH'), // Dynamic price from oracle
         address: undefined
       }
     } else {
@@ -109,11 +125,11 @@ export default function DepositPage() {
         decimals: erc20Decimals,
         type: 'ERC20' as TokenType,
         name: 'Test Token',
-        priceUsd: 1, // Test token price
+        priceUsd: getTokenPrice('TEST'), // $0 for test tokens
         address: ERC20_TEST.address
       }
     }
-  }, [selectedTokenType, ethBalance, ethBalanceRaw, ethBalanceLoading, ethBalanceError, ethSymbol, ethDecimals, erc20Balance, erc20BalanceRaw, erc20BalanceLoading, erc20BalanceError, erc20Symbol, erc20Decimals])
+  }, [selectedTokenType, ethBalance, ethBalanceRaw, ethBalanceLoading, ethBalanceError, ethSymbol, ethDecimals, erc20Balance, erc20BalanceRaw, erc20BalanceLoading, erc20BalanceError, erc20Symbol, erc20Decimals, getTokenPrice])
 
   // Alias for easier use
   const publicBalance = currentToken.balance
@@ -145,6 +161,7 @@ export default function DepositPage() {
   const tokenDecimals = useMemo(() => selectedMeta?.decimals ?? (isNativeSelected ? 18 : 18), [selectedMeta, isNativeSelected])
   const { 
     decryptedBalance,
+    formattedEncryptedBalance,
     isLoading: isLoadingEncryptedBalance,
     error: encryptedBalanceError
   } = useEncryptedBalance(selectedAddress as any, tokenDecimals)
@@ -440,6 +457,19 @@ export default function DepositPage() {
   const numericAmount = useMemo(() => Number.parseFloat(amount.replace(/,/g, "")) || 0, [amount])
   const amountUsd = useMemo(() => numericAmount * selectedToken.priceUsd, [numericAmount, selectedToken])
   const insufficient = numericAmount > selectedToken.balance
+  const privateBalanceDisplay = useMemo(() => {
+    if (!decryptedBalance) {
+      return formattedEncryptedBalance ?? "0.00"
+    }
+    const parsed = Number.parseFloat(decryptedBalance)
+    if (!Number.isFinite(parsed)) {
+      return formattedEncryptedBalance ?? decryptedBalance
+    }
+    return parsed.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 6,
+    })
+  }, [decryptedBalance, formattedEncryptedBalance])
   const canConfirm = numericAmount > 0 && !insufficient && !balanceLoading && isRegistered && chainId === sepolia.id && !isSwitchingChain && isAuditorSet === true
 
   // All useEffect hooks must be before any early returns
@@ -791,8 +821,23 @@ export default function DepositPage() {
                   >
                     <div className="flex items-center justify-between">
                       <label className="text-white text-base font-semibold">Token & Amount</label>
-                      <div className="text-xs text-white">
-                        1 {selectedToken.symbol} ≈ ${selectedToken.priceUsd.toLocaleString()}
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs text-white flex items-center gap-1">
+                          {isPriceLoading ? (
+                            <div className="flex items-center gap-1">
+                              Loading price...
+                            </div>
+                          ) : priceError ? (
+                            <div className="flex items-center gap-1 text-red-400">
+                              Price error
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              1 {selectedToken.symbol} ≈ {getFormattedTokenPrice(selectedToken.symbol)}
+                              {!isOnSepolia && ' (fallback)'}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -1148,7 +1193,7 @@ export default function DepositPage() {
                   <div className="flex items-center justify-between text-sm py-2">
                     <div className="text-white">Private {isNativeSelected ? 'eETH' : `e${currentToken.symbol}`}</div>
                     <div className="text-white font-mono">
-                      {isLoadingEncryptedBalance ? "Loading..." : `${decryptedBalance || "0"} ${isNativeSelected ? 'eETH' : `e${currentToken.symbol}`}`}
+                      {isLoadingEncryptedBalance ? "Loading..." : `${privateBalanceDisplay} ${isNativeSelected ? 'eETH' : `e${currentToken.symbol}`}`}
                     </div>
                   </div>
                 </div>
