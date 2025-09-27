@@ -1,6 +1,6 @@
-# Self KYC SDK
+# Stealth KYC SDK
 
-A comprehensive front-end SDK for integrating Self.xyz KYC verification with privacy-preserving features.
+A comprehensive front-end SDK for integrating Self.xyz stealth address KYC verification with privacy-preserving features.
 
 ## Features
 
@@ -19,14 +19,14 @@ npm install @tcash/self-kyc-sdk
 
 ## Quick Start
 
-### Basic KYC Verification
+### Stealth KYC Verification
 
 ```tsx
 import React from 'react';
-import { useSelfKYC, KYCVerification } from '@tcash/self-kyc-sdk';
+import { useStealthKYC, StealthKYCVerification } from '@tcash/self-kyc-sdk';
 
 function App() {
-  const { isVerified, kycData } = useSelfKYC();
+  const { isVerified, masterIdentity } = useStealthKYC();
 
   return (
     <div>
@@ -265,9 +265,10 @@ const address = StealthAddressUtils.deriveFromMaster(masterKey, index);
 ```tsx
 import { CONTRACT_ADDRESSES } from '@tcash/self-kyc-sdk';
 
-// Get contract addresses for different networks
-const alfajoresAddress = CONTRACT_ADDRESSES.SELFKYC_VERIFIER.ALFAJORES;
-const celoAddress = CONTRACT_ADDRESSES.SELFKYC_VERIFIER.CELO;
+// Get stealth KYC contract addresses for different networks
+const sepoliaAddress = CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.SEPOLIA;
+const alfajoresAddress = CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.ALFAJORES;
+const celoAddress = CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.CELO;
 ```
 
 ### Network Configuration

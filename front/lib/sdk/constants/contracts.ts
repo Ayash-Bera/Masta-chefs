@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 export const CONTRACT_ADDRESSES = {
+<<<<<<< HEAD
   SELFKYC_VERIFIER: {
     ALFAJORES: '0x31fE360492189a0c03BACaE36ef9be682Ad3727B',
     CELO: '0x...', // Mainnet address - to be deployed
@@ -9,7 +10,18 @@ export const CONTRACT_ADDRESSES = {
     ALFAJORES: '0x...', // To be deployed
     CELO: '0x...', // To be deployed
     SEPOLIA: '0xd4c610FDFCEd9210e02F3e2A7afb30AdCffC66F7'
+=======
+  // Primary KYC System - StealthKYC with Privacy Features
+  STEALTH_KYC_VERIFIER: {
+    SEPOLIA: '0x49f84f8FDeda8dA7403f0d9320670329DeA4290B', // Primary Celo Sepolia
+    ALFAJORES: '0x...', // Legacy - to be deployed if needed
+    CELO: '0x...' // Mainnet - to be deployed
+>>>>>>> e73eda48772488cdfc7da207d41e12457a6ff2f7
   },
+  // Legacy - Remove after migration
+  // SELFKYC_VERIFIER: {
+  //   SEPOLIA: '0xc34Bd4ddb76036514ade24acae2Ba975469f907C', // Deprecated
+  // },
   SHIELDED_VAULT: {
     ALFAJORES: '0x...', // To be deployed
     CELO: '0x...', // To be deployed
@@ -40,6 +52,7 @@ export const NETWORK_CONFIGS = {
     }
   },
   SEPOLIA: {
+<<<<<<< HEAD
     chainId: 11155111,
     name: 'Ethereum Sepolia',
     rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com',
@@ -47,6 +60,15 @@ export const NETWORK_CONFIGS = {
     nativeCurrency: {
       name: 'ETH',
       symbol: 'ETH',
+=======
+    chainId: 11142220,
+    name: 'Celo Sepolia Testnet',
+    rpcUrl: 'https://forno.celo-sepolia.celo-testnet.org',
+    explorerUrl: 'https://celo-sepolia.blockscout.com',
+    nativeCurrency: {
+      name: 'CELO',
+      symbol: 'CELO',
+>>>>>>> e73eda48772488cdfc7da207d41e12457a6ff2f7
       decimals: 18
     }
   },
@@ -63,8 +85,9 @@ export const NETWORK_CONFIGS = {
   }
 } as const;
 
+// Primary KYC Configuration - StealthKYC Only
 export const DEFAULT_CONFIG = {
-  SCOPE: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+  SCOPE_SEED: 'tcash-stealth-kyc', // Primary stealth KYC scope
   CONFIG_ID: '0x0000000000000000000000000000000000000000000000000000000000000001',
   REQUIRE_OFAC_CHECK: true,
   MINIMUM_AGE: 18,
