@@ -161,6 +161,7 @@ export default function DepositPage() {
   const tokenDecimals = useMemo(() => selectedMeta?.decimals ?? (isNativeSelected ? 18 : 18), [selectedMeta, isNativeSelected])
   const { 
     decryptedBalance,
+    formattedEncryptedBalance,
     isLoading: isLoadingEncryptedBalance,
     error: encryptedBalanceError
   } = useEncryptedBalance(selectedAddress as any, tokenDecimals)
@@ -456,6 +457,19 @@ export default function DepositPage() {
   const numericAmount = useMemo(() => Number.parseFloat(amount.replace(/,/g, "")) || 0, [amount])
   const amountUsd = useMemo(() => numericAmount * selectedToken.priceUsd, [numericAmount, selectedToken])
   const insufficient = numericAmount > selectedToken.balance
+  const privateBalanceDisplay = useMemo(() => {
+    if (!decryptedBalance) {
+      return formattedEncryptedBalance ?? "0.00"
+    }
+    const parsed = Number.parseFloat(decryptedBalance)
+    if (!Number.isFinite(parsed)) {
+      return formattedEncryptedBalance ?? decryptedBalance
+    }
+    return parsed.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 6,
+    })
+  }, [decryptedBalance, formattedEncryptedBalance])
   const canConfirm = numericAmount > 0 && !insufficient && !balanceLoading && isRegistered && chainId === sepolia.id && !isSwitchingChain && isAuditorSet === true
 
   // All useEffect hooks must be before any early returns
@@ -1179,7 +1193,7 @@ export default function DepositPage() {
                   <div className="flex items-center justify-between text-sm py-2">
                     <div className="text-white">Private {isNativeSelected ? 'eETH' : `e${currentToken.symbol}`}</div>
                     <div className="text-white font-mono">
-                      {isLoadingEncryptedBalance ? "Loading..." : `${decryptedBalance || "0"} ${isNativeSelected ? 'eETH' : `e${currentToken.symbol}`}`}
+                      {isLoadingEncryptedBalance ? "Loading..." : `${privateBalanceDisplay} ${isNativeSelected ? 'eETH' : `e${currentToken.symbol}`}`}
                     </div>
                   </div>
                 </div>
