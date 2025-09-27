@@ -205,6 +205,22 @@ export default function TsunamiSwap() {
             <div className="text-white text-base font-medium mb-8">
               Private token swaps powered by Tsunami & Uniswap v4
             </div>
+            
+            {/* Stealth Swap Link */}
+            <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-blue-200 font-medium mb-1">New: Stealth Swaps</div>
+                  <div className="text-white/80 text-sm">Batch your swaps with other users for better privacy and efficiency</div>
+                </div>
+                <a
+                  href="/stealth-swap"
+                  className="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Try Stealth Swap
+                </a>
+              </div>
+            </div>
 
             {errorMessage && (
               <div className="mb-6 flex items-center gap-3 bg-rose-500/15 border border-rose-500/40 text-rose-200 px-4 py-3 rounded-xl">

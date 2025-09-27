@@ -17,7 +17,7 @@ contract StealthFactory is Ownable {
 
     event StealthCreated(address indexed owner, bytes32 indexed salt, address stealth);
 
-    constructor() {
+    constructor() Ownable(msg.sender) {
         // deploy one implementation instance
         StealthAccount impl = new StealthAccount(address(this));
         implementation = address(impl);

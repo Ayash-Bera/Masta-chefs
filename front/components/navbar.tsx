@@ -85,6 +85,13 @@ export default function Navbar() {
                     Swap
                   </button>
                   <button
+                    onPointerEnter={() => prefetch('/stealth-swap')}
+                    onClick={() => navigate('/stealth-swap')}
+                    className="text-white/75 hover:text-white transition-colors"
+                  >
+                    Stealth Swap
+                  </button>
+                  <button
                     onPointerEnter={() => prefetch('/withdraw')}
                     onClick={() => navigate('/withdraw')}
                     className="text-white/75 hover:text-white transition-colors"

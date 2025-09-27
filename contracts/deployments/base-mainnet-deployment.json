@@ -1,0 +1,22 @@
+{
+  "network": "base-mainnet",
+  "chainId": 8453,
+  "deployer": "0xd46a56FbB23caC188bB9083D666d3F030f061396",
+  "deploymentTimestamp": "1759001661",
+  "contracts": {
+    "stealthSwapPool": "0x0e4d945f84cbb445aB0a96974Ef01EbB63343f71",
+    "oneInchAdapter": "0x66cAbbc261AFb45C728CcCCC6e592935d3Ba83ef",
+    "stealthFactory": "0xeD539fD12EB44692A935fDA55e24C861639eD074",
+    "stealthPaymaster": "0x3168D014cD515c0b6E857618680A652E920eFBc7",
+    "fhERC": "0xD5afc45c69644CBd63f362D64B4198a7d81e53C7",
+    "lop": "0x111111125421cA6dc452d289314280a0f8842A65"
+  },
+  "gasUsed": {
+    "oneInchAdapter": 609736,
+    "stealthSwapPool": 2808067,
+    "stealthFactory": 1497638,
+    "stealthPaymaster": 2233049,
+    "total": 7148490
+  },
+  "explorer": "https://basescan.org/address/0x0e4d945f84cbb445aB0a96974Ef01EbB63343f71"
+}
