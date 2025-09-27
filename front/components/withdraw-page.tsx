@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAccount } from "wagmi"
+import { usePriceOracle } from "../hooks/use-price-oracle"
 import {
   ChevronDown,
   Info,
@@ -36,6 +37,17 @@ type Token = {
 export default function WithdrawPage() {
   const router = useRouter()
   const { address } = useAccount()
+  
+  // Real-time price oracle integration
+  const { 
+    ethPrice, 
+    isLoading: isPriceLoading, 
+    error: priceError,
+    isOnSepolia,
+    refreshPrice,
+    formattedPrice,
+    isPriceStale
+  } = usePriceOracle()
   
   // Withdraw hook integration
   // Token discovery
@@ -75,7 +87,7 @@ export default function WithdrawPage() {
       symbol: t.isNative ? "eETH" : `e${t.symbol}`,
       name: t.isNative ? "Encrypted ETH" : `Encrypted ${t.symbol}`,
       balance: decryptedBalance ? parseFloat(decryptedBalance) : 0,
-      priceUsd: 1600,
+      priceUsd: ethPrice, // Real-time price from oracle
       tokenId: 0n, // Will be fetched dynamically in onConfirmWithdraw
       tokenAddress: t.address,
     }))
@@ -326,14 +338,42 @@ export default function WithdrawPage() {
                   className="rounded-2xl backdrop-blur-xl border border-white/15 p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06),0_10px_28px_rgba(0,0,0,0.45)]"
                   style={{ background: "transparent" }}
                 >
-                  <div className="flex items-center justify-between">
-                    <label className="text-white text-base font-semibold">Token & Amount</label>
-                    <div className="text-xs text-white">
-                      1 {selectedToken.symbol} ≈ ${selectedToken.priceUsd.toLocaleString()}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid sm:grid-cols-[1fr_auto] gap-4 items-stretch">
+                    <div className="flex items-center justify-between">
+                      <label className="text-white text-base font-semibold">Token & Amount</label>
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs text-white flex items-center gap-1">
+                          {isPriceLoading ? (
+                            <div className="flex items-center gap-1">
+                              <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
+                              Loading price...
+                            </div>
+                          ) : priceError ? (
+                            <div className="flex items-center gap-1 text-red-400">
+                              <div className="w-2 h-2 bg-red-400 rounded-full" />
+                              Price error
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <div className={`w-2 h-2 rounded-full ${
+                                isOnSepolia 
+                                  ? (isPriceStale ? 'bg-yellow-400' : 'bg-green-400')
+                                  : 'bg-gray-400'
+                              }`} />
+                              1 {selectedToken.symbol} ≈ {formattedPrice}
+                              {!isOnSepolia && ' (fallback)'}
+                            </div>
+                          )}
+                        </div>
+                        {isOnSepolia && (
+                          <button 
+                            onClick={refreshPrice}
+                            className="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/15 text-white border border-white/20"
+                          >
+                            🔄
+                          </button>
+                        )}
+                      </div>
+                    </div>                  <div className="mt-4 grid sm:grid-cols-[1fr_auto] gap-4 items-stretch">
                     {/* Token selector */}
                     <button
                       onClick={() => setShowTokenModal(true)}
@@ -495,6 +535,41 @@ export default function WithdrawPage() {
                     <div className="flex items-center justify-between">
                       <span>Network fees</span>
                       <span>~$2.10 (est.)</span>
+                    </div>
+                    {/* Conversion Rate */}
+                    <div className="border-t border-white/10 pt-2 mt-2">
+                      {selectedToken?.symbol === 'eETH' ? (
+                        <>
+                          <div className="flex items-center justify-between">
+                            <span>ETH/USD Rate</span>
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${
+                                isPriceLoading ? 'bg-yellow-400 animate-pulse' :
+                                priceError ? 'bg-red-400' :
+                                isOnSepolia 
+                                  ? (isPriceStale ? 'bg-yellow-400' : 'bg-green-400')
+                                  : 'bg-gray-400'
+                              }`} />
+                              <span className="font-medium">
+                                {isPriceLoading ? 'Loading...' : 
+                                 priceError ? 'Error' : 
+                                 formattedPrice}
+                              </span>
+                            </div>
+                          </div>
+                          {numericAmount > 0 && !isPriceLoading && !priceError && (
+                            <div className="flex items-center justify-between mt-1 text-xs text-white/70">
+                              <span>{numericAmount} ETH value</span>
+                              <span>${(numericAmount * ethPrice).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <span>Conversion Rate</span>
+                          <span className="font-medium">1 eTEST = $0</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 

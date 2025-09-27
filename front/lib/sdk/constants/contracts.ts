@@ -2,19 +2,23 @@
 export const CONTRACT_ADDRESSES = {
   SELFKYC_VERIFIER: {
     ALFAJORES: '0x31fE360492189a0c03BACaE36ef9be682Ad3727B',
-    CELO: '0x...' // Mainnet address - to be deployed
+    CELO: '0x...', // Mainnet address - to be deployed
+    SEPOLIA: '0x7d7AE94f8949A4301DdAD6285ddDBfC74A4E7a' // Fixed the typo in the address
   },
   STEALTH_KYC_VERIFIER: {
     ALFAJORES: '0x...', // To be deployed
-    CELO: '0x...' // To be deployed
+    CELO: '0x...', // To be deployed
+    SEPOLIA: '0xd4c610FDFCEd9210e02F3e2A7afb30AdCffC66F7'
   },
   SHIELDED_VAULT: {
     ALFAJORES: '0x...', // To be deployed
-    CELO: '0x...' // To be deployed
+    CELO: '0x...', // To be deployed
+    SEPOLIA: '0x...' // To be deployed
   },
   PRIVACY_ROUTER: {
     ALFAJORES: '0x...', // To be deployed
-    CELO: '0x...' // To be deployed
+    CELO: '0x...', // To be deployed
+    SEPOLIA: '0x...' // To be deployed
   }
 } as const;
 

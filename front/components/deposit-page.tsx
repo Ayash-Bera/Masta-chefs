@@ -22,6 +22,7 @@ import { useERC20 } from "@/hooks/use-erc20"
 import { useEncryptedBalance } from "@/hooks/use-encrypted-balance"
 import { useTokens } from "@/hooks/use-tokens"
 import { useReadContract, useAccount, useWriteContract, useWaitForTransactionReceipt, useChainId, useSwitchChain } from 'wagmi'
+import { usePriceOracle } from '../hooks/use-price-oracle'
 import { useRegistrationStatus } from '@/hooks/use-registration-status'
 import { useRegistration } from '@/hooks/use-registration'
 import { REGISTRAR_CONTRACT, EERC_CONTRACT, ERC20_TEST } from '@/lib/contracts'
@@ -59,6 +60,19 @@ export default function DepositPage() {
   const { address, isConnected, connector } = useAccount()
   const chainId = useChainId()
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
+  
+  // Real-time price oracle integration
+  const { 
+    ethPrice, 
+    ethPriceData, 
+    isLoading: isPriceLoading, 
+    error: priceError,
+    isOnSepolia,
+    refreshPrice,
+    formattedPrice,
+    isPriceStale
+  } = usePriceOracle()
+  
   // ETH balance hook
   const {
     balance: ethBalance,
@@ -96,7 +110,7 @@ export default function DepositPage() {
         decimals: ethDecimals,
         type: 'ETH' as TokenType,
         name: 'Ethereum',
-        priceUsd: 2000, // Approximate ETH price
+        priceUsd: ethPrice, // Real-time price from oracle
         address: undefined
       }
     } else {
@@ -109,11 +123,11 @@ export default function DepositPage() {
         decimals: erc20Decimals,
         type: 'ERC20' as TokenType,
         name: 'Test Token',
-        priceUsd: 1, // Test token price
+        priceUsd: 1, // Test token price (still hardcoded)
         address: ERC20_TEST.address
       }
     }
-  }, [selectedTokenType, ethBalance, ethBalanceRaw, ethBalanceLoading, ethBalanceError, ethSymbol, ethDecimals, erc20Balance, erc20BalanceRaw, erc20BalanceLoading, erc20BalanceError, erc20Symbol, erc20Decimals])
+  }, [selectedTokenType, ethBalance, ethBalanceRaw, ethBalanceLoading, ethBalanceError, ethSymbol, ethDecimals, erc20Balance, erc20BalanceRaw, erc20BalanceLoading, erc20BalanceError, erc20Symbol, erc20Decimals, ethPrice])
 
   // Alias for easier use
   const publicBalance = currentToken.balance
@@ -791,8 +805,38 @@ export default function DepositPage() {
                   >
                     <div className="flex items-center justify-between">
                       <label className="text-white text-base font-semibold">Token & Amount</label>
-                      <div className="text-xs text-white">
-                        1 {selectedToken.symbol} ≈ ${selectedToken.priceUsd.toLocaleString()}
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs text-white flex items-center gap-1">
+                          {isPriceLoading ? (
+                            <div className="flex items-center gap-1">
+                              <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
+                              Loading price...
+                            </div>
+                          ) : priceError ? (
+                            <div className="flex items-center gap-1 text-red-400">
+                              <div className="w-2 h-2 bg-red-400 rounded-full" />
+                              Price error
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <div className={`w-2 h-2 rounded-full ${
+                                isOnSepolia 
+                                  ? (isPriceStale ? 'bg-yellow-400' : 'bg-green-400')
+                                  : 'bg-gray-400'
+                              }`} />
+                              1 {selectedToken.symbol} ≈ {formattedPrice}
+                              {!isOnSepolia && ' (fallback)'}
+                            </div>
+                          )}
+                        </div>
+                        {isOnSepolia && (
+                          <button 
+                            onClick={refreshPrice}
+                            className="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/15 text-white border border-white/20"
+                          >
+                            🔄
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -984,6 +1028,41 @@ export default function DepositPage() {
                       <div className="flex items-center justify-between">
                         <span>Network fees</span>
                         <span className="text-white">~ $0.50</span>
+                      </div>
+                      {/* Conversion Rate */}
+                      <div className="border-t border-white/10 pt-2 mt-2">
+                        {selectedTokenType === 'ETH' ? (
+                          <>
+                            <div className="flex items-center justify-between">
+                              <span>ETH/USD Rate</span>
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${
+                                  isPriceLoading ? 'bg-yellow-400 animate-pulse' :
+                                  priceError ? 'bg-red-400' :
+                                  isOnSepolia 
+                                    ? (isPriceStale ? 'bg-yellow-400' : 'bg-green-400')
+                                    : 'bg-gray-400'
+                                }`} />
+                                <span className="font-medium">
+                                  {isPriceLoading ? 'Loading...' : 
+                                   priceError ? 'Error' : 
+                                   formattedPrice}
+                                </span>
+                              </div>
+                            </div>
+                            {numericAmount > 0 && !isPriceLoading && !priceError && (
+                              <div className="flex items-center justify-between mt-1 text-xs text-white/70">
+                                <span>{numericAmount} ETH value</span>
+                                <span>${(numericAmount * ethPrice).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <span>Conversion Rate</span>
+                            <span className="font-medium">1 eTEST = $0</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
