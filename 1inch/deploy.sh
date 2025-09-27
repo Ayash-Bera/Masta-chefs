@@ -117,17 +117,9 @@ echo ""
 # Deploy contract
 echo -e "${YELLOW}🚀 Deploying MultiBatch1inchHelper...${NC}"
 
-DEPLOY_CMD="forge script script/Deploy.s.sol:DeployScript --rpc-url $RPC_URL --broadcast --verify"
+DEPLOY_CMD="forge script script/Deploy.s.sol:DeployScript --rpc-url $RPC_URL --broadcast"
 
-# Add verification flags for known networks
-case $CHAIN_ID in
-    1)
-        DEPLOY_CMD="$DEPLOY_CMD --etherscan-api-key $ETHERSCAN_API_KEY"
-        ;;
-    8453|84532)
-        DEPLOY_CMD="$DEPLOY_CMD --verifier-url https://api.basescan.org/api --etherscan-api-key $BASESCAN_API_KEY"
-        ;;
-esac
+# Verification disabled - deploy without verification
 
 echo "Executing: $DEPLOY_CMD"
 echo ""
