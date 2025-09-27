@@ -29,6 +29,7 @@ import { REGISTRAR_CONTRACT, EERC_CONTRACT, ERC20_TEST } from '@/lib/contracts'
 import { sepolia } from 'wagmi/chains'
 import { processPoseidonEncryption } from '@/lib/poseidon/poseidon'
 import { parseUnits, formatUnits } from 'viem'
+import { useConnectorChainId, safeGetConnectorInfo } from "../lib/connector-utils"
 
 type TokenType = 'ETH' | 'ERC20'
 
@@ -59,6 +60,8 @@ export default function DepositPage() {
   }, [])
   const { address, isConnected, connector } = useAccount()
   const chainId = useChainId()
+  const connectorChainId = useConnectorChainId(connector)
+  const connectorInfo = safeGetConnectorInfo(connector)
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
   
   // Real-time price oracle integration
@@ -305,8 +308,9 @@ export default function DepositPage() {
         userPublicKeyLength: userPublicKey ? (userPublicKey as readonly [bigint, bigint]).length : 0,
         address,
         isConnected,
-        connector: connector?.name,
+        connector: connectorInfo,
         currentChainId: chainId,
+        connectorChainId,
         targetChainId: sepolia.id,
         isCorrectChain: chainId === sepolia.id,
         amount: numericAmount,

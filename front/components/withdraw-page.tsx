@@ -3,6 +3,8 @@
 import { useMemo, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAccount } from "wagmi"
+import { useSafeWagmi } from "../hooks/use-safe-wagmi"
+import { WagmiErrorBoundary } from "./wagmi-error-boundary"
 import { usePriceOracle } from "../hooks/use-price-oracle"
 import {
   ChevronDown,
@@ -34,9 +36,10 @@ type Token = {
   tokenAddress: string
 }
 
-export default function WithdrawPage() {
+function WithdrawPageContent() {
   const router = useRouter()
   const { address } = useAccount()
+  const safeWagmi = useSafeWagmi()
   
   // Real-time price oracle integration
   const { 
@@ -721,5 +724,13 @@ export default function WithdrawPage() {
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
+  )
+}
+
+export default function WithdrawPage() {
+  return (
+    <WagmiErrorBoundary>
+      <WithdrawPageContent />
+    </WagmiErrorBoundary>
   )
 }
