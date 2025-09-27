@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 import "limit-order-protocol/contracts/interfaces/IOrderMixin.sol";
+import "limit-order-protocol/contracts/libraries/MakerTraitsLib.sol";
 import "@1inch/solidity-utils/contracts/libraries/AddressLib.sol";
 
 /**
@@ -13,6 +14,7 @@ import "@1inch/solidity-utils/contracts/libraries/AddressLib.sol";
  */
 contract MultiBatch1inchHelper {
     using AddressLib for Address;
+    using MakerTraitsLib for MakerTraits;
 
     address public immutable limitOrderProtocol;
 

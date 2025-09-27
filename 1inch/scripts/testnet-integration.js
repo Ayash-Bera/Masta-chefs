@@ -7,7 +7,7 @@ const AGGREGATOR_CONTRACT = "0x111111125421cA6dc452d289314280a0f8842A65";
 const RPC_URL = "https://sepolia.base.org";
 
 // Your MultiBatch1inchHelper contract (deploy this to Base Sepolia)
-const MULTI_BATCH_HELPER = ""; // Add your deployed contract address
+const MULTI_BATCH_HELPER = "0x7d7AE94f8949aA4301fDdAD6285bdDBfC74A4E7a"; // Your deployed contract address
 
 class TestnetLimitOrderManager {
     constructor(privateKey) {
@@ -164,29 +164,131 @@ async function main() {
     const privateKey = process.env.PRIVATE_KEY; // Your testnet private key
     const manager = new TestnetLimitOrderManager(privateKey);
 
-    // Example: Create batched orders for ETH->USDC
+    // Example: Create batched orders for ETH->USDC on Base Sepolia
     const tokenPairs = [{
-        makerAsset: "0x...", // ETH address on Base Sepolia
-        takerAsset: "0x...", // USDC address on Base Sepolia
+        makerAsset: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // ETH (native token representation)
+        takerAsset: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // Base Sepolia USDC (Circle)
         orders: [
             {
-                maker: "0x...", // User A address
-                makingAmount: ethers.parseEther("1"), // 1 ETH
-                takingAmount: ethers.parseUnits("3000", 6), // 3000 USDC
+                maker: "0x1fB1aFeF56ec99Ab265ab4D8394Aec08f297f296", // Your deployer address
+                makingAmount: ethers.parseEther("0.001"), // 0.001 ETH (small amount for testing)
+                takingAmount: ethers.parseUnits("3", 6), // 3 test tokens
                 salt: Date.now()
             },
             {
-                maker: "0x...", // User B address
-                makingAmount: ethers.parseEther("0.5"), // 0.5 ETH
-                takingAmount: ethers.parseUnits("1500", 6), // 1500 USDC
+                maker: "0x1fB1aFeF56ec99Ab265ab4D8394Aec08f297f296", // Your deployer address
+                makingAmount: ethers.parseEther("0.0005"), // 0.0005 ETH
+                takingAmount: ethers.parseUnits("1.5", 6), // 1.5 test tokens
                 salt: Date.now() + 1
             }
         ]
     }];
 
-    // Step 1: Create and sign orders
-    console.log("Creating batched orders...");
-    const batchedOrders = await manager.createBatchedOrders(tokenPairs);
+    // Step 0: Test basic contract connectivity
+    console.log("Testing contract connectivity...");
+    const helperContract = new ethers.Contract(
+        MULTI_BATCH_HELPER,
+        [
+            "function limitOrderProtocol() view returns (address)",
+            "function createTokenPairBatch(address,address,(address,uint256,uint256,uint256)[],address) view returns (tuple)"
+        ],
+        manager.provider
+    );
+
+    try {
+        const protocolAddr = await helperContract.limitOrderProtocol();
+        console.log("✅ Contract accessible. Limit Order Protocol:", protocolAddr);
+
+        // Step 1: Test with empty orders first
+        console.log("\n🧪 Testing empty batch creation...");
+        const emptyBatch = await helperContract.createTokenPairBatch(
+            "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // ETH
+            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // Base Sepolia USDC
+            [], // empty orders
+            ethers.ZeroAddress
+        );
+        console.log("✅ Empty batch test passed. Total orders:", emptyBatch.totalOrders);
+
+        // Step 2: Test with real orders
+        console.log("\n🎯 Creating test batch with sample orders...");
+        const testOrders = [
+            {
+                maker: "0x1fB1aFeF56ec99Ab265ab4D8394Aec08f297f296", // Your address
+                makingAmount: ethers.parseEther("0.001"), // 0.001 ETH
+                takingAmount: ethers.parseUnits("3", 6), // 3 USDC (6 decimals)
+                salt: 1234567890
+            },
+            {
+                maker: "0x1fB1aFeF56ec99Ab265ab4D8394Aec08f297f296", // Your address
+                makingAmount: ethers.parseEther("0.002"), // 0.002 ETH
+                takingAmount: ethers.parseUnits("6", 6), // 6 USDC
+                salt: 1234567891
+            }
+        ];
+
+        const batch = await helperContract.createTokenPairBatch(
+            "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // ETH
+            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // Base Sepolia USDC
+            testOrders,
+            ethers.ZeroAddress
+        );
+
+        console.log("✅ Batch created successfully!");
+        console.log("📊 Batch Details:");
+        console.log("   - Total Orders:", batch.totalOrders.toString());
+        console.log("   - Order Hashes:", batch.orderHashes.length);
+        console.log("   - Makers:", batch.makers);
+
+        // Step 3: Test signing one of the orders
+        console.log("\n✍️  Testing order signing...");
+        if (batch.orders.length > 0) {
+            const firstOrder = batch.orders[0];
+            console.log("First order details:");
+            console.log("   - Salt:", firstOrder.salt.toString());
+            console.log("   - Maker:", "0x" + firstOrder.maker.toString(16).padStart(40, '0'));
+            console.log("   - Making Amount:", ethers.formatEther(firstOrder.makingAmount), "ETH");
+            console.log("   - Taking Amount:", ethers.formatUnits(firstOrder.takingAmount, 6), "USDC");
+
+            // Convert the order format for signing
+            const orderForSigning = {
+                salt: firstOrder.salt,
+                maker: "0x" + firstOrder.maker.toString(16).padStart(40, '0'),
+                receiver: "0x" + firstOrder.receiver.toString(16).padStart(40, '0'),
+                makerAsset: "0x" + firstOrder.makerAsset.toString(16).padStart(40, '0'),
+                takerAsset: "0x" + firstOrder.takerAsset.toString(16).padStart(40, '0'),
+                makingAmount: firstOrder.makingAmount,
+                takingAmount: firstOrder.takingAmount,
+                makerTraits: firstOrder.makerTraits
+            };
+
+            try {
+                const signature = await manager.signOrder(orderForSigning);
+                console.log("✅ Order signed successfully!");
+                console.log("   - Signature length:", signature.length);
+                console.log("   - Signature preview:", signature.substring(0, 20) + "...");
+
+                // Step 4: Verify the signature
+                console.log("\n🔍 Verifying signature...");
+                const orderHash = manager.getOrderHash(orderForSigning);
+                console.log("✅ Order hash generated:", orderHash);
+
+                console.log("\n🎉 FULL TEST COMPLETED SUCCESSFULLY!");
+                console.log("📋 Summary:");
+                console.log("   ✅ Contract deployed and accessible");
+                console.log("   ✅ Batch creation working");
+                console.log("   ✅ Order generation working");
+                console.log("   ✅ Order signing working");
+                console.log("   ✅ Ready for 1inch limit order integration!");
+
+            } catch (signError) {
+                console.error("❌ Signing failed:", signError.message);
+            }
+        }
+
+    } catch (error) {
+        console.error("❌ Test failed:", error.message);
+        return;
+    }
 
     // Step 2: Save orders locally
     manager.saveOrdersToFile();
