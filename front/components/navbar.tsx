@@ -78,6 +78,13 @@ export default function Navbar() {
                   >
                     Onboarding
                   </button>
+                  <button
+                    onPointerEnter={() => prefetch('/transfer')}
+                    onClick={() => navigate('/transfer')}
+                    className="text-white/75 hover:text-white transition-colors"
+                  >
+                    Transfer
+                  </button>
                   
                 </div>
                 
