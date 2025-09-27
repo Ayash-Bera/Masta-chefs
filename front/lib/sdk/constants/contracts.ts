@@ -39,6 +39,17 @@ export const NETWORK_CONFIGS = {
       decimals: 18
     }
   },
+  SEPOLIA: {
+    chainId: 11155111,
+    name: 'Ethereum Sepolia',
+    rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com',
+    explorerUrl: 'https://sepolia.etherscan.io',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18
+    }
+  },
   CELO: {
     chainId: 42220,
     name: 'Celo',
