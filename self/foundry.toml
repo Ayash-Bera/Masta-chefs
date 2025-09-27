@@ -4,7 +4,7 @@ out = "out"
 libs = ["lib"]
 remappings = [
     "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
-    "@selfxyz/contracts/=lib/self-contracts/",
+    "@selfxyz/contracts/=node_modules/@selfxyz/contracts/contracts/",
     "@forge-std/=lib/forge-std/src/"
 ]
 

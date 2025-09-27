@@ -10,7 +10,7 @@ contract DeployCompliantProcedure is Script {
     function setUp() public {}
 
     function run() public {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        uint256 deployerPrivateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
         address deployer = vm.addr(deployerPrivateKey);
 
         console.log("Deploying CompliantProcedure contract...");
@@ -20,7 +20,12 @@ contract DeployCompliantProcedure is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy the CompliantProcedure contract
-        compliantProcedure = new CompliantProcedure();
+        // Using Self.xyz V2 Hub staging address for Celo Sepolia
+        address hubAddress = 0x16ECBA51e18a4a7e61fdC417f0d47AFEeDfbed74;
+        uint256 scope = uint256(keccak256("tsunami"));
+        bytes32 configId = 0x7b6436b0c98f62380866d9432c2af0ee08ce16a171bda6951aecd95ee1307d61;
+        
+        compliantProcedure = new CompliantProcedure(hubAddress, scope, configId);
 
         vm.stopBroadcast();
 

@@ -11,153 +11,808 @@ import {
 } from '../types/contracts';
 import { CONTRACT_ADDRESSES, DEFAULT_CONFIG } from '../constants/contracts';
 
-const STEALTH_KYC_ABI = [
+const COMPLIANT_PROCEDURE_ABI = [
   {
-    "name": "getConfigId",
-    "type": "function",
-    "stateMutability": "view",
-    "inputs": [],
-    "outputs": [{ "name": "", "type": "bytes32" }]
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "_identityVerificationHubV2Address",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_scope",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_verificationConfigId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable"
   },
   {
-    "name": "isStealthAddressVerified",
-    "type": "function",
-    "stateMutability": "view",
-    "inputs": [{ "name": "stealthAddress", "type": "address" }],
-    "outputs": [{ "name": "", "type": "bool" }]
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "dataHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "nationality",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "documentType",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "ComplianceVerified",
+    "type": "event"
   },
   {
-    "name": "getMasterIdentityByStealthAddress",
     "type": "function",
-    "stateMutability": "view",
-    "inputs": [{ "name": "stealthAddress", "type": "address" }],
+    "name": "generateDataHash",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "dateOfBirth",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
     "outputs": [
       {
         "name": "",
-        "type": "tuple",
-        "components": [
-          { "name": "isVerified", "type": "bool" },
-          { "name": "dobCommitment", "type": "bytes32" },
-          { "name": "nationality", "type": "string" },
-          { "name": "documentType", "type": "uint8" },
-          { "name": "isOfacClear", "type": "bool" },
-          { "name": "verificationTimestamp", "type": "uint256" },
-          { "name": "verificationCount", "type": "uint256" },
-          { "name": "primaryStealthAddress", "type": "address" }
-        ]
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
-    ]
+    ],
+    "stateMutability": "pure"
   },
   {
-    "name": "getMasterIdentity",
     "type": "function",
-    "stateMutability": "view",
-    "inputs": [{ "name": "masterNullifier", "type": "bytes32" }],
+    "name": "isVerifiedHuman",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
     "outputs": [
       {
         "name": "",
-        "type": "tuple",
-        "components": [
-          { "name": "isVerified", "type": "bool" },
-          { "name": "dobCommitment", "type": "bytes32" },
-          { "name": "nationality", "type": "string" },
-          { "name": "documentType", "type": "uint8" },
-          { "name": "isOfacClear", "type": "bool" },
-          { "name": "verificationTimestamp", "type": "uint256" },
-          { "name": "verificationCount", "type": "uint256" },
-          { "name": "primaryStealthAddress", "type": "address" }
-        ]
+        "type": "bool",
+        "internalType": "bool"
       }
-    ]
+    ],
+    "stateMutability": "view"
   },
   {
-    "name": "getConfiguration",
     "type": "function",
-    "stateMutability": "view",
+    "name": "manualVerifyCompliance",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "dateOfBirth",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "nationality",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "documentType",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "onVerificationSuccess",
+    "inputs": [
+      {
+        "name": "output",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "userData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "owner",
     "inputs": [],
     "outputs": [
       {
         "name": "",
-        "type": "tuple",
-        "components": [
-          { "name": "configId", "type": "bytes32" },
-          { "name": "scope", "type": "uint256" },
-          { "name": "requireOfacCheck", "type": "bool" },
-          { "name": "minimumAge", "type": "uint256" },
-          { "name": "excludedCountries", "type": "string[]" },
-          { "name": "allowedDocumentTypes", "type": "uint8[]" },
-          { "name": "isActive", "type": "bool" }
-        ]
+        "type": "address",
+        "internalType": "address"
       }
-    ]
+    ],
+    "stateMutability": "view"
   },
   {
-    "name": "getStatistics",
     "type": "function",
-    "stateMutability": "view",
+    "name": "scope",
     "inputs": [],
     "outputs": [
-      { "name": "totalVerifications", "type": "uint256" },
-      { "name": "uniqueIdentities", "type": "uint256" },
-      { "name": "totalStealthAddresses", "type": "uint256" }
-    ]
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
-    "name": "customVerificationHook",
     "type": "function",
-    "stateMutability": "nonpayable",
+    "name": "totalCompliantUsers",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "usedHashes",
+    "inputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "userCompliance",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "dataHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "isCompliant",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "nationality",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "documentType",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "verificationConfigId",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "verifiedHumans",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "verifySelfProof",
+    "inputs": [
+      {
+        "name": "proofPayload",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "userContextData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "ScopeUpdated",
+    "inputs": [
+      {
+        "name": "newScope",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "VerificationCompleted",
     "inputs": [
       {
         "name": "output",
         "type": "tuple",
+        "indexed": false,
+        "internalType": "struct ISelfVerificationRoot.GenericDiscloseOutputV2",
         "components": [
-          { "name": "nullifier", "type": "uint256" },
-          { "name": "userIdentifier", "type": "uint256" },
-          { "name": "nationality", "type": "string" },
-          { "name": "documentType", "type": "uint8" },
-          { "name": "olderThan", "type": "uint256" },
-          { "name": "ofac", "type": "bool[]" },
-          { "name": "attestationId", "type": "bytes32" }
+          {
+            "name": "attestationId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "userIdentifier",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "nullifier",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "forbiddenCountriesListPacked",
+            "type": "uint256[4]",
+            "internalType": "uint256[4]"
+          },
+          {
+            "name": "issuingState",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "name",
+            "type": "string[]",
+            "internalType": "string[]"
+          },
+          {
+            "name": "idNumber",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "nationality",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "dateOfBirth",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "gender",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "expiryDate",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "olderThan",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "ofac",
+            "type": "bool[3]",
+            "internalType": "bool[3]"
+          }
         ]
       },
-      { "name": "userData", "type": "bytes" }
+      {
+        "name": "userData",
+        "type": "bytes",
+        "indexed": false,
+        "internalType": "bytes"
+      }
     ],
-    "outputs": []
+    "anonymous": false
   },
   {
-    "name": "MasterIdentityVerified",
-    "type": "event",
-    "anonymous": false,
-    "inputs": [
-      { "name": "masterNullifier", "type": "bytes32", "indexed": true },
-      { "name": "primaryStealthAddress", "type": "address", "indexed": true },
-      { "name": "nationality", "type": "string", "indexed": false },
-      { "name": "documentType", "type": "uint8", "indexed": false },
-      { "name": "timestamp", "type": "uint256", "indexed": false },
-      { "name": "isOfacClear", "type": "bool", "indexed": false }
-    ]
+    "type": "error",
+    "name": "InvalidDataFormat",
+    "inputs": []
   },
   {
-    "name": "StealthAddressLinked",
-    "type": "event",
-    "anonymous": false,
-    "inputs": [
-      { "name": "masterNullifier", "type": "bytes32", "indexed": true },
-      { "name": "stealthAddress", "type": "address", "indexed": true },
-      { "name": "linkedBy", "type": "address", "indexed": true },
-      { "name": "timestamp", "type": "uint256", "indexed": false }
-    ]
+    "type": "error",
+    "name": "UnauthorizedCaller",
+    "inputs": []
   },
   {
-    "name": "ConfigurationUpdated",
-    "type": "event",
-    "anonymous": false,
     "inputs": [
-      { "name": "configId", "type": "bytes32", "indexed": true },
-      { "name": "scope", "type": "uint256", "indexed": false },
-      { "name": "minimumAge", "type": "uint256", "indexed": false },
-      { "name": "requireOfacCheck", "type": "bool", "indexed": false }
-    ]
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "nullifier",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "userIdentifier",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "nationality",
+            "type": "string"
+          },
+          {
+            "internalType": "uint8",
+            "name": "documentType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "olderThan",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool[]",
+            "name": "ofac",
+            "type": "bool[]"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "attestationId",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct CompliantProcedure.GenericDiscloseOutputV2",
+        "name": "output",
+        "type": "tuple"
+      },
+      {
+        "internalType": "bytes",
+        "name": "userData",
+        "type": "bytes"
+      }
+    ],
+    "name": "customVerificationHook",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "dateOfBirth",
+        "type": "string"
+      }
+    ],
+    "name": "generateDataHash",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "name": "getConfigId",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getTotalCompliantUsers",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserCompliance",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "dataHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isCompliant",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "nationality",
+            "type": "string"
+          },
+          {
+            "internalType": "uint8",
+            "name": "documentType",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct CompliantProcedure.UserCompliance",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "isUserCompliant",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "isVerifiedHuman",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "dateOfBirth",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "nationality",
+        "type": "string"
+      },
+      {
+        "internalType": "uint8",
+        "name": "documentType",
+        "type": "uint8"
+      }
+    ],
+    "name": "manualVerifyCompliance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalCompliantUsers",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "usedHashes",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "userCompliance",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "dataHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isCompliant",
+        "type": "bool"
+      },
+      {
+        "internalType": "string",
+        "name": "nationality",
+        "type": "string"
+      },
+      {
+        "internalType": "uint8",
+        "name": "documentType",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "verificationConfigId",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "verifiedHumans",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "verifyCompliance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "nationality",
+        "type": "string"
+      },
+      {
+        "internalType": "uint8",
+        "name": "documentType",
+        "type": "uint8"
+      }
+    ],
+    "name": "verifyCompliance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ] as const;
 
@@ -166,18 +821,34 @@ export class StealthKYCClient {
   private chainId: number;
 
   constructor(chainId: number = 11142220) {
+    console.log('SelfKYCClient constructor called with chainId:', chainId);
+    console.log('Chain ID type:', typeof chainId);
+    console.log('Chain ID comparison 11142220:', chainId === 11142220);
+    console.log('Chain ID comparison 11155111:', chainId === 11155111);
     this.chainId = chainId;
     this.contractAddress = this.getContractAddress();
+    console.log('Contract address resolved to:', this.contractAddress);
   }
 
   private getContractAddress(): string {
+    console.log('getContractAddress called with chainId:', this.chainId);
     if (this.chainId === 44787) {
-      return CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.ALFAJORES;
+      console.log('Using ALFAJORES contract address');
+      return CONTRACT_ADDRESSES.COMPLIANT_PROCEDURE.ALFAJORES;
     } else if (this.chainId === 11142220) {
-      return CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.SEPOLIA;
+      console.log('Using CELO SEPOLIA contract address');
+      return CONTRACT_ADDRESSES.COMPLIANT_PROCEDURE.SEPOLIA;
+    } else if (this.chainId === 11155111) {
+      console.log('Using ETHEREUM SEPOLIA contract address');
+      return CONTRACT_ADDRESSES.COMPLIANT_PROCEDURE.ETHEREUM_SEPOLIA;
+    } else if (this.chainId === 8453) {
+      console.log('Using BASE MAINNET contract address');
+      return CONTRACT_ADDRESSES.COMPLIANT_PROCEDURE.BASE_MAINNET;
     } else if (this.chainId === 42220) {
-      return CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.CELO;
+      console.log('Using CELO contract address');
+      return CONTRACT_ADDRESSES.COMPLIANT_PROCEDURE.CELO;
     }
+    console.error('Unsupported chain ID:', this.chainId);
     throw new Error(`Unsupported chain ID: ${this.chainId}`);
   }
 
@@ -192,7 +863,7 @@ export class StealthKYCClient {
 
       return {
         success: true,
-        message: 'Stealth address verification initiated through Self.xyz mobile app'
+        kycData: undefined
       };
     } catch (error) {
       return {
@@ -203,113 +874,113 @@ export class StealthKYCClient {
   }
 
   /**
-   * Check if a stealth address is KYC verified
+   * Check if a user is KYC verified
    * Note: This should be used with wagmi hooks in React components
    */
-  getIsStealthAddressVerifiedConfig(stealthAddress: string) {
+  getIsUserCompliantConfig(userAddress: string) {
     return {
       address: this.contractAddress as `0x${string}`,
-      abi: STEALTH_KYC_ABI,
-      functionName: 'isStealthAddressVerified',
-      args: [stealthAddress as `0x${string}`],
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'isUserCompliant',
+      args: [userAddress as `0x${string}`],
     };
   }
 
   /**
-   * Get master identity data for a stealth address
+   * Check if a user is verified human
    * Note: This should be used with wagmi hooks in React components
    */
-  getMasterIdentityByStealthAddressConfig(stealthAddress: string) {
+  getIsVerifiedHumanConfig(userAddress: string) {
     return {
       address: this.contractAddress as `0x${string}`,
-      abi: STEALTH_KYC_ABI,
-      functionName: 'getMasterIdentityByStealthAddress',
-      args: [stealthAddress as `0x${string}`],
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'isVerifiedHuman',
+      args: [userAddress as `0x${string}`],
     };
   }
 
   /**
-   * Get master identity data by nullifier
+   * Get user compliance data
    * Note: This should be used with wagmi hooks in React components
    */
-  getMasterIdentityConfig(masterNullifier: string) {
+  getUserComplianceConfig(userAddress: string) {
     return {
       address: this.contractAddress as `0x${string}`,
-      abi: STEALTH_KYC_ABI,
-      functionName: 'getMasterIdentity',
-      args: [masterNullifier as `0x${string}`],
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'getUserCompliance',
+      args: [userAddress as `0x${string}`],
     };
   }
 
   /**
-   * Get current verification configuration
+   * Get verification config ID
    * Note: This should be used with wagmi hooks in React components
    */
-  getConfigurationConfig() {
+  getConfigIdConfig() {
     return {
       address: this.contractAddress as `0x${string}`,
-      abi: STEALTH_KYC_ABI,
-      functionName: 'getConfiguration',
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'getConfigId',
+      args: ['0x0000000000000000000000000000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000000000000000000000000000', '0x'],
     };
   }
 
   /**
-   * Get verification statistics including stealth addresses
+   * Get total compliant users
    * Note: This should be used with wagmi hooks in React components
    */
-  getStatisticsConfig() {
+  getTotalCompliantUsersConfig() {
     return {
       address: this.contractAddress as `0x${string}`,
-      abi: STEALTH_KYC_ABI,
-      functionName: 'getStatistics',
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'getTotalCompliantUsers',
     };
   }
 
   /**
-   * Get master identity verification events config for wagmi
+   * Get compliance verification events config for wagmi
    */
-  getMasterIdentityVerificationEventsConfig(stealthAddress?: string) {
+  getComplianceVerifiedEventsConfig(userAddress?: string) {
     return {
       address: this.contractAddress as `0x${string}`,
-      abi: STEALTH_KYC_ABI,
-      eventName: 'MasterIdentityVerified',
-      args: stealthAddress ? { primaryStealthAddress: stealthAddress as `0x${string}` } : undefined,
+      abi: COMPLIANT_PROCEDURE_ABI,
+      eventName: 'ComplianceVerified',
+      args: userAddress ? { user: userAddress as `0x${string}` } : undefined,
       fromBlock: 'earliest' as const,
     };
   }
 
   /**
-   * Get stealth address linking events config for wagmi
+   * Get verification completed events config for wagmi
    */
-  getStealthAddressLinkedEventsConfig(stealthAddress?: string) {
+  getVerificationCompletedEventsConfig() {
     return {
       address: this.contractAddress as `0x${string}`,
-      abi: STEALTH_KYC_ABI,
-      eventName: 'StealthAddressLinked',
-      args: stealthAddress ? { stealthAddress: stealthAddress as `0x${string}` } : undefined,
+      abi: COMPLIANT_PROCEDURE_ABI,
+      eventName: 'VerificationCompleted',
       fromBlock: 'earliest' as const,
     };
   }
 
   /**
-   * Get configuration for watching master identity verification events
+   * Get configuration for watching compliance verification events
    */
-  getWatchMasterIdentityEventsConfig() {
+  getWatchComplianceEventsConfig() {
     return {
       address: this.contractAddress as `0x${string}`,
-      abi: STEALTH_KYC_ABI,
-      eventName: 'MasterIdentityVerified',
+      abi: COMPLIANT_PROCEDURE_ABI,
+      eventName: 'ComplianceVerified',
     };
   }
 
   /**
-   * Get configuration for watching stealth address linking events
+   * Get configuration for watching verification completed events
    */
-  getWatchStealthAddressLinkedEventsConfig() {
+  getWatchVerificationCompletedEventsConfig() {
     return {
       address: this.contractAddress as `0x${string}`,
-      abi: STEALTH_KYC_ABI,
-      eventName: 'StealthAddressLinked',
+      abi: COMPLIANT_PROCEDURE_ABI,
+      eventName: 'VerificationCompleted',
     };
   }
 
@@ -334,13 +1005,13 @@ export class StealthKYCClient {
    * Get contract ABI for use with wagmi
    */
   getABI() {
-    return STEALTH_KYC_ABI;
+    return COMPLIANT_PROCEDURE_ABI;
   }
 
   /**
-   * Get contract address
+   * Get contract address (public method)
    */
-  getContractAddress(): string {
+  getContractAddressPublic(): string {
     return this.contractAddress;
   }
 
@@ -350,17 +1021,41 @@ export class StealthKYCClient {
   getCustomVerificationHookConfig(output: any, userData: string = '') {
     return {
       address: this.contractAddress as `0x${string}`,
-      abi: STEALTH_KYC_ABI,
+      abi: COMPLIANT_PROCEDURE_ABI,
       functionName: 'customVerificationHook',
       args: [output, userData],
     };
   }
 
-  // Legacy compatibility - redirect to stealth address methods
-  getIsVerifiedConfig = this.getIsStealthAddressVerifiedConfig;
-  getKYCDataConfig = this.getMasterIdentityByStealthAddressConfig;
-  getVerificationEventsConfig = this.getMasterIdentityVerificationEventsConfig;
-  getWatchKYCEventsConfig = this.getWatchMasterIdentityEventsConfig;
+  /**
+   * Get contract configuration for simple verification (Self.xyz compatible)
+   */
+  getVerifyComplianceConfig() {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'verifyCompliance',
+      args: [],
+    };
+  }
+
+  /**
+   * Get contract configuration for verification with parameters
+   */
+  getVerifyComplianceWithParamsConfig(user: string, nationality: string, documentType: number) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'verifyCompliance',
+      args: [user, nationality, documentType],
+    };
+  }
+
+  // Legacy compatibility - redirect to compliant procedure methods
+  getIsVerifiedConfig = this.getIsUserCompliantConfig;
+  getKYCDataConfig = this.getUserComplianceConfig;
+  getVerificationEventsConfig = this.getComplianceVerifiedEventsConfig;
+  getWatchKYCEventsConfig = this.getWatchComplianceEventsConfig;
   verifyKYC = this.verifyStealthKYC;
 }
 
