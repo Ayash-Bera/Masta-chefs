@@ -131,6 +131,13 @@ export default function WithdrawPage() {
   const insufficient = numericAmount > (selectedToken?.balance ?? 0)
   const isPositive = numericAmount > 0
   const recipient = recipientMode === "default" ? defaultRecipient : customRecipient || "0x..."
+  const displayRecipient = useMemo(() => {
+    if (!recipient) return "0x..."
+    const normalized = recipient.trim()
+    if (!normalized.startsWith("0x")) return normalized
+    if (normalized.length <= 14) return normalized
+    return `${normalized.slice(0, 10)}…${normalized.slice(-6)}`
+  }, [recipient])
 
 
   const filteredTokens = useMemo(() => {
@@ -481,7 +488,9 @@ export default function WithdrawPage() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Recipient</span>
-                      <span className="font-mono">{recipient}</span>
+                      <span className="font-mono text-right" title={recipient}>
+                        {displayRecipient}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Network fees</span>
@@ -653,7 +662,9 @@ export default function WithdrawPage() {
                 Amount: {amount || "0.00"} {selectedToken.symbol} → {amount || "0.00"}{" "}
                 {selectedToken.symbol.replace(/^e/, "")}
               </div>
-              <div className="font-medium text-base">Recipient: {recipient}</div>
+              <div className="font-medium text-base" title={recipient}>
+                Recipient: {displayRecipient}
+              </div>
               {txHash && (
                 <div className="font-medium text-sm text-gray-300 mt-2">
                   Transaction: {txHash.slice(0, 10)}...{txHash.slice(-8)}
