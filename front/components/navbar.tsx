@@ -34,13 +34,13 @@ export default function Navbar() {
             </button>
             <div className="flex items-center gap-6">
               {pathname !== '/' && (
-                <div className="hidden md:flex items-center gap-5 text-sm">
-                  <button onClick={() => router.push('/dashboard')} className="text-white/75 hover:text-white transition-colors">Dashboard</button>
-                  <button onClick={() => router.push('/deposit')} className="text-white/75 hover:text-white transition-colors">Deposit</button>
-                  <button onClick={() => router.push('/swap')} className="text-white/75 hover:text-white transition-colors">Swap</button>
-                  <button onClick={() => router.push('/withdraw')} className="text-white/75 hover:text-white transition-colors">Withdraw</button>
-                  <button onClick={() => router.push('/onboarding')} className="text-white/75 hover:text-white transition-colors">Onboarding</button>
-                  
+                <div className="hidden md:flex items-center gap-3 text-sm">
+                  <button onClick={() => router.push('/dashboard')} className="px-3 py-2 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 text-white/90">Dashboard</button>
+                  <button onClick={() => router.push('/deposit')} className="px-3 py-2 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 text-white/90">Deposit</button>
+                  <button onClick={() => router.push('/transfer')} className="px-3 py-2 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 text-white/90">Transfer</button>
+                  <button onClick={() => router.push('/swap')} className="px-3 py-2 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 text-white/90">Swap</button>
+                  <button onClick={() => router.push('/withdraw')} className="px-3 py-2 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 text-white/90">Withdraw</button>
+                  <button onClick={() => router.push('/onboarding')} className="px-3 py-2 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 text-white/90">Onboarding</button>
                 </div>
               )}
               <div className="flex items-center gap-3">
