@@ -11,26 +11,35 @@ import {
   Search,
   CheckCircle2,
   AlertTriangle,
+  Users,
+  Shield,
 } from "lucide-react"
+import { useStealthSwap } from "@/hooks/use-stealth-swap"
+import { useTokens } from "@/hooks/use-tokens"
+import { useEncryptedBalance } from "@/hooks/use-encrypted-balance"
+import { STEALTH_SWAP_POOL, ONE_INCH_ADAPTER } from "@/lib/stealth-contracts"
 
 export default function TsunamiSwap() {
-  // Simple demo token list
-  const tokenList = useMemo(
-    () => [
-      { symbol: "eUSDC", name: "Encrypted USD Coin", balance: 23489.89 },
-      { symbol: "eDAI", name: "Encrypted DAI", balance: 12045.12 },
-      { symbol: "BNB", name: "BNB", balance: 5695.89 },
-      { symbol: "USDT", name: "Tether", balance: 7575.93 },
-    ],
-    [],
-  )
+  // Hooks
+  const { createIntent, contributeToSwap, executeSwap } = useStealthSwap()
+  const { tokens, loading: tokensLoading } = useTokens()
+  const [selectedTokenAddress, setSelectedTokenAddress] = useState<string | null>(null)
+  const { balance, loading: balanceLoading } = useEncryptedBalance(selectedTokenAddress, 18)
 
   // Selection + amounts
-  const [fromToken, setFromToken] = useState(tokenList[0]) // eUSDC
-  const [toToken, setToToken] = useState(tokenList[1]) // eDAI
+  const [fromToken, setFromToken] = useState<any>(null)
+  const [toToken, setToToken] = useState<any>(null)
   const [fromAmount, setFromAmount] = useState<string>("")
   const [toAmount, setToAmount] = useState<string>("")
   const [insufficientBalance, setInsufficientBalance] = useState(false)
+
+  // Stealth swap state
+  const [intentId, setIntentId] = useState<string | null>(null)
+  const [contributionAmount, setContributionAmount] = useState<string>("")
+  const [isCreatingIntent, setIsCreatingIntent] = useState(false)
+  const [isContributing, setIsContributing] = useState(false)
+  const [isExecuting, setIsExecuting] = useState(false)
+  const [swapMode, setSwapMode] = useState<"regular" | "stealth">("regular")
 
   // UI state
   const [selectingSide, setSelectingSide] = useState<"from" | "to" | null>(null)
@@ -42,8 +51,27 @@ export default function TsunamiSwap() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [toasts, setToasts] = useState<{ id: number; message: string }[]>([])
 
+  // Set default tokens when loaded
+  useEffect(() => {
+    if (tokens && tokens.length > 0 && !fromToken) {
+      setFromToken(tokens[0])
+      setSelectedTokenAddress(tokens[0]?.address)
+    }
+    if (tokens && tokens.length > 1 && !toToken) {
+      setToToken(tokens[1])
+    }
+  }, [tokens, fromToken, toToken])
+
+  // Update selected token address when fromToken changes
+  useEffect(() => {
+    if (fromToken?.address) {
+      setSelectedTokenAddress(fromToken.address)
+    }
+  }, [fromToken])
+
   // Derived quote (fake pricing)
   const price = useMemo(() => {
+    if (!fromToken || !toToken) return 1
     // simple mock: 1 eUSDC = 0.99 eDAI, otherwise 1:1
     if (fromToken.symbol === "eUSDC" && toToken.symbol === "eDAI") return 0.99
     if (fromToken.symbol === "eDAI" && toToken.symbol === "eUSDC") return 1 / 0.99
@@ -59,14 +87,18 @@ export default function TsunamiSwap() {
     }
     const est = amt * price
     setToAmount(est.toLocaleString(undefined, { maximumFractionDigits: 6 }))
-    setInsufficientBalance(amt > fromToken.balance)
-  }, [fromAmount, price, fromToken])
+    setInsufficientBalance(amt > (balance || 0))
+  }, [fromAmount, price, balance])
 
   const filteredTokens = useMemo(() => {
+    if (!tokens) return []
     const q = tokenQuery.trim().toLowerCase()
-    if (!q) return tokenList
-    return tokenList.filter((t) => t.symbol.toLowerCase().includes(q) || t.name.toLowerCase().includes(q))
-  }, [tokenList, tokenQuery])
+    if (!q) return tokens
+    return tokens.filter((t) => 
+      t.symbol.toLowerCase().includes(q) || 
+      t.name.toLowerCase().includes(q)
+    )
+  }, [tokens, tokenQuery])
 
   function openTokenModal(side: "from" | "to") {
     setSelectingSide(side)
@@ -96,6 +128,106 @@ export default function TsunamiSwap() {
     }, 2500)
   }
 
+  async function onCreateIntent() {
+    if (!fromToken || !toToken) {
+      setErrorMessage("Please select both tokens")
+      return
+    }
+
+    const amt = Number.parseFloat(fromAmount.replace(/,/g, ""))
+    if (!isFinite(amt) || amt <= 0) {
+      setErrorMessage("Enter a valid amount")
+      return
+    }
+
+    try {
+      setIsCreatingIntent(true)
+      setErrorMessage(null)
+      
+      addToast("Creating stealth swap intent...")
+      
+      const deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+      const policy = "0x" + "0".repeat(64) // Mock policy hash
+      
+      const intentId = await createIntent(
+        fromToken.address,
+        toToken.address,
+        BigInt(Math.floor(amt * 1e18)), // Convert to wei
+        BigInt(deadline),
+        policy
+      )
+      
+      setIntentId(intentId)
+      addToast("Intent created successfully!")
+      
+    } catch (e: any) {
+      setErrorMessage(`Failed to create intent: ${e.message}`)
+    } finally {
+      setIsCreatingIntent(false)
+    }
+  }
+
+  async function onContribute() {
+    if (!intentId) {
+      setErrorMessage("No intent to contribute to")
+      return
+    }
+
+    const amt = Number.parseFloat(contributionAmount.replace(/,/g, ""))
+    if (!isFinite(amt) || amt <= 0) {
+      setErrorMessage("Enter a valid contribution amount")
+      return
+    }
+
+    try {
+      setIsContributing(true)
+      setErrorMessage(null)
+      
+      addToast("Contributing to stealth swap...")
+      
+      await contributeToSwap(intentId, BigInt(Math.floor(amt * 1e18)))
+      
+      addToast("Contribution successful!")
+      
+    } catch (e: any) {
+      setErrorMessage(`Failed to contribute: ${e.message}`)
+    } finally {
+      setIsContributing(false)
+    }
+  }
+
+  async function onExecute() {
+    if (!intentId) {
+      setErrorMessage("No intent to execute")
+      return
+    }
+
+    try {
+      setIsExecuting(true)
+      setErrorMessage(null)
+      
+      addToast("Executing stealth swap...")
+      
+      // Mock 1inch calldata - in production this would come from 1inch API
+      const mockCalldata = "0x" + "0".repeat(200)
+      
+      await executeSwap(
+        intentId,
+        ONE_INCH_ADAPTER.address,
+        mockCalldata,
+        BigInt(Math.floor(Number.parseFloat(toAmount) * 1e18))
+      )
+      
+      addToast("Swap executed successfully!")
+      setSuccessOpen(true)
+      
+    } catch (e: any) {
+      setErrorMessage(`Failed to execute swap: ${e.message}`)
+    } finally {
+      setIsExecuting(false)
+    }
+  }
+
   async function onSwap() {
     setErrorMessage(null)
     const amt = Number.parseFloat(fromAmount.replace(/,/g, ""))
@@ -122,6 +254,14 @@ export default function TsunamiSwap() {
       setIsSwapping(false)
       setErrorMessage("Swap failed: Insufficient liquidity")
     }
+  }
+
+  if (tokensLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white text-xl">Loading tokens...</div>
+      </div>
+    )
   }
 
   return (
@@ -206,19 +346,40 @@ export default function TsunamiSwap() {
               Private token swaps powered by Tsunami & Uniswap v4
             </div>
             
-            {/* Stealth Swap Link */}
-            <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+            {/* Swap Mode Toggle */}
+            <div className="mb-6 p-4 bg-white/5 border border-white/10 rounded-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-blue-200 font-medium mb-1">New: Stealth Swaps</div>
-                  <div className="text-white/80 text-sm">Batch your swaps with other users for better privacy and efficiency</div>
+                  <div className="text-white font-medium mb-1">Swap Mode</div>
+                  <div className="text-white/80 text-sm">
+                    {swapMode === "regular" 
+                      ? "Direct private swaps with immediate execution" 
+                      : "Stealth swaps with batched execution for enhanced privacy"
+                    }
+                  </div>
                 </div>
-                <a
-                  href="/stealth-swap"
-                  className="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                  Try Stealth Swap
-                </a>
+                <div className="flex bg-white/10 rounded-lg p-1">
+                  <button
+                    onClick={() => setSwapMode("regular")}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      swapMode === "regular" 
+                        ? "bg-white text-black" 
+                        : "text-white/80 hover:text-white"
+                    }`}
+                  >
+                    Regular
+                  </button>
+                  <button
+                    onClick={() => setSwapMode("stealth")}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      swapMode === "stealth" 
+                        ? "bg-white text-black" 
+                        : "text-white/80 hover:text-white"
+                    }`}
+                  >
+                    Stealth
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -239,7 +400,7 @@ export default function TsunamiSwap() {
                 <div className="">
                   <label className="text-white text-base font-semibold mb-3 block">From:</label>
                   <div className="text-sm text-white mb-3 font-medium">
-                    Balance: {fromToken.balance.toLocaleString()} {fromToken.symbol}
+                    Balance: {balanceLoading ? "Loading..." : `${(balance || 0).toFixed(6)} ${fromToken?.symbol || ""}`}
                   </div>
 
                   {/* Token / Network pill */}
@@ -250,13 +411,13 @@ export default function TsunamiSwap() {
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-7 h-7 bg-yellow-400 rounded-full flex items-center justify-center">
-                        <span className="text-black text-sm font-bold">{fromToken.symbol[0]}</span>
+                        <span className="text-black text-sm font-bold">{fromToken?.symbol?.[0] || "?"}</span>
                       </div>
-                      <span className="text-white text-lg font-semibold">{fromToken.symbol}</span>
+                      <span className="text-white text-lg font-semibold">{fromToken?.symbol || "Select Token"}</span>
                       <span className="text-white/60">/</span>
                       <div className="bg-emerald-500/20 border border-emerald-500/50 rounded-full px-3 py-1 flex items-center gap-2">
-                        <div className="w-3 h-3 bg-emerald-400 rounded-full" />
-                        <span className="text-emerald-200 text-sm font-medium">Shielded</span>
+                        <Shield className="w-3 h-3 text-emerald-400" />
+                        <span className="text-emerald-200 text-sm font-medium">Encrypted</span>
                       </div>
                     </div>
                     <ChevronDown className="w-5 h-5 text-white" />
@@ -289,7 +450,7 @@ export default function TsunamiSwap() {
                 <div className="">
                   <label className="text-white text-base font-semibold mb-3 block">To:</label>
                   <div className="text-sm text-white mb-3 font-medium">
-                    Balance: {toToken.balance.toLocaleString()} {toToken.symbol}
+                    Expected output
                   </div>
 
                   {/* Token / Network pill */}
@@ -300,13 +461,13 @@ export default function TsunamiSwap() {
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-7 h-7 bg-emerald-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-sm font-bold">{toToken.symbol[0]}</span>
+                        <span className="text-white text-sm font-bold">{toToken?.symbol?.[0] || "?"}</span>
                       </div>
-                      <span className="text-white text-lg font-semibold">{toToken.symbol}</span>
+                      <span className="text-white text-lg font-semibold">{toToken?.symbol || "Select Token"}</span>
                       <span className="text-white/60">/</span>
                       <div className="bg-rose-500/20 border border-rose-500/50 rounded-full px-3 py-1 flex items-center gap-2">
-                        <div className="w-3 h-3 bg-rose-400 rounded-full" />
-                        <span className="text-rose-200 text-sm font-medium">Shielded</span>
+                        <Shield className="w-3 h-3 text-rose-400" />
+                        <span className="text-rose-200 text-sm font-medium">Encrypted</span>
                       </div>
                     </div>
                     <ChevronDown className="w-5 h-5 text-white" />
@@ -346,7 +507,7 @@ export default function TsunamiSwap() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-white text-base font-semibold">
-                    1 {fromToken.symbol} = {price.toFixed(6)} {toToken.symbol}
+                    1 {fromToken?.symbol || "Token"} = {price.toFixed(6)} {toToken?.symbol || "Token"}
                   </span>
                   <TrendingUp className="w-5 h-5 text-emerald-400" />
                   <span className="text-emerald-300 text-base font-semibold">5.62% (24H)</span>
@@ -384,7 +545,7 @@ export default function TsunamiSwap() {
                         style={{ background: "rgba(255,255,255,0.08)" }}
                       >
                         <div className="font-medium">
-                          Expected rate: 1 {fromToken.symbol} ≈ {price.toFixed(4)} {toToken.symbol}
+                          Expected rate: 1 {fromToken?.symbol || "Token"} ≈ {price.toFixed(4)} {toToken?.symbol || "Token"}
                         </div>
                       </div>
                       <div
@@ -408,13 +569,68 @@ export default function TsunamiSwap() {
               </div>
 
               <div className="md:ml-auto">
-                <button
-                  onClick={onSwap}
-                  disabled={isSwapping}
-                  className="h-14 px-8 sm:px-10 bg-[#e6ff55] text-[#0a0b0e] font-bold text-base sm:text-lg rounded-full hover:brightness-110 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isSwapping ? "Generating zk proof..." : "Swap Privately"}
-                </button>
+                {swapMode === "regular" ? (
+                  <button
+                    onClick={onSwap}
+                    disabled={isSwapping}
+                    className="h-14 px-8 sm:px-10 bg-[#e6ff55] text-[#0a0b0e] font-bold text-base sm:text-lg rounded-full hover:brightness-110 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isSwapping ? "Generating zk proof..." : "Swap Privately"}
+                  </button>
+                ) : (
+                  <div className="space-y-4">
+                    {!intentId ? (
+                      <button
+                        onClick={onCreateIntent}
+                        disabled={isCreatingIntent || !fromToken || !toToken || !fromAmount}
+                        className="h-14 px-8 sm:px-10 bg-[#e6ff55] text-[#0a0b0e] font-bold text-base sm:text-lg rounded-full hover:brightness-110 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {isCreatingIntent ? "Creating Intent..." : "Create Stealth Swap Intent"}
+                      </button>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4">
+                          <div className="flex items-center gap-2 text-emerald-200 font-medium mb-2">
+                            <CheckCircle2 className="w-5 h-5" />
+                            Intent Created Successfully
+                          </div>
+                          <div className="text-white/80 text-sm">
+                            Intent ID: {intentId.slice(0, 10)}...{intentId.slice(-8)}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-white text-sm font-medium mb-2 block">Contribution Amount:</label>
+                            <input
+                              value={contributionAmount}
+                              onChange={(e) => setContributionAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+                              placeholder="0.0"
+                              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/60"
+                            />
+                          </div>
+                          <div className="flex items-end">
+                            <button
+                              onClick={onContribute}
+                              disabled={isContributing || !contributionAmount}
+                              className="w-full h-12 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              {isContributing ? "Contributing..." : "Contribute"}
+                            </button>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={onExecute}
+                          disabled={isExecuting}
+                          className="w-full h-14 bg-[#e6ff55] text-[#0a0b0e] font-bold text-lg rounded-full hover:brightness-110 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                          {isExecuting ? "Executing Swap..." : "Execute Stealth Swap"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -460,7 +676,7 @@ export default function TsunamiSwap() {
                     <div className="text-white font-semibold text-base">{t.symbol}</div>
                     <div className="text-white font-medium">{t.name}</div>
                   </div>
-                  {(selectingSide === "from" ? fromToken.symbol === t.symbol : toToken.symbol === t.symbol) && (
+                  {(selectingSide === "from" ? fromToken?.symbol === t.symbol : toToken?.symbol === t.symbol) && (
                     <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                   )}
                 </button>
@@ -487,10 +703,10 @@ export default function TsunamiSwap() {
               style={{ background: "rgba(255,255,255,0.08)" }}
             >
               <div className="font-medium text-base">
-                From: {fromAmount || "0.0"} {fromToken.symbol}
+                From: {fromAmount || "0.0"} {fromToken?.symbol || "Token"}
               </div>
               <div className="font-medium text-base">
-                To: {toAmount || "0.0"} {toToken.symbol}
+                To: {toAmount || "0.0"} {toToken?.symbol || "Token"}
               </div>
             </div>
             <div className="flex items-center justify-center gap-4">

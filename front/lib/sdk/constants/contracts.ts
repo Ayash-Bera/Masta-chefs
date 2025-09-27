@@ -8,7 +8,9 @@ export const CONTRACT_ADDRESSES = {
   },
   // Simple Compliant Procedure System - Self.xyz Compatible
   COMPLIANT_PROCEDURE: {
-    SEPOLIA: '0x8aEAaeE4fDBAe89d1907d7C22ee863F3742be4B7', // Self.xyz compatible - Deployed on Celo Sepolia
+    SEPOLIA: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', // Self.xyz compatible - Deployed on Celo Sepolia
+    ETHEREUM_SEPOLIA: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', // Same contract on Ethereum Sepolia
+    BASE_MAINNET: '0x0000000000000000000000000000000000000000', // To be deployed on Base Mainnet
     ALFAJORES: '0x0000000000000000000000000000000000000000', // To be deployed if needed
     CELO: '0x0000000000000000000000000000000000000000' // Mainnet - to be deployed
   },
@@ -52,6 +54,28 @@ export const NETWORK_CONFIGS = {
     nativeCurrency: {
       name: 'CELO',
       symbol: 'CELO',
+      decimals: 18
+    }
+  },
+  ETHEREUM_SEPOLIA: {
+    chainId: 11155111,
+    name: 'Ethereum Sepolia',
+    rpcUrl: 'https://sepolia.infura.io/v3/',
+    explorerUrl: 'https://sepolia.etherscan.io',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18
+    }
+  },
+  BASE_MAINNET: {
+    chainId: 8453,
+    name: 'Base Mainnet',
+    rpcUrl: 'https://mainnet.base.org',
+    explorerUrl: 'https://basescan.org',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
       decimals: 18
     }
   },

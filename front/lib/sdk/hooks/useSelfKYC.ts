@@ -24,13 +24,18 @@ export function useSelfKYC() {
   const [stats, setStats] = useState<VerificationStats | null>(null);
   const [verificationHistory, setVerificationHistory] = useState<VerificationEvent[]>([]);
 
-  const client = new SelfKYCClient(chainId);
+  console.log('useSelfKYC - Wallet chainId:', chainId);
+  console.log('useSelfKYC - Wallet address:', address);
+  
+  // Force Celo Sepolia chain ID for Self.xyz integration
+  const celoSepoliaChainId = 11142220;
+  const client = new SelfKYCClient(celoSepoliaChainId);
 
   // Read contract data
   const { data: isVerifiedData, refetch: refetchVerification } = useReadContract({
     address: client.getContractAddress() as `0x${string}`,
     abi: client.getABI(),
-    functionName: 'isKYCVerified',
+    functionName: 'isUserCompliant',
     args: address ? [address] : undefined,
     query: { enabled: !!address }
   });
@@ -38,7 +43,7 @@ export function useSelfKYC() {
   const { data: kycDataRaw, refetch: refetchKycData } = useReadContract({
     address: client.getContractAddress() as `0x${string}`,
     abi: client.getABI(),
-    functionName: 'getKYCData',
+    functionName: 'getUserCompliance',
     args: address ? [address] : undefined,
     query: { enabled: !!address }
   });
@@ -46,14 +51,15 @@ export function useSelfKYC() {
   const { data: configData, refetch: refetchConfig } = useReadContract({
     address: client.getContractAddress() as `0x${string}`,
     abi: client.getABI(),
-    functionName: 'getConfiguration',
+    functionName: 'getConfigId',
+    args: ['0x0000000000000000000000000000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000000000000000000000000000', '0x'],
     query: { enabled: true }
   });
 
   const { data: statsData, refetch: refetchStats } = useReadContract({
     address: client.getContractAddress() as `0x${string}`,
     abi: client.getABI(),
-    functionName: 'getStatistics',
+    functionName: 'getTotalCompliantUsers',
     query: { enabled: true }
   });
 

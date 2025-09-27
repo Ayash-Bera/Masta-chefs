@@ -31,7 +31,12 @@ contract CompliantProcedureTest is Test {
         user2 = makeAddr("user2");
         unauthorized = makeAddr("unauthorized");
 
-        compliantProcedure = new CompliantProcedure();
+        // Using Self.xyz V2 Hub staging address for Celo Sepolia
+        address hubAddress = 0x68c931C9a534D37aa78094877F46fE46a49F1A51;
+        uint256 scope = uint256(keccak256("tcash-compliant-procedure-v1"));
+        bytes32 configId = 0x7b6436b0c98f62380866d9432c2af0ee08ce16a171bda6951aecd95ee1307d61;
+        
+        compliantProcedure = new CompliantProcedure(hubAddress, scope, configId);
     }
 
     function test_InitialState() public view {
