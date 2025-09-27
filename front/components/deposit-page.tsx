@@ -70,7 +70,9 @@ export default function DepositPage() {
     isOnSepolia,
     refreshPrice,
     formattedPrice,
-    isPriceStale
+    isPriceStale,
+    getTokenPrice,
+    getFormattedTokenPrice
   } = usePriceOracle()
   
   // ETH balance hook
@@ -110,7 +112,7 @@ export default function DepositPage() {
         decimals: ethDecimals,
         type: 'ETH' as TokenType,
         name: 'Ethereum',
-        priceUsd: ethPrice, // Real-time price from oracle
+        priceUsd: getTokenPrice('ETH'), // Dynamic price from oracle
         address: undefined
       }
     } else {
@@ -123,11 +125,11 @@ export default function DepositPage() {
         decimals: erc20Decimals,
         type: 'ERC20' as TokenType,
         name: 'Test Token',
-        priceUsd: 1, // Test token price (still hardcoded)
+        priceUsd: getTokenPrice('TEST'), // $0 for test tokens
         address: ERC20_TEST.address
       }
     }
-  }, [selectedTokenType, ethBalance, ethBalanceRaw, ethBalanceLoading, ethBalanceError, ethSymbol, ethDecimals, erc20Balance, erc20BalanceRaw, erc20BalanceLoading, erc20BalanceError, erc20Symbol, erc20Decimals, ethPrice])
+  }, [selectedTokenType, ethBalance, ethBalanceRaw, ethBalanceLoading, ethBalanceError, ethSymbol, ethDecimals, erc20Balance, erc20BalanceRaw, erc20BalanceLoading, erc20BalanceError, erc20Symbol, erc20Decimals, getTokenPrice])
 
   // Alias for easier use
   const publicBalance = currentToken.balance
@@ -824,7 +826,7 @@ export default function DepositPage() {
                                   ? (isPriceStale ? 'bg-yellow-400' : 'bg-green-400')
                                   : 'bg-gray-400'
                               }`} />
-                              1 {selectedToken.symbol} ≈ {formattedPrice}
+                              1 {selectedToken.symbol} ≈ {getFormattedTokenPrice(selectedToken.symbol)}
                               {!isOnSepolia && ' (fallback)'}
                             </div>
                           )}
@@ -1028,41 +1030,6 @@ export default function DepositPage() {
                       <div className="flex items-center justify-between">
                         <span>Network fees</span>
                         <span className="text-white">~ $0.50</span>
-                      </div>
-                      {/* Conversion Rate */}
-                      <div className="border-t border-white/10 pt-2 mt-2">
-                        {selectedTokenType === 'ETH' ? (
-                          <>
-                            <div className="flex items-center justify-between">
-                              <span>ETH/USD Rate</span>
-                              <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${
-                                  isPriceLoading ? 'bg-yellow-400 animate-pulse' :
-                                  priceError ? 'bg-red-400' :
-                                  isOnSepolia 
-                                    ? (isPriceStale ? 'bg-yellow-400' : 'bg-green-400')
-                                    : 'bg-gray-400'
-                                }`} />
-                                <span className="font-medium">
-                                  {isPriceLoading ? 'Loading...' : 
-                                   priceError ? 'Error' : 
-                                   formattedPrice}
-                                </span>
-                              </div>
-                            </div>
-                            {numericAmount > 0 && !isPriceLoading && !priceError && (
-                              <div className="flex items-center justify-between mt-1 text-xs text-white/70">
-                                <span>{numericAmount} ETH value</span>
-                                <span>${(numericAmount * ethPrice).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <div className="flex items-center justify-between">
-                            <span>Conversion Rate</span>
-                            <span className="font-medium">1 eTEST = $0</span>
-                          </div>
-                        )}
                       </div>
                     </div>
 

@@ -46,7 +46,9 @@ export default function WithdrawPage() {
     isOnSepolia,
     refreshPrice,
     formattedPrice,
-    isPriceStale
+    isPriceStale,
+    getTokenPrice,
+    getFormattedTokenPrice
   } = usePriceOracle()
   
   // Withdraw hook integration
@@ -87,7 +89,7 @@ export default function WithdrawPage() {
       symbol: t.isNative ? "eETH" : `e${t.symbol}`,
       name: t.isNative ? "Encrypted ETH" : `Encrypted ${t.symbol}`,
       balance: decryptedBalance ? parseFloat(decryptedBalance) : 0,
-      priceUsd: ethPrice, // Real-time price from oracle
+      priceUsd: getTokenPrice(t.isNative ? 'ETH' : t.symbol), // Dynamic pricing based on token type
       tokenId: 0n, // Will be fetched dynamically in onConfirmWithdraw
       tokenAddress: t.address,
     }))
@@ -359,7 +361,7 @@ export default function WithdrawPage() {
                                   ? (isPriceStale ? 'bg-yellow-400' : 'bg-green-400')
                                   : 'bg-gray-400'
                               }`} />
-                              1 {selectedToken.symbol} ≈ {formattedPrice}
+                              1 {selectedToken.symbol} ≈ {getFormattedTokenPrice(selectedToken.symbol)}
                               {!isOnSepolia && ' (fallback)'}
                             </div>
                           )}
@@ -535,41 +537,6 @@ export default function WithdrawPage() {
                     <div className="flex items-center justify-between">
                       <span>Network fees</span>
                       <span>~$2.10 (est.)</span>
-                    </div>
-                    {/* Conversion Rate */}
-                    <div className="border-t border-white/10 pt-2 mt-2">
-                      {selectedToken?.symbol === 'eETH' ? (
-                        <>
-                          <div className="flex items-center justify-between">
-                            <span>ETH/USD Rate</span>
-                            <div className="flex items-center gap-2">
-                              <div className={`w-2 h-2 rounded-full ${
-                                isPriceLoading ? 'bg-yellow-400 animate-pulse' :
-                                priceError ? 'bg-red-400' :
-                                isOnSepolia 
-                                  ? (isPriceStale ? 'bg-yellow-400' : 'bg-green-400')
-                                  : 'bg-gray-400'
-                              }`} />
-                              <span className="font-medium">
-                                {isPriceLoading ? 'Loading...' : 
-                                 priceError ? 'Error' : 
-                                 formattedPrice}
-                              </span>
-                            </div>
-                          </div>
-                          {numericAmount > 0 && !isPriceLoading && !priceError && (
-                            <div className="flex items-center justify-between mt-1 text-xs text-white/70">
-                              <span>{numericAmount} ETH value</span>
-                              <span>${(numericAmount * ethPrice).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="flex items-center justify-between">
-                          <span>Conversion Rate</span>
-                          <span className="font-medium">1 eTEST = $0</span>
-                        </div>
-                      )}
                     </div>
                   </div>
 

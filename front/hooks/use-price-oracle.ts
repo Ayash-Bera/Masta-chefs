@@ -124,11 +124,25 @@ export function usePriceOracle() {
       if (symbol.toLowerCase().includes('eth')) {
         return ethPrice?.price || 2000;
       }
+      // TEST tokens and eTest tokens should show $0
+      if (symbol.toLowerCase().includes('test') || symbol.toLowerCase().includes('etest')) {
+        return 0;
+      }
       return 1; // Fallback for other tokens
     },
     // Helper to check if price is recent
     isPriceStale: ethPrice?.isStale || false,
     // Formatted price display
-    formattedPrice: ethPrice ? `$${ethPrice.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '$2,000'
+    formattedPrice: ethPrice ? `$${ethPrice.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '$2,000',
+    // Helper to get formatted price for any token
+    getFormattedTokenPrice: (symbol: string) => {
+      if (symbol.toLowerCase().includes('eth')) {
+        return ethPrice ? `$${ethPrice.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '$2,000';
+      }
+      if (symbol.toLowerCase().includes('test') || symbol.toLowerCase().includes('etest')) {
+        return '$0.00';
+      }
+      return '$1.00';
+    }
   };
 }

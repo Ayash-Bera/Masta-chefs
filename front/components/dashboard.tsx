@@ -32,14 +32,15 @@ export default function TsunamiDashboard() {
   const { address } = useAccount()
   const [mounted, setMounted] = useState(false)
   
-  // Real-time price oracle for ETH/USD conversion
+  // Real-time ETH/USD price from oracle
   const { 
     ethPrice, 
-    isLoading: isPriceLoading, 
+    formattedPrice,
+    isLoading: isPriceLoading,
     error: priceError,
     isOnSepolia,
-    formattedPrice,
-    isPriceStale
+    isPriceStale,
+    refreshPrice
   } = usePriceOracle()
   
   useEffect(() => setMounted(true), [])
@@ -53,13 +54,8 @@ export default function TsunamiDashboard() {
   const { decryptedBalance, isLoading } = useEncryptedBalance(selectedMeta?.address as any, selectedDecimals)
   const decryptedBalanceNum = useMemo(() => Number(decryptedBalance || 0), [decryptedBalance])
   const tokens: TokenRow[] = useMemo(() => selectedMeta ? [
-    { 
-      symbol: selectedSymbol, 
-      balance: decryptedBalanceNum, 
-      usd: decryptedBalanceNum * (selectedMeta.isNative ? ethPrice : 1), 
-      icon: DollarSign 
-    },
-  ] : [], [selectedMeta, decryptedBalanceNum, selectedSymbol, ethPrice])
+    { symbol: selectedSymbol, balance: decryptedBalanceNum, usd: decryptedBalanceNum * (selectedMeta.isNative ? ethPrice : 0), icon: DollarSign },
+  ] : [], [selectedMeta, decryptedBalanceNum, ethPrice])
 
   const totalUsd = useMemo(() => tokens.reduce((sum, t) => sum + t.usd, 0), [tokens])
 
@@ -211,93 +207,55 @@ export default function TsunamiDashboard() {
           </div>
         </section>
 
-        {/* ETH/USD Conversion Rate - Only show for ETH */}
-        {selectedMeta?.isNative && (
-          <section
-            className="backdrop-blur-xl border border-white/15 rounded-2xl p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06),0_16px_56px_rgba(0,0,0,0.45)]"
-            style={{ background: "transparent" }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white">ETH/USD Rate</h2>
-              <div className="flex items-center gap-2">
-                {isPriceLoading ? (
-                  <div className="flex items-center gap-2 text-yellow-400 text-xs">
+        {/* ETH/USD Rate Widget */}
+        <div className="flex justify-end">
+          <div className="w-64">
+            <div className="backdrop-blur-3xl backdrop-saturate-200 border border-white/15 rounded-2xl px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_16px_56px_rgba(0,0,0,0.35)]" style={{ background: "rgba(255,255,255,0.06)" }}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-white/70" />
+                  <span className="text-sm text-white/70">ETH/USD</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {isPriceLoading ? (
                     <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
-                    Loading...
-                  </div>
-                ) : priceError ? (
-                  <div className="flex items-center gap-2 text-red-400 text-xs">
+                  ) : priceError ? (
                     <div className="w-2 h-2 bg-red-400 rounded-full" />
-                    Error
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-xs">
+                  ) : (
                     <div className={`w-2 h-2 rounded-full ${
                       isOnSepolia 
                         ? (isPriceStale ? 'bg-yellow-400' : 'bg-green-400')
                         : 'bg-gray-400'
                     }`} />
-                    <span className="text-white/70">
-                      {isOnSepolia ? (isPriceStale ? 'Stale' : 'Live') : 'Fallback'}
-                    </span>
+                  )}
+                  {isOnSepolia && (
+                    <button 
+                      onClick={refreshPrice}
+                      className="text-xs px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/15 text-white/70 transition-colors"
+                      title="Refresh price"
+                    >
+                      🔄
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="mt-1">
+                {isPriceLoading ? (
+                  <div className="text-white/50 text-sm">Loading...</div>
+                ) : priceError ? (
+                  <div className="text-red-400 text-sm">Error</div>
+                ) : (
+                  <div className="text-white font-semibold">
+                    {formattedPrice}
+                    {!isOnSepolia && (
+                      <span className="text-xs text-white/50 ml-1">(fallback)</span>
+                    )}
                   </div>
                 )}
               </div>
             </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Current Rate */}
-              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                <div className="text-sm text-white/70 mb-1">Current Rate</div>
-                <div className="text-2xl font-bold text-white">
-                  {isPriceLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                      <span>Loading...</span>
-                    </div>
-                  ) : priceError ? (
-                    <span className="text-red-400">Error</span>
-                  ) : (
-                    formattedPrice
-                  )}
-                </div>
-                <div className="text-xs text-white/60 mt-1">
-                  1 ETH = 1 eETH
-                </div>
-              </div>
-              
-              {/* Network Status */}
-              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                <div className="text-sm text-white/70 mb-1">Oracle Status</div>
-                <div className="text-lg font-semibold text-white">
-                  {isOnSepolia ? (
-                    <span className="text-green-400">🟢 Pyth Network</span>
-                  ) : (
-                    <span className="text-gray-400">🟫 Fallback Mode</span>
-                  )}
-                </div>
-                <div className="text-xs text-white/60 mt-1">
-                  {isOnSepolia 
-                    ? 'Real-time price feeds' 
-                    : 'Switch to Sepolia for live prices'
-                  }
-                </div>
-              </div>
-            </div>
-            
-            {/* Conversion Examples */}
-            {selectedMeta?.isNative && decryptedBalance && parseFloat(decryptedBalance) > 0 && (
-              <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                <div className="text-sm text-blue-300 mb-2">💡 Your Balance Conversion:</div>
-                <div className="text-white">
-                  <span className="font-mono">{parseFloat(decryptedBalance).toFixed(4)} eETH</span>
-                  <span className="text-white/70"> ≈ </span>
-                  <span className="font-semibold">{showBalances ? `$${(parseFloat(decryptedBalance) * ethPrice).toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '••••'}</span>
-                </div>
-              </div>
-            )}
-          </section>
-        )}
+          </div>
+        </div>
 
         {/* Compliance */}
         <div className="grid lg:grid-cols-5 gap-6">
