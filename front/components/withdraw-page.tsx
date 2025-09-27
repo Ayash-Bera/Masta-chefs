@@ -346,34 +346,19 @@ export default function WithdrawPage() {
                         <div className="text-xs text-white flex items-center gap-1">
                           {isPriceLoading ? (
                             <div className="flex items-center gap-1">
-                              <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
                               Loading price...
                             </div>
                           ) : priceError ? (
                             <div className="flex items-center gap-1 text-red-400">
-                              <div className="w-2 h-2 bg-red-400 rounded-full" />
                               Price error
                             </div>
                           ) : (
                             <div className="flex items-center gap-1">
-                              <div className={`w-2 h-2 rounded-full ${
-                                isOnSepolia 
-                                  ? (isPriceStale ? 'bg-yellow-400' : 'bg-green-400')
-                                  : 'bg-gray-400'
-                              }`} />
                               1 {selectedToken.symbol} ≈ {getFormattedTokenPrice(selectedToken.symbol)}
                               {!isOnSepolia && ' (fallback)'}
                             </div>
                           )}
                         </div>
-                        {isOnSepolia && (
-                          <button 
-                            onClick={refreshPrice}
-                            className="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/15 text-white border border-white/20"
-                          >
-                            🔄
-                          </button>
-                        )}
                       </div>
                     </div>                  <div className="mt-4 grid sm:grid-cols-[1fr_auto] gap-4 items-stretch">
                     {/* Token selector */}
