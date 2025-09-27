@@ -73,28 +73,28 @@ export function SelfQRCode({
       const app = new SelfAppBuilder({
         version: 2,
         appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || "Tsunami Wallet",
-        scope: sessionData?.scope || 'tcash-compliant-procedure-v1',
-        endpoint: CONTRACT_ADDRESSES.COMPLIANT_PROCEDURE.SEPOLIA, // Point to our compliant procedure contract
+        scope: sessionData?.scope || 'tsunami',
+        endpoint:'0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6', // Point to our compliant procedure contract
         logoBase64: "https://i.postimg.cc/mrmVf9hm/self.png",
         userId: actualUserId,
         endpointType: "staging_celo", // Use contract endpoint type for Celo
         userIdType: "hex",
         userDefinedData: "Tsunami Wallet KYC Verification",
-        chainID: 11142220, // Celo Sepolia chain ID
+        // chainID: 11142220, // Celo Sepolia chain ID
         disclosures: {
-          // Verification requirements (match contract configuration)
-          minimumAge: sessionData?.requirements?.minimumAge || DEFAULT_CONFIG.MINIMUM_AGE,
-          // forbiddenCountries: sessionData?.requirements?.excludedCountries || DEFAULT_CONFIG.EXCLUDED_COUNTRIES,
-          ofac: sessionData?.requirements?.requireOfacCheck || DEFAULT_CONFIG.REQUIRE_OFAC_CHECK,
+          // // Verification requirements (match contract configuration)
+          // minimumAge: sessionData?.requirements?.minimumAge || DEFAULT_CONFIG.MINIMUM_AGE,
+          // // forbiddenCountries: sessionData?.requirements?.excludedCountries || DEFAULT_CONFIG.EXCLUDED_COUNTRIES,
+          // ofac: sessionData?.requirements?.requireOfacCheck || DEFAULT_CONFIG.REQUIRE_OFAC_CHECK,
 
-          // Disclosure requests (what users reveal)
-          nationality: true,
+          // // Disclosure requests (what users reveal)
+          // nationality: true,
 
-          // Optional disclosures based on contract requirements
-          name: false,
-          date_of_birth: false,
-          passport_number: false,
-          expiry_date: false,
+          // // Optional disclosures based on contract requirements
+          // name: false,
+          // date_of_birth: false,
+          // passport_number: false,
+          // expiry_date: false,
         }
       }).build();
 

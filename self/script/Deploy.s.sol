@@ -22,7 +22,7 @@ contract DeployCompliantProcedure is Script {
         // Deploy the CompliantProcedure contract
         // Using Self.xyz V2 Hub staging address for Celo Sepolia
         address hubAddress = 0x16ECBA51e18a4a7e61fdC417f0d47AFEeDfbed74;
-        uint256 scope = uint256(keccak256("tcash-compliant-procedure-v1"));
+        uint256 scope = uint256(keccak256("tsunami"));
         bytes32 configId = 0x7b6436b0c98f62380866d9432c2af0ee08ce16a171bda6951aecd95ee1307d61;
         
         compliantProcedure = new CompliantProcedure(hubAddress, scope, configId);

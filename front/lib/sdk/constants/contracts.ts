@@ -2,14 +2,14 @@
 export const CONTRACT_ADDRESSES = {
   // Primary KYC System - StealthKYC with Privacy Features
   STEALTH_KYC_VERIFIER: {
-    SEPOLIA: '0x49f84f8FDeda8dA7403f0d9320670329DeA4290B', // Primary Celo Sepolia
+    SEPOLIA: '0x49f84f8fdeda8da7403f0d9320670329dea4290b', // Primary Celo Sepolia
     ALFAJORES: '0x...', // Legacy - to be deployed if needed
     CELO: '0x...' // Mainnet - to be deployed
   },
   // Simple Compliant Procedure System - Self.xyz Compatible
   COMPLIANT_PROCEDURE: {
-    SEPOLIA: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', // Self.xyz compatible - Deployed on Celo Sepolia
-    ETHEREUM_SEPOLIA: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853', // Same contract on Ethereum Sepolia
+    SEPOLIA: '0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6', // Self.xyz compatible - Deployed on Celo Sepolia
+    ETHEREUM_SEPOLIA: '0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6', // Same contract on Ethereum Sepolia
     BASE_MAINNET: '0x0000000000000000000000000000000000000000', // To be deployed on Base Mainnet
     ALFAJORES: '0x0000000000000000000000000000000000000000', // To be deployed if needed
     CELO: '0x0000000000000000000000000000000000000000' // Mainnet - to be deployed

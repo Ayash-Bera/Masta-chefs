@@ -78,7 +78,7 @@ export function ComplianceQRCode({
       const app = new SelfAppBuilder({
         version: 2,
         appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || COMPLIANCE_CONFIG.APP_NAME,
-        scope: sessionData?.scope || 'tcash-compliant-procedure-v1',
+        scope: sessionData?.scope || 'tsunami',
         endpoint: SELF_HUB_ADDRESSES.SEPOLIA, // Self.xyz Identity Verification Hub for mock passports
         logoBase64: "https://i.postimg.cc/mrmVf9hm/self.png",
         userId: actualUserId,
