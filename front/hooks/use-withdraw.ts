@@ -9,7 +9,7 @@ import { i0 } from '../lib/crypto-utils';
 import { formatPrivKeyForBabyJub } from 'maci-crypto';
 import { subOrder } from '@zk-kit/baby-jubjub';
 import { processPoseidonEncryption } from '../lib/poseidon/poseidon';
-import { getDecryptedBalance } from '../lib/balances/balances';
+import { getDecryptedBalance, decryptEGCTBalance } from '../lib/balances/balances';
 import * as snarkjs from 'snarkjs';
 
 export interface WithdrawParams {
@@ -110,11 +110,6 @@ export function useWithdraw(tokenAddress?: `0x${string}`, tokenDecimals: number 
         ? (params.amount / (10n ** diff))
         : (params.amount * (10n ** (-diff)));
 
-      // Scale currentBalance (assumed 18 decimals) down to internal 2 decimals
-      const senderBalanceInternal = diff >= 0n
-        ? (currentBalance / (10n ** diff))
-        : (currentBalance * (10n ** (-diff)));
-
       // Normalize encrypted balance EGCT c1/c2 from possible tuple/object shapes
       const ebAny: any = encryptedBalanceData as any;
       let c1x = "0", c1y = "0", c2x = "0", c2y = "0";
@@ -135,6 +130,13 @@ export function useWithdraw(tokenAddress?: `0x${string}`, tokenDecimals: number 
         throw new Error('Encrypted balance not found for selected token');
       }
 
+      // Decrypt EGCT to get actual sender balance in internal 2 decimals
+      const egctBalanceInternal = decryptEGCTBalance(
+        i0(await signMessageAsync({ message: `eERC\nRegistering user with\n Address:${address.toLowerCase()}` })),
+        [BigInt(c1x), BigInt(c1y)],
+        [BigInt(c2x), BigInt(c2y)]
+      );
+
       // Generate Auditor PCT payload for the withdrawal amount
       // This produces ciphertext[4], nonce, encRandom, authKey[2]
       const auditorEnc = processPoseidonEncryption(
@@ -148,7 +150,7 @@ export function useWithdraw(tokenAddress?: `0x${string}`, tokenDecimals: number 
         ValueToWithdraw: valueToWithdrawInternal.toString(),
         SenderPrivateKey: formattedPrivateKey.toString(),
         SenderPublicKey: [userPublicKey[0].toString(), userPublicKey[1].toString()],
-        SenderBalance: senderBalanceInternal.toString(),
+        SenderBalance: egctBalanceInternal.toString(),
         SenderBalanceC1: [c1x, c1y],
         SenderBalanceC2: [c2x, c2y],
         AuditorPublicKey: [auditorX, auditorY],
