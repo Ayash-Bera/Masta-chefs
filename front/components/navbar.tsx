@@ -1,26 +1,28 @@
 "use client"
+
 import { Shield } from "lucide-react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
+import { useInstantNavigation } from "@/hooks/use-instant-navigation"
 
 export default function Navbar() {
-  const router = useRouter()
   const pathname = usePathname()
   const { address } = useAccount()
   const { connect } = useConnect()
   const { disconnect } = useDisconnect()
   const [mounted, setMounted] = useState(false)
+  const { navigate, replace, prefetch } = useInstantNavigation()
   
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     if (mounted && !address && pathname !== '/') {
-      router.replace('/')
+      replace('/')
     }
-  }, [mounted, address, pathname, router])
+  }, [mounted, address, pathname, replace])
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
@@ -31,7 +33,8 @@ export default function Navbar() {
         >
           <div className="flex items-center justify-between text-white">
             <button
-              onClick={() => router.push("/")}
+              onPointerEnter={() => prefetch('/')}
+              onClick={() => navigate("/")}
               className="flex items-center gap-3 text-white/80 hover:text-white transition-colors"
             >
               <Shield className="w-6 h-6" />
@@ -40,11 +43,41 @@ export default function Navbar() {
             <div className="flex items-center gap-6">
               {pathname !== '/' && (
                 <div className="hidden md:flex items-center gap-5 text-sm">
-                  <button onClick={() => router.push('/dashboard')} className="text-white/75 hover:text-white transition-colors">Dashboard</button>
-                  <button onClick={() => router.push('/deposit')} className="text-white/75 hover:text-white transition-colors">Deposit</button>
-                  <button onClick={() => router.push('/swap')} className="text-white/75 hover:text-white transition-colors">Swap</button>
-                  <button onClick={() => router.push('/withdraw')} className="text-white/75 hover:text-white transition-colors">Withdraw</button>
-                  <button onClick={() => router.push('/onboarding')} className="text-white/75 hover:text-white transition-colors">Onboarding</button>
+                  <button
+                    onPointerEnter={() => prefetch('/dashboard')}
+                    onClick={() => navigate('/dashboard')}
+                    className="text-white/75 hover:text-white transition-colors"
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    onPointerEnter={() => prefetch('/deposit')}
+                    onClick={() => navigate('/deposit')}
+                    className="text-white/75 hover:text-white transition-colors"
+                  >
+                    Deposit
+                  </button>
+                  <button
+                    onPointerEnter={() => prefetch('/swap')}
+                    onClick={() => navigate('/swap')}
+                    className="text-white/75 hover:text-white transition-colors"
+                  >
+                    Swap
+                  </button>
+                  <button
+                    onPointerEnter={() => prefetch('/withdraw')}
+                    onClick={() => navigate('/withdraw')}
+                    className="text-white/75 hover:text-white transition-colors"
+                  >
+                    Withdraw
+                  </button>
+                  <button
+                    onPointerEnter={() => prefetch('/onboarding')}
+                    onClick={() => navigate('/onboarding')}
+                    className="text-white/75 hover:text-white transition-colors"
+                  >
+                    Onboarding
+                  </button>
                   
                 </div>
               )}
