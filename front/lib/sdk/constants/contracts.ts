@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 export const CONTRACT_ADDRESSES = {
-  SELFKYC_VERIFIER: {
-    ALFAJORES: '0x31fE360492189a0c03BACaE36ef9be682Ad3727B',
-    CELO: '0x...' // Mainnet address - to be deployed
-  },
+  // Primary KYC System - StealthKYC with Privacy Features
   STEALTH_KYC_VERIFIER: {
-    ALFAJORES: '0x...', // To be deployed
-    CELO: '0x...' // To be deployed
+    SEPOLIA: '0x49f84f8FDeda8dA7403f0d9320670329DeA4290B', // Primary Celo Sepolia
+    ALFAJORES: '0x...', // Legacy - to be deployed if needed
+    CELO: '0x...' // Mainnet - to be deployed
   },
+  // Legacy - Remove after migration
+  // SELFKYC_VERIFIER: {
+  //   SEPOLIA: '0xc34Bd4ddb76036514ade24acae2Ba975469f907C', // Deprecated
+  // },
   SHIELDED_VAULT: {
     ALFAJORES: '0x...', // To be deployed
     CELO: '0x...' // To be deployed
@@ -35,6 +37,17 @@ export const NETWORK_CONFIGS = {
       decimals: 18
     }
   },
+  SEPOLIA: {
+    chainId: 11142220,
+    name: 'Celo Sepolia Testnet',
+    rpcUrl: 'https://forno.celo-sepolia.celo-testnet.org',
+    explorerUrl: 'https://celo-sepolia.blockscout.com',
+    nativeCurrency: {
+      name: 'CELO',
+      symbol: 'CELO',
+      decimals: 18
+    }
+  },
   CELO: {
     chainId: 42220,
     name: 'Celo',
@@ -48,8 +61,9 @@ export const NETWORK_CONFIGS = {
   }
 } as const;
 
+// Primary KYC Configuration - StealthKYC Only
 export const DEFAULT_CONFIG = {
-  SCOPE: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+  SCOPE_SEED: 'tcash-stealth-kyc', // Primary stealth KYC scope
   CONFIG_ID: '0x0000000000000000000000000000000000000000000000000000000000000001',
   REQUIRE_OFAC_CHECK: true,
   MINIMUM_AGE: 18,

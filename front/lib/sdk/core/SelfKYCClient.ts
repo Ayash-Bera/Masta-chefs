@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
-import { useAccount, useChainId, useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
-import { 
-  KYCData, 
-  VerificationConfig, 
-  KYCResult, 
-  VerificationStats, 
+// STEALTH KYC CLIENT - Primary stealth address KYC system
+import { useAccount, useChainId, useWriteContract, useReadContract, useWaitForTransactionReceipt, usePublicClient } from 'wagmi';
+import {
+  MasterKYCIdentity,
+  VerificationConfig,
+  KYCResult,
+  VerificationStats,
   SelfProof,
-  VerificationEvent 
+  VerificationEvent
 } from '../types/contracts';
 import { CONTRACT_ADDRESSES, DEFAULT_CONFIG } from '../constants/contracts';
 
-const SELFKYC_ABI = [
+const STEALTH_KYC_ABI = [
   {
     "name": "getConfigId",
     "type": "function",
@@ -19,28 +20,52 @@ const SELFKYC_ABI = [
     "outputs": [{ "name": "", "type": "bytes32" }]
   },
   {
-    "name": "isKYCVerified",
+    "name": "isStealthAddressVerified",
     "type": "function",
     "stateMutability": "view",
-    "inputs": [{ "name": "user", "type": "address" }],
+    "inputs": [{ "name": "stealthAddress", "type": "address" }],
     "outputs": [{ "name": "", "type": "bool" }]
   },
   {
-    "name": "getKYCData",
+    "name": "getMasterIdentityByStealthAddress",
     "type": "function",
     "stateMutability": "view",
-    "inputs": [{ "name": "user", "type": "address" }],
+    "inputs": [{ "name": "stealthAddress", "type": "address" }],
     "outputs": [
       {
         "name": "",
         "type": "tuple",
         "components": [
           { "name": "isVerified", "type": "bool" },
-          { "name": "timestamp", "type": "uint256" },
+          { "name": "dobCommitment", "type": "bytes32" },
           { "name": "nationality", "type": "string" },
           { "name": "documentType", "type": "uint8" },
           { "name": "isOfacClear", "type": "bool" },
-          { "name": "verificationCount", "type": "uint256" }
+          { "name": "verificationTimestamp", "type": "uint256" },
+          { "name": "verificationCount", "type": "uint256" },
+          { "name": "primaryStealthAddress", "type": "address" }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "getMasterIdentity",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [{ "name": "masterNullifier", "type": "bytes32" }],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "components": [
+          { "name": "isVerified", "type": "bool" },
+          { "name": "dobCommitment", "type": "bytes32" },
+          { "name": "nationality", "type": "string" },
+          { "name": "documentType", "type": "uint8" },
+          { "name": "isOfacClear", "type": "bool" },
+          { "name": "verificationTimestamp", "type": "uint256" },
+          { "name": "verificationCount", "type": "uint256" },
+          { "name": "primaryStealthAddress", "type": "address" }
         ]
       }
     ]
@@ -73,7 +98,8 @@ const SELFKYC_ABI = [
     "inputs": [],
     "outputs": [
       { "name": "totalVerifications", "type": "uint256" },
-      { "name": "uniqueUsers", "type": "uint256" }
+      { "name": "uniqueIdentities", "type": "uint256" },
+      { "name": "totalStealthAddresses", "type": "uint256" }
     ]
   },
   {
@@ -99,12 +125,12 @@ const SELFKYC_ABI = [
     "outputs": []
   },
   {
-    "name": "KYCVerified",
+    "name": "MasterIdentityVerified",
     "type": "event",
     "anonymous": false,
     "inputs": [
-      { "name": "user", "type": "address", "indexed": true },
-      { "name": "nullifier", "type": "uint256", "indexed": true },
+      { "name": "masterNullifier", "type": "bytes32", "indexed": true },
+      { "name": "primaryStealthAddress", "type": "address", "indexed": true },
       { "name": "nationality", "type": "string", "indexed": false },
       { "name": "documentType", "type": "uint8", "indexed": false },
       { "name": "timestamp", "type": "uint256", "indexed": false },
@@ -112,13 +138,13 @@ const SELFKYC_ABI = [
     ]
   },
   {
-    "name": "KYCRevoked",
+    "name": "StealthAddressLinked",
     "type": "event",
     "anonymous": false,
     "inputs": [
-      { "name": "user", "type": "address", "indexed": true },
-      { "name": "nullifier", "type": "uint256", "indexed": true },
-      { "name": "reason", "type": "string", "indexed": false },
+      { "name": "masterNullifier", "type": "bytes32", "indexed": true },
+      { "name": "stealthAddress", "type": "address", "indexed": true },
+      { "name": "linkedBy", "type": "address", "indexed": true },
       { "name": "timestamp", "type": "uint256", "indexed": false }
     ]
   },
@@ -135,49 +161,38 @@ const SELFKYC_ABI = [
   }
 ] as const;
 
-export class SelfKYCClient {
+export class StealthKYCClient {
   private contractAddress: string;
   private chainId: number;
 
-  constructor(chainId: number = 44787) {
+  constructor(chainId: number = 11142220) {
     this.chainId = chainId;
     this.contractAddress = this.getContractAddress();
   }
 
   private getContractAddress(): string {
     if (this.chainId === 44787) {
-      return CONTRACT_ADDRESSES.SELFKYC_VERIFIER.ALFAJORES;
+      return CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.ALFAJORES;
+    } else if (this.chainId === 11142220) {
+      return CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.SEPOLIA;
     } else if (this.chainId === 42220) {
-      return CONTRACT_ADDRESSES.SELFKYC_VERIFIER.CELO;
+      return CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.CELO;
     }
     throw new Error(`Unsupported chain ID: ${this.chainId}`);
   }
 
   /**
-   * Verify KYC using Self.xyz proof
+   * Verify stealth address KYC using Self.xyz proof - This is called by Self.xyz verification flow
    */
-  async verifyKYC(proof: SelfProof, userData?: any): Promise<KYCResult> {
+  async verifyStealthKYC(proof: SelfProof, userData?: any): Promise<KYCResult> {
     try {
-      const output = {
-        nullifier: BigInt(proof.nullifier),
-        userIdentifier: BigInt(proof.userIdentifier),
-        nationality: proof.nationality,
-        documentType: proof.documentType,
-        olderThan: proof.ageAtLeast,
-        ofac: [proof.isOfacMatch],
-        attestationId: proof.attestationId
-      };
+      // Note: In the actual Self.xyz integration, this method would be called
+      // automatically by the Self.xyz verification flow through the customVerificationHook
+      // in the smart contract. The frontend primarily monitors events and updates state.
 
-      const userDataBytes = userData ? JSON.stringify(userData) : '';
-
-      // This would typically be called through the Self.xyz verification process
-      // For now, we'll simulate the verification
-      const result = await this.simulateVerification(output, userDataBytes);
-      
       return {
         success: true,
-        transactionHash: result.transactionHash,
-        kycData: result.kycData
+        message: 'Stealth address verification initiated through Self.xyz mobile app'
       };
     } catch (error) {
       return {
@@ -188,108 +203,113 @@ export class SelfKYCClient {
   }
 
   /**
-   * Check if a user is KYC verified
+   * Check if a stealth address is KYC verified
+   * Note: This should be used with wagmi hooks in React components
    */
-  async checkVerificationStatus(address: string): Promise<boolean> {
-    try {
-      // This would use useReadContract in a React component
-      // For now, return a mock result
-      return false;
-    } catch (error) {
-      console.error('Error checking verification status:', error);
-      return false;
-    }
+  getIsStealthAddressVerifiedConfig(stealthAddress: string) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: STEALTH_KYC_ABI,
+      functionName: 'isStealthAddressVerified',
+      args: [stealthAddress as `0x${string}`],
+    };
   }
 
   /**
-   * Get KYC data for a user
+   * Get master identity data for a stealth address
+   * Note: This should be used with wagmi hooks in React components
    */
-  async getKYCData(address: string): Promise<KYCData | null> {
-    try {
-      // This would use useReadContract in a React component
-      // For now, return mock data
-      return {
-        isVerified: false,
-        timestamp: 0,
-        nationality: '',
-        documentType: 0,
-        isOfacClear: false,
-        verificationCount: 0
-      };
-    } catch (error) {
-      console.error('Error getting KYC data:', error);
-      return null;
-    }
+  getMasterIdentityByStealthAddressConfig(stealthAddress: string) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: STEALTH_KYC_ABI,
+      functionName: 'getMasterIdentityByStealthAddress',
+      args: [stealthAddress as `0x${string}`],
+    };
+  }
+
+  /**
+   * Get master identity data by nullifier
+   * Note: This should be used with wagmi hooks in React components
+   */
+  getMasterIdentityConfig(masterNullifier: string) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: STEALTH_KYC_ABI,
+      functionName: 'getMasterIdentity',
+      args: [masterNullifier as `0x${string}`],
+    };
   }
 
   /**
    * Get current verification configuration
+   * Note: This should be used with wagmi hooks in React components
    */
-  async getConfiguration(): Promise<VerificationConfig | null> {
-    try {
-      // This would use useReadContract in a React component
-      return {
-        configId: DEFAULT_CONFIG.CONFIG_ID,
-        scope: DEFAULT_CONFIG.SCOPE,
-        requireOfacCheck: DEFAULT_CONFIG.REQUIRE_OFAC_CHECK,
-        minimumAge: DEFAULT_CONFIG.MINIMUM_AGE,
-        excludedCountries: DEFAULT_CONFIG.EXCLUDED_COUNTRIES,
-        allowedDocumentTypes: DEFAULT_CONFIG.ALLOWED_DOCUMENT_TYPES,
-        isActive: true
-      };
-    } catch (error) {
-      console.error('Error getting configuration:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Get verification statistics
-   */
-  async getStatistics(): Promise<VerificationStats | null> {
-    try {
-      // This would use useReadContract in a React component
-      return {
-        totalVerifications: 0,
-        uniqueUsers: 0
-      };
-    } catch (error) {
-      console.error('Error getting statistics:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Get verification history for a user
-   */
-  async getVerificationHistory(address: string): Promise<VerificationEvent[]> {
-    try {
-      // This would query contract events
-      return [];
-    } catch (error) {
-      console.error('Error getting verification history:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Simulate verification process
-   * In a real implementation, this would be handled by Self.xyz
-   */
-  private async simulateVerification(output: any, userData: string): Promise<{ transactionHash: string; kycData: KYCData }> {
-    // Simulate verification delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
+  getConfigurationConfig() {
     return {
-      transactionHash: '0x' + Math.random().toString(16).substr(2, 64),
-      kycData: {
-        isVerified: true,
-        timestamp: Date.now(),
-        nationality: output.nationality,
-        documentType: output.documentType,
-        isOfacClear: !output.ofac[0],
-        verificationCount: 1
-      }
+      address: this.contractAddress as `0x${string}`,
+      abi: STEALTH_KYC_ABI,
+      functionName: 'getConfiguration',
+    };
+  }
+
+  /**
+   * Get verification statistics including stealth addresses
+   * Note: This should be used with wagmi hooks in React components
+   */
+  getStatisticsConfig() {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: STEALTH_KYC_ABI,
+      functionName: 'getStatistics',
+    };
+  }
+
+  /**
+   * Get master identity verification events config for wagmi
+   */
+  getMasterIdentityVerificationEventsConfig(stealthAddress?: string) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: STEALTH_KYC_ABI,
+      eventName: 'MasterIdentityVerified',
+      args: stealthAddress ? { primaryStealthAddress: stealthAddress as `0x${string}` } : undefined,
+      fromBlock: 'earliest' as const,
+    };
+  }
+
+  /**
+   * Get stealth address linking events config for wagmi
+   */
+  getStealthAddressLinkedEventsConfig(stealthAddress?: string) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: STEALTH_KYC_ABI,
+      eventName: 'StealthAddressLinked',
+      args: stealthAddress ? { stealthAddress: stealthAddress as `0x${string}` } : undefined,
+      fromBlock: 'earliest' as const,
+    };
+  }
+
+  /**
+   * Get configuration for watching master identity verification events
+   */
+  getWatchMasterIdentityEventsConfig() {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: STEALTH_KYC_ABI,
+      eventName: 'MasterIdentityVerified',
+    };
+  }
+
+  /**
+   * Get configuration for watching stealth address linking events
+   */
+  getWatchStealthAddressLinkedEventsConfig() {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: STEALTH_KYC_ABI,
+      eventName: 'StealthAddressLinked',
     };
   }
 
@@ -314,7 +334,7 @@ export class SelfKYCClient {
    * Get contract ABI for use with wagmi
    */
   getABI() {
-    return SELFKYC_ABI;
+    return STEALTH_KYC_ABI;
   }
 
   /**
@@ -323,4 +343,26 @@ export class SelfKYCClient {
   getContractAddress(): string {
     return this.contractAddress;
   }
+
+  /**
+   * Get contract configuration for manual verification calls (admin only)
+   */
+  getCustomVerificationHookConfig(output: any, userData: string = '') {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: STEALTH_KYC_ABI,
+      functionName: 'customVerificationHook',
+      args: [output, userData],
+    };
+  }
+
+  // Legacy compatibility - redirect to stealth address methods
+  getIsVerifiedConfig = this.getIsStealthAddressVerifiedConfig;
+  getKYCDataConfig = this.getMasterIdentityByStealthAddressConfig;
+  getVerificationEventsConfig = this.getMasterIdentityVerificationEventsConfig;
+  getWatchKYCEventsConfig = this.getWatchMasterIdentityEventsConfig;
+  verifyKYC = this.verifyStealthKYC;
 }
+
+// Export as legacy alias for compatibility
+export const SelfKYCClient = StealthKYCClient;
