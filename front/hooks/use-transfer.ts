@@ -108,8 +108,18 @@ export function useTransfer(tokenAddress?: `0x${string}`, tokenDecimals: number 
       }
 
       // Decrypt EGCT to derive the sender's balance in internal (2) decimals
+      console.log('🔍 About to decrypt EGCT balance...')
+      console.log('🔍 egct.c1.x:', egct.c1.x, typeof egct.c1.x)
+      console.log('🔍 egct.c1.y:', egct.c1.y, typeof egct.c1.y)
+      console.log('🔍 egct.c2.x:', egct.c2.x, typeof egct.c2.x)
+      console.log('🔍 egct.c2.y:', egct.c2.y, typeof egct.c2.y)
+      
       const c1: [bigint, bigint] = [BigInt(egct.c1.x.toString()), BigInt(egct.c1.y.toString())]
       const c2: [bigint, bigint] = [BigInt(egct.c2.x.toString()), BigInt(egct.c2.y.toString())]
+      
+      console.log('🔍 c1 after conversion:', c1)
+      console.log('🔍 c2 after conversion:', c2)
+      
       const egctBalanceInternal = decryptEGCTBalance(privateKey, c1, c2)
       console.log('🔍 Decrypted EGCT balance (internal 2d):', egctBalanceInternal.toString())
 
@@ -326,6 +336,13 @@ export function useTransfer(tokenAddress?: `0x${string}`, tokenDecimals: number 
     executeTransfer,
     
     // Utils
-    isReady: !!(address && isOnCorrectChain && userPublicKey && auditorPublicKey && encryptedBalanceData)
+    isReady: !!(address && isOnCorrectChain && userPublicKey && auditorPublicKey && encryptedBalanceData),
+    
+    // Reset function
+    reset: () => {
+      setGeneratedProof(null)
+      setProofError(null)
+      setIsGeneratingProof(false)
+    }
   }
 }

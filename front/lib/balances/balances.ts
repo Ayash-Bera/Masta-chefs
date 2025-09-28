@@ -158,6 +158,10 @@ function setCacheWithLimit(key: string, value: bigint) {
  */
 function findDiscreteLogOptimized(targetPoint: [bigint, bigint]): bigint | null {
     console.log("findDiscreteLogOptimized 1")
+    console.log("🔍 targetPoint:", targetPoint);
+    console.log("🔍 targetPoint[0] type:", typeof targetPoint[0]);
+    console.log("🔍 targetPoint[1] type:", typeof targetPoint[1]);
+    
     // Initialize cache with common values if not done yet
     initializeCache();
     

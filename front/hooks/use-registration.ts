@@ -165,6 +165,19 @@ export function useRegistration(refetchRegistrationStatus?: () => void) {
     }
   }, [generatedProof, isWritePending, isConfirming, isConfirmed, address, chainId, writeContract]);
 
+  // Reset states when transaction is confirmed
+  useEffect(() => {
+    if (isConfirmed) {
+      console.log('✅ Registration confirmed! Resetting states...');
+      setIsPreparingProof(false);
+      setGeneratedProof(null);
+      setProofError(null);
+      if (refetchRegistrationStatus) {
+        refetchRegistrationStatus();
+      }
+    }
+  }, [isConfirmed, refetchRegistrationStatus]);
+
   const register = async () => {
     if (!address) {
       console.error('❌ No wallet connected');

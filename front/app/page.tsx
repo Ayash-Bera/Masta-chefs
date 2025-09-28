@@ -43,11 +43,6 @@ export default function TZunamiApp() {
   const router = useRouter()
   const { address } = useAccount()
 
-  useEffect(() => {
-    if (address) {
-      router.replace("/onboarding")
-    }
-  }, [address, router])
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden" style={{ scrollBehavior: "smooth" }}>

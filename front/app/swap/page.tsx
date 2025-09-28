@@ -82,7 +82,8 @@ export default function TsunamiSwap() {
     isConfirming: isTransferConfirming,
     isConfirmed: isTransferConfirmed,
     error: transferError,
-    txHash: transferTxHash
+    txHash: transferTxHash,
+    reset: resetTransfer
   } = useTransfer(fromToken?.address, fromToken?.decimals || 18)
   
   // Registration hook for stealth address creation
@@ -164,6 +165,15 @@ export default function TsunamiSwap() {
       setSelectedTokenAddress(fromToken.address)
     }
   }, [fromToken])
+
+  // Reset transfer states when transaction is confirmed
+  useEffect(() => {
+    if (isTransferConfirmed) {
+      console.log('✅ Transfer confirmed! Resetting states...')
+      resetTransfer()
+      setIsSwapping(false)
+    }
+  }, [isTransferConfirmed, resetTransfer])
 
   // Derived quote (fake pricing)
   const price = useMemo(() => {

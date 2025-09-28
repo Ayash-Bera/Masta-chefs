@@ -63,11 +63,18 @@ export const decryptPoint = (
 	c1: bigint[],
 	c2: bigint[],
 ): bigint[] => {
+	console.log('🔍 decryptPoint called with:', { privateKey, c1, c2 });
+	
 	const privKey = formatPrivKeyForBabyJub(privateKey);
+	console.log('🔍 privKey formatted:', privKey);
 
 	// Ensure the point is properly formatted for mulPointEscalar
 	const c1Point: Point<bigint> = [c1[0], c1[1]];
+	console.log('🔍 c1Point:', c1Point);
+	
+	console.log('🔍 About to call mulPointEscalar...');
 	const c1x = mulPointEscalar(c1Point, privKey);
+	console.log('🔍 c1x result:', c1x);
 	
 	// Calculate the inverse point by negating the x-coordinate
 	// Use simple field negation: -x = p - x where p is the field modulus
@@ -76,5 +83,9 @@ export const decryptPoint = (
 	const c1xInverse: Point<bigint> = [negatedX, c1x[1]];
 	const c2Point: Point<bigint> = [c2[0], c2[1]];
 	
-	return addPoint(c2Point, c1xInverse);
+	console.log('🔍 About to call addPoint...');
+	const result = addPoint(c2Point, c1xInverse);
+	console.log('🔍 addPoint result:', result);
+	
+	return result;
 };
