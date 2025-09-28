@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useAccount } from "wagmi"
+import { useAccount, useWaitForTransactionReceipt } from "wagmi"
 import {
   ArrowUpDown,
   ChevronDown,
@@ -75,8 +75,16 @@ export default function TsunamiSwap() {
   const { decryptedBalance: fromBalance, formattedEncryptedBalance: fromBalanceFormatted, isLoading: isLoadingFromBalance } = useEncryptedBalance(fromToken?.address, fromToken?.decimals || 18)
   const { decryptedBalance: toBalance, formattedEncryptedBalance: toBalanceFormatted, isLoading: isLoadingToBalance } = useEncryptedBalance(toToken?.address, toToken?.decimals || 18)
   
+  // Transaction state
+  const [swapTxHash, setSwapTxHash] = useState<`0x${string}` | undefined>(undefined)
+  
   // Stealth swap hooks
   const { createIntent, contribute, execute, isLoading: isSwapLoading, error: swapError } = useStealthSwap()
+  
+  // Wait for transaction confirmation
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ 
+    hash: swapTxHash 
+  })
   
   // Alias functions for user's code compatibility
   const contributeToSwap = contribute
@@ -136,6 +144,16 @@ export default function TsunamiSwap() {
       setSelectedTokenAddress(fromToken.address)
     }
   }, [fromToken])
+
+  // Handle transaction confirmation
+  useEffect(() => {
+    if (isConfirmed && swapTxHash) {
+      addToast("Swap completed successfully!")
+      setIsSwapping(false)
+      setSuccessOpen(true)
+      setSwapTxHash(undefined) // Reset hash
+    }
+  }, [isConfirmed, swapTxHash])
 
   // Derived quote (fake pricing)
   const price = useMemo(() => {
@@ -354,32 +372,16 @@ export default function TsunamiSwap() {
         throw new Error(intentResult.error || "Failed to create swap intent")
       }
       
-      addToast("Intent created successfully")
-      
-      // Note: Intent ID parsing from transaction logs is not yet implemented
-      // For now, we'll simulate the contribution step
-      addToast("Intent created - waiting for other participants...")
-      
-      // TODO: Parse intentId from transaction logs and contribute
-      // if (intentResult.intentId) {
-      //   setCurrentIntentId(intentResult.intentId)
-      //   addToast("Contributing to swap pool...")
-      //   
-      //   const contributeResult = await contribute({
-      //     intentId: intentResult.intentId,
-      //     amount: amountInWei
-      //   })
-      //   
-      //   if (!contributeResult.success) {
-      //     throw new Error(contributeResult.error || "Failed to contribute to swap")
-      //   }
-      //   
-      //   addToast("Contribution successful")
-      // }
-      
-      addToast("Swap completed successfully")
-      setIsSwapping(false)
-      setSuccessOpen(true)
+      // Store transaction hash to wait for confirmation
+      if (intentResult.hash) {
+        setSwapTxHash(intentResult.hash)
+        addToast("Transaction submitted - waiting for confirmation...")
+      } else {
+        addToast("Intent created successfully")
+        // If no hash, show success immediately (fallback)
+        setIsSwapping(false)
+        setSuccessOpen(true)
+      }
       
     } catch (e) {
       setIsSwapping(false)
@@ -739,7 +741,7 @@ export default function TsunamiSwap() {
               <div className="md:ml-auto">
                 <button
                   onClick={onSwap}
-                  disabled={isSwapping || !isConnected || (!isRegistered && !isCheckingRegistration) || isLoadingFromBalance || isLoadingToBalance}
+                  disabled={isSwapping || isConfirming || !isConnected || (!isRegistered && !isCheckingRegistration) || isLoadingFromBalance || isLoadingToBalance}
                   className="h-14 px-8 sm:px-10 bg-[#e6ff55] text-[#0a0b0e] font-bold text-base sm:text-lg rounded-full hover:brightness-110 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {!isConnected 
@@ -752,6 +754,8 @@ export default function TsunamiSwap() {
                     ? "Loading Balances..." 
                     : isSwapping 
                     ? "Creating Stealth Swap..." 
+                    : isConfirming
+                    ? "Confirming Transaction..."
                     : "Swap Privately"}
                 </button>
               </div>

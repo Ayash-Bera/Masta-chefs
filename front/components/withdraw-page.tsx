@@ -142,6 +142,15 @@ function WithdrawPageContent() {
     }
   }, [address])
 
+  // Handle transaction confirmation
+  useEffect(() => {
+    if (isConfirmed) {
+      setSuccessOpen(true)
+      // Reset form
+      setAmount("")
+    }
+  }, [isConfirmed])
+
   // Derived values
   const numericAmount = useMemo(() => Number.parseFloat(amount.replace(/,/g, "")) || 0, [amount])
   const amountUsd = useMemo(() => numericAmount * (selectedToken?.priceUsd ?? 0), [numericAmount, selectedToken])
@@ -221,10 +230,7 @@ function WithdrawPageContent() {
       await withdraw(withdrawParams, currentBalance)
       
       setConfirming(false)
-      setSuccessOpen(true)
-      
-      // Reset form
-      setAmount("")
+      // Success modal will be shown when isConfirmed becomes true
       
     } catch (error) {
       console.error('Withdraw failed:', error)
@@ -538,7 +544,7 @@ function WithdrawPageContent() {
                   <div className="mt-5">
                     <button
                       onClick={onConfirmWithdraw}
-                      disabled={!canConfirm || confirming !== false}
+                      disabled={!canConfirm || confirming !== false || isConfirming}
                       className="w-full h-14 px-8 bg-[#e6ff55] text-[#0a0b0e] font-bold text-base rounded-full hover:brightness-110 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
                     >
                       {!isReady ? (
