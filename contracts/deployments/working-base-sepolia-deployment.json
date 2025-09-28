@@ -1,0 +1,16 @@
+{
+  "network": "base-sepolia-testnet",
+  "chainId": 84532,
+  "deployer": "0xe87758C6CCcf3806C9f1f0C8F99f6Dcae36E5449",
+  "deploymentTimestamp": "1759028436",
+  "contracts": {
+    "testTokenA": "0x406B2ec53e2e01f9E9D056D98295d0cf61694279",
+    "testTokenB": "0x3f6f22ADd0b6FEDA58DE416EC347d1747a7908b7",
+    "oneInchAdapter": "0xB94ecC5a4cA8D7D2749cE8353F03B38372235C26",
+    "stealthSwapPool": "0x8F9Cce60CDa5c3b262c30321f40a180A6A9DA762",
+    "stealthFactory": "0x0E37cc3Dc8Fa1675f2748b77dddfF452b63DD4CC",
+    "stealthPaymaster": "0x0Ff7d4E7aF64059426F76d2236155ef1655C99D8",
+    "fhERC": "0xD5afc45c69644CBd63f362D64B4198a7d81e53C7",
+    "lopAddress": "0x111111125421cA6dc452d289314280a0f8842A65"
+  }
+}
