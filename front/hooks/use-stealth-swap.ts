@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react'
 import { useAccount, useWriteContract, useReadContract } from 'wagmi'
 import { parseEther, formatEther, keccak256, toHex, encodePacked } from 'viem'
-import { sepolia } from 'viem/chains'
+import { baseSepolia } from 'viem/chains'
+import { STEALTH_SWAP_POOL, ONE_INCH_ADAPTER } from '../lib/stealth-contracts'
 
 // Contract ABIs (minimal)
 const STEALTH_SWAP_POOL_ABI = [
@@ -69,9 +70,9 @@ const STEALTH_SWAP_POOL_ABI = [
   }
 ] as const
 
-// Contract addresses (update with deployed addresses)
-const STEALTH_SWAP_POOL_ADDRESS = '0x0000000000000000000000000000000000000000' // TODO: Deploy and update
-const ONEINCH_ADAPTER_ADDRESS = '0x0000000000000000000000000000000000000000' // TODO: Deploy and update
+// Contract addresses (Base Sepolia)
+const STEALTH_SWAP_POOL_ADDRESS = STEALTH_SWAP_POOL.address
+const ONEINCH_ADAPTER_ADDRESS = ONE_INCH_ADAPTER.address
 
 export interface SwapIntent {
   tokenIn: string
@@ -130,7 +131,7 @@ export function useStealthSwap() {
         abi: STEALTH_SWAP_POOL_ABI,
         functionName: 'createIntent',
         args: [params.tokenIn as `0x${string}`, params.tokenOut as `0x${string}`, params.minOut, deadline, policy],
-        chain: sepolia,
+        chain: baseSepolia,
       })
 
       return { success: true, hash, intentId: null } // TODO: Parse intentId from logs
@@ -155,7 +156,7 @@ export function useStealthSwap() {
         abi: STEALTH_SWAP_POOL_ABI,
         functionName: 'contribute',
         args: [params.intentId as `0x${string}`, params.amount],
-        chain: sepolia,
+        chain: baseSepolia,
       })
 
       return { success: true, hash }
@@ -185,7 +186,7 @@ export function useStealthSwap() {
           params.routerCalldata as `0x${string}`,
           params.expectedMinOut
         ],
-        chain: sepolia,
+        chain: baseSepolia,
       })
 
       return { success: true, hash }
