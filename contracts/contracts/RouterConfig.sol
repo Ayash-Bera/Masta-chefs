@@ -4,11 +4,10 @@ pragma solidity ^0.8.19;
 /**
  * @title RouterConfig
  * @notice Configuration contract for 1inch Limit Order Protocol (LOP) addresses per chain.
- * @dev Based on official 1inch LOP deployments: https://github.com/1inch/limit-order-protocol
  */
+ 
 library RouterConfig {
     // 1inch Limit Order Protocol (LOP) addresses per chain
-    // These are the actual LOP contract addresses, not Router V6
     address public constant ETHEREUM_MAINNET = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Ethereum
     address public constant BSC_MAINNET = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on BSC
     address public constant POLYGON_MAINNET = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Polygon

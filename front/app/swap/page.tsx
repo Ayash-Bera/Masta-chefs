@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useAccount } from "wagmi"
+import { useAccount, useChainId } from "wagmi"
 import {
   ArrowUpDown,
   ChevronDown,
@@ -24,45 +24,31 @@ import { useEercWrites } from "../../hooks/use-eerc"
 import { useStealthSwap, useSwapIntent } from "../../hooks/use-stealth-swap"
 import { useStealthFactory, usePredictStealth } from "../../hooks/use-stealth-factory"
 import { useStealthPaymaster, usePaymasterBalance } from "../../hooks/use-stealth-paymaster"
+import { useTokens } from "../../hooks/use-tokens"
 
 export default function TsunamiSwap() {
   // Get wallet connection
   const { address, isConnected } = useAccount()
+  const chainId = useChainId()
   
   // Registration hooks
   const { isRegistered, isLoading: isCheckingRegistration, refetch: refetchRegistrationStatus } = useRegistrationStatus(address)
   const { register, isPending: isRegistering, error: registrationError, hasProofReady } = useRegistration(refetchRegistrationStatus)
   
-  // Encrypted token list with real addresses
-  const tokenList = useMemo(
-    () => [
-      { 
-        symbol: "eUSDC", 
-        name: "Encrypted USD Coin", 
-        address: "0x0000000000000000000000000000000000000000" as `0x${string}`, // Native token placeholder
-        decimals: 18
-      },
-      { 
-        symbol: "eDAI", 
-        name: "Encrypted DAI", 
-        address: "0x0000000000000000000000000000000000000001" as `0x${string}`, // Update with real address
-        decimals: 18
-      },
-      { 
-        symbol: "eBNB", 
-        name: "Encrypted BNB", 
-        address: "0x0000000000000000000000000000000000000002" as `0x${string}`, // Update with real address
-        decimals: 18
-      },
-      { 
-        symbol: "eUSDT", 
-        name: "Encrypted Tether", 
-        address: "0x0000000000000000000000000000000000000003" as `0x${string}`, // Update with real address
-        decimals: 6
-      },
-    ],
-    [],
-  )
+  // Get available tokens from multi-chain system
+  const { tokens, isLoading: tokensLoading } = useTokens()
+  
+  // Use encrypted tokens for stealth swaps
+  const tokenList = useMemo(() => {
+    return tokens.map(token => ({
+      symbol: token.symbol,
+      name: token.isNative ? `Encrypted ${token.symbol}` : `Encrypted ${token.symbol}`,
+      address: token.address,
+      decimals: token.decimals,
+      isNative: token.isNative,
+      isEncrypted: token.isEncrypted
+    }))
+  }, [tokens])
 
   // Selection + amounts
   const [fromToken, setFromToken] = useState<any>(null)
@@ -105,9 +91,7 @@ export default function TsunamiSwap() {
   const [isContributing, setIsContributing] = useState(false)
   const [isExecuting, setIsExecuting] = useState(false)
   
-  // Mock tokens data - replace with real token fetching
-  const tokens = tokenList
-  const tokensLoading = false
+  // Use tokenList as the main token source
 
   // UI state
   const [selectingSide, setSelectingSide] = useState<"from" | "to" | null>(null)
@@ -121,14 +105,14 @@ export default function TsunamiSwap() {
 
   // Set default tokens when loaded
   useEffect(() => {
-    if (tokens && tokens.length > 0 && !fromToken) {
-      setFromToken(tokens[0])
-      setSelectedTokenAddress(tokens[0]?.address)
+    if (tokenList && tokenList.length > 0 && !fromToken) {
+      setFromToken(tokenList[0])
+      setSelectedTokenAddress(tokenList[0]?.address)
     }
-    if (tokens && tokens.length > 1 && !toToken) {
-      setToToken(tokens[1])
+    if (tokenList && tokenList.length > 1 && !toToken) {
+      setToToken(tokenList[1])
     }
-  }, [tokens, fromToken, toToken])
+  }, [tokenList, fromToken, toToken])
 
   // Update selected token address when fromToken changes
   useEffect(() => {
@@ -162,14 +146,14 @@ export default function TsunamiSwap() {
   }, [fromAmount, price, fromToken, fromBalance])
 
   const filteredTokens = useMemo(() => {
-    if (!tokens) return []
+    if (!tokenList) return []
     const q = tokenQuery.trim().toLowerCase()
-    if (!q) return tokens
-    return tokens.filter((t) => 
+    if (!q) return tokenList
+    return tokenList.filter((t) => 
       t.symbol.toLowerCase().includes(q) || 
       t.name.toLowerCase().includes(q)
     )
-  }, [tokens, tokenQuery])
+  }, [tokenList, tokenQuery])
 
   function openTokenModal(side: "from" | "to") {
     setSelectingSide(side)
@@ -483,7 +467,15 @@ export default function TsunamiSwap() {
             <div className="mb-6 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
               <div className="flex items-center gap-2 text-blue-200 text-sm">
                 <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                <span>Base Sepolia Testnet - Real 1inch LOP Integration</span>
+                <span>
+                  {chainId === 84532 ? "Base Sepolia Testnet - Real 1inch LOP Integration" : 
+                   chainId === 11155111 ? "Ethereum Sepolia Testnet - Mock 1inch Integration" :
+                   "Unknown Network"}
+                </span>
+              </div>
+              <div className="mt-2 text-xs text-blue-300">
+                Available tokens: {tokenList.length} encrypted tokens
+                {tokensLoading && " (loading...)"}
               </div>
             </div>
             
