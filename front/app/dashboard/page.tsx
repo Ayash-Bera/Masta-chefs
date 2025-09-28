@@ -3,7 +3,7 @@ import { Shield, ArrowUpRight, DollarSign, Coins, CheckCircle2, AlertTriangle, W
 import { useMemo, useState, useEffect } from "react"
 import { useEncryptedBalance } from "@/hooks/use-encrypted-balance"
 import { useAccount } from 'wagmi'
-import { useRouter } from "next/navigation"
+import { useInstantNavigation } from "@/hooks/use-instant-navigation"
 
 type TokenRow = {
   symbol: string
@@ -13,12 +13,12 @@ type TokenRow = {
 }
 
 export default function TsunamiDashboard() {
-  const router = useRouter()
   const [showBalances, setShowBalances] = useState(true)
   const { address } = useAccount()
   const { decryptedBalance, isLoading: isLoadingBalance, error: balanceError } = useEncryptedBalance()
   const [hasZkAttestation, setHasZkAttestation] = useState<boolean>(true)
   const [mounted, setMounted] = useState(false)
+  const { navigate, prefetch } = useInstantNavigation()
   useEffect(() => setMounted(true), [])
 
   const decryptedNum = useMemo(() => {
@@ -33,14 +33,15 @@ export default function TsunamiDashboard() {
 
   const obfuscate = (addr?: string) => (addr && addr.startsWith("0x") && addr.length > 6 ? `${addr.slice(0,6)}…${addr.slice(-4)}` : "0x…")
 
-  const goDeposit = () => router.push("/deposit")
+  const goDeposit = () => navigate("/deposit")
   const goSwap = (prefill?: { from?: string; to?: string }) => {
     const params = new URLSearchParams()
     if (prefill?.from) params.set("from", prefill.from)
     if (prefill?.to) params.set("to", prefill.to)
-    router.push(`/swap${params.toString() ? `?${params.toString()}` : ""}`)
+    const target = `/swap${params.toString() ? `?${params.toString()}` : ""}`
+    navigate(target, { prefetch: false })
   }
-  const goWithdraw = () => router.push("/withdraw")
+  const goWithdraw = () => navigate("/withdraw")
 
   // No analytics segment in minimal build
 

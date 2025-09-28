@@ -20,5 +20,3 @@ declare module 'wagmi' {
     config: typeof config
   }
 }
-
-

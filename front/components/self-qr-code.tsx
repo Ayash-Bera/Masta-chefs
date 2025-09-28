@@ -6,7 +6,11 @@ import { SelfQRcodeWrapper, SelfAppBuilder, type SelfApp } from '@selfxyz/qrcode
 import { getUniversalLink } from '@selfxyz/core';
 import { ethers } from 'ethers';
 import { useContractRead, useWatchContractEvent } from 'wagmi';
+<<<<<<< HEAD
 import { CONTRACT_ADDRESSES } from '@/lib/sdk/constants/contracts';
+=======
+import { CONTRACT_ADDRESSES, DEFAULT_CONFIG } from '@/lib/sdk/constants/contracts';
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
 
 interface SelfQRCodeProps {
   sessionData?: {
@@ -35,6 +39,37 @@ export function SelfQRCode({
   const [actualUserId] = useState(userId || sessionData?.userId || ethers.ZeroAddress);
   const [isWatchingEvents, setIsWatchingEvents] = useState(false);
 
+<<<<<<< HEAD
+=======
+  // Watch for stealth KYC verification events for this user
+  useWatchContractEvent({
+    address: CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.SEPOLIA as `0x${string}`,
+    abi: [
+      {
+        name: 'MasterIdentityVerified',
+        type: 'event',
+        inputs: [
+          { name: 'masterNullifier', type: 'bytes32', indexed: true },
+          { name: 'primaryStealthAddress', type: 'address', indexed: true },
+          { name: 'nationality', type: 'string', indexed: false },
+          { name: 'documentType', type: 'uint8', indexed: false },
+          { name: 'timestamp', type: 'uint256', indexed: false },
+          { name: 'isOfacClear', type: 'bool', indexed: false }
+        ]
+      }
+    ],
+    eventName: 'MasterIdentityVerified',
+    args: { primaryStealthAddress: actualUserId as `0x${string}` },
+    onLogs: (logs) => {
+      console.log('Stealth KYC Master Identity Verification event detected:', logs);
+      if (logs.length > 0) {
+        setIsWatchingEvents(false);
+        handleSuccessfulVerification();
+      }
+    },
+    enabled: isWatchingEvents && !!actualUserId && actualUserId !== ethers.ZeroAddress,
+  });
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
 
   useEffect(() => {
     initializeSelfApp();
@@ -44,6 +79,7 @@ export function SelfQRCode({
     try {
       setIsLoading(true);
 
+<<<<<<< HEAD
       // Build Self.xyz app configuration
       const app = new SelfAppBuilder({
         version: 2,
@@ -53,12 +89,35 @@ export function SelfQRCode({
         logoBase64: "https://i.postimg.cc/mrmVf9hm/self.png",
         userId: actualUserId,
         endpointType: "staging_celo",
+=======
+      // Build Self.xyz app configuration using workshop pattern
+      const app = new SelfAppBuilder({
+        version: 2,
+        appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || "Tsunami Wallet",
+        scope: sessionData?.scope || DEFAULT_CONFIG.SCOPE_SEED,
+        endpoint: CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.SEPOLIA, // Point to our stealth KYC contract
+        logoBase64: "https://i.postimg.cc/mrmVf9hm/self.png",
+        userId: actualUserId,
+        endpointType: "staging_celo", // Use contract endpoint type like workshop
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
         userIdType: "hex",
         userDefinedData: "Tsunami Wallet Verification",
         disclosures: {
+<<<<<<< HEAD
           minimumAge: 18,
           ofac: true,
           nationality: true,
+=======
+          // Verification requirements (match contract configuration)
+          minimumAge: sessionData?.requirements?.minimumAge || DEFAULT_CONFIG.MINIMUM_AGE,
+          // forbiddenCountries: sessionData?.requirements?.excludedCountries || DEFAULT_CONFIG.EXCLUDED_COUNTRIES,
+          ofac: sessionData?.requirements?.requireOfacCheck || DEFAULT_CONFIG.REQUIRE_OFAC_CHECK,
+
+          // Disclosure requests (what users reveal)
+          nationality: true,
+
+          // Optional disclosures based on contract requirements
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
           name: false,
           date_of_birth: false,
           passport_number: false,
@@ -68,6 +127,7 @@ export function SelfQRCode({
 
       setSelfApp(app);
       setUniversalLink(getUniversalLink(app));
+      setIsWatchingEvents(true); // Start watching for verification events
       setIsLoading(false);
     } catch (error) {
       console.error("Failed to initialize Self app:", error);
@@ -77,13 +137,13 @@ export function SelfQRCode({
   };
 
   const handleSuccessfulVerification = () => {
-    console.log("Self.xyz verification successful!");
+    console.log("Self.xyz stealth address verification successful!");
     onSuccess?.();
   };
 
   const handleVerificationError = (error: any) => {
-    console.error("Self.xyz verification error:", error);
-    onError?.(error?.message || 'Verification failed');
+    console.error("Self.xyz stealth verification error:", error);
+    onError?.(error?.message || 'Stealth verification failed');
   };
 
   if (isLoading) {
@@ -117,7 +177,7 @@ export function SelfQRCode({
         </div>
         
         <p className="text-sm text-white/70 max-w-sm">
-          Use the Self.xyz mobile app to scan this QR code and complete your identity verification.
+          Use the Self.xyz mobile app to scan this QR code and complete your stealth address identity verification.
         </p>
       </div>
 
@@ -125,7 +185,11 @@ export function SelfQRCode({
       <div className="relative bg-white rounded-xl p-4 shadow-2xl">
         <SelfQRcodeWrapper
           selfApp={selfApp}
-          onSuccess={handleSuccessfulVerification}
+          onSuccess={() => {
+            console.log("Self.xyz stealth QR flow initiated - waiting for contract event...");
+            // Don't call onSuccess here - wait for the contract event
+            setIsWatchingEvents(true);
+          }}
           onError={handleVerificationError}
         />
       </div>
@@ -133,9 +197,19 @@ export function SelfQRCode({
       {/* Session Info */}
       <div className="w-full p-3 bg-white/5 rounded-lg border border-white/10">
         <div className="text-xs text-white/50 space-y-1">
+<<<<<<< HEAD
           <div>Scope: {sessionData?.scope || "tsunami-wallet"}</div>
           <div>User ID: {actualUserId.slice(0, 8)}...{actualUserId.slice(-8)}</div>
           <div>Status: Ready for verification</div>
+=======
+          <div>Scope: {sessionData?.scope || DEFAULT_CONFIG.SCOPE_SEED}</div>
+          <div>Stealth Address: {actualUserId.slice(0, 8)}...{actualUserId.slice(-8)}</div>
+          <div>Stealth KYC Contract: {CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.SEPOLIA.slice(0, 8)}...{CONTRACT_ADDRESSES.STEALTH_KYC_VERIFIER.SEPOLIA.slice(-8)}</div>
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${isWatchingEvents ? 'bg-blue-400 animate-pulse' : 'bg-green-400'}`}></div>
+            <span>{isWatchingEvents ? 'Waiting for stealth verification...' : 'Ready for stealth verification'}</span>
+          </div>
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
         </div>
       </div>
 

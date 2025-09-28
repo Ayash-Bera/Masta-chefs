@@ -5,13 +5,13 @@ import { useAccount, useChainId, useReadContract, useWriteContract, useWaitForTr
 import { EERC_CONTRACT, REGISTRAR_CONTRACT } from '../lib/contracts'
 import { sepolia } from 'wagmi/chains'
 import { formatEther, parseEther } from 'viem'
-import { i0 } from '../lib/crypto-utils'
 import { getDecryptedBalance, decryptEGCTBalance } from '../lib/balances/balances'
 import { Base8, mulPointEscalar, subOrder } from '@zk-kit/baby-jubjub'
 import { formatPrivKeyForBabyJub } from 'maci-crypto'
 import { processPoseidonEncryption } from '../lib/poseidon/poseidon'
 import { encryptMessage } from '../lib/jub/jub'
 import * as snarkjs from 'snarkjs'
+import { getCachedPrivateKey, getDerivedPrivateKey } from '../lib/signing-cache'
 
 export interface TransferParams {
   tokenId: bigint
@@ -36,7 +36,7 @@ export function useTransfer(tokenAddress?: `0x${string}`, tokenDecimals: number 
     functionName: 'getBalanceFromTokenAddress',
     args: address && tokenAddress ? [address, tokenAddress] : undefined,
     chainId: sepolia.id,
-    query: { enabled: !!address && !!tokenAddress && isOnCorrectChain, scopeKey: tokenAddress }
+    query: { enabled: !!address && !!tokenAddress && isOnCorrectChain }
   })
 
   // Get auditor public key
@@ -73,10 +73,11 @@ export function useTransfer(tokenAddress?: `0x${string}`, tokenDecimals: number 
     setProofError(null)
 
     try {
-      // Derive private key from registration message
-      const message = `eERC\nRegistering user with\n Address:${address.toLowerCase()}`
-      const signature = await signMessageAsync({ message })
-      const privateKey = i0(signature)
+      // Derive or reuse cached private key to avoid duplicate prompts
+      let privateKey = getCachedPrivateKey(address)
+      if (!privateKey) {
+        privateKey = await getDerivedPrivateKey(address, signMessageAsync)
+      }
       const formattedPrivateKey = formatPrivKeyForBabyJub(privateKey) % subOrder
       const userPublicKeyArray = mulPointEscalar(Base8, formattedPrivateKey).map((x) => BigInt(x)) as [bigint, bigint]
 
@@ -232,9 +233,15 @@ export function useTransfer(tokenAddress?: `0x${string}`, tokenDecimals: number 
     try {
       // Generate balance PCT for the new balance after transfer
       const newBalance = currentBalance - params.amount
-      const balancePCT = new Array(7).fill(0n).map((_, i) => 
-        i === 0 ? newBalance : 0n
-      ) as readonly [bigint, bigint, bigint, bigint, bigint, bigint, bigint]
+      const balancePCT = [
+        newBalance,
+        0n,
+        0n,
+        0n,
+        0n,
+        0n,
+        0n,
+      ] as unknown as readonly [bigint, bigint, bigint, bigint, bigint, bigint, bigint]
 
       await writeContract({
         address: EERC_CONTRACT.address,

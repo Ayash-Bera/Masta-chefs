@@ -104,7 +104,11 @@ export function NetworkSwitchModal({
               </div>
               <h2 className="text-xl font-bold text-white mb-2">Switch Network Required</h2>
               <p className="text-white/70 mb-6">
+<<<<<<< HEAD
                 To continue, please switch to {targetNetworkName}.
+=======
+                To continue with KYC verification, please switch to {targetNetworkName}.
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
               </p>
 
               <div className="space-y-3">

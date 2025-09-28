@@ -19,10 +19,17 @@ importers:
         version: 3.10.0(react-hook-form@7.63.0(react@18.3.1))
       '@langchain/core':
         specifier: ^0.3.77
+<<<<<<< HEAD
         version: 0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
       '@langchain/groq':
         specifier: ^0.2.4
         version: 0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13)
+=======
+        version: 0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+      '@langchain/groq':
+        specifier: ^0.2.4
+        version: 0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13)
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       '@noble/curves':
         specifier: ^2.0.0
         version: 2.0.1
@@ -116,14 +123,21 @@ importers:
       '@react-three/fiber':
         specifier: ^8.18.0
         version: 8.18.0(@types/react@18.3.24)(react-dom@18.3.1(react@18.3.1))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@18.3.24)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10))(react@18.3.1)(three@0.180.0)
+<<<<<<< HEAD
       '@selfxyz/common':
         specifier: ^0.0.8
         version: 0.0.8(bufferutil@4.0.9)(debug@4.4.1)(utf-8-validate@5.0.10)
+=======
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       '@selfxyz/core':
         specifier: ^1.1.0-beta.2
         version: 1.1.0-beta.6(bufferutil@4.0.9)(debug@4.4.1)(utf-8-validate@5.0.10)
       '@selfxyz/qrcode':
+<<<<<<< HEAD
         specifier: ^1.0.15
+=======
+        specifier: ^1.0.11
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
         version: 1.0.15(bufferutil@4.0.9)(debug@4.4.1)(lottie-react@2.4.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(utf-8-validate@5.0.10)
       '@tanstack/react-query':
         specifier: ^5.89.0
@@ -166,13 +180,21 @@ importers:
         version: 3.13.0
       hedera-agent-kit:
         specifier: ^3.2.0
+<<<<<<< HEAD
         version: 3.3.0(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(bn.js@5.2.2)(bufferutil@4.0.9)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@18.3.24)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10))(react@18.3.1)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+=======
+        version: 3.3.0(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(bn.js@5.2.2)(bufferutil@4.0.9)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@18.3.24)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10))(react@18.3.1)(utf-8-validate@5.0.10)(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       input-otp:
         specifier: 1.4.1
         version: 1.4.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       langchain:
         specifier: ^0.3.34
+<<<<<<< HEAD
         version: 0.3.34(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(handlebars@4.7.8)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+=======
+        version: 0.3.34(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(handlebars@4.7.8)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       lucide-react:
         specifier: ^0.454.0
         version: 0.454.0(react@18.3.1)
@@ -303,10 +325,13 @@ packages:
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
 
+<<<<<<< HEAD
   '@anon-aadhaar/core@https://gitpkg.vercel.app/selfxyz/anon-aadhaar/packages/core?1b9efa501cff3cf25dc260b060bf611229e316a4':
     resolution: {tarball: https://gitpkg.vercel.app/selfxyz/anon-aadhaar/packages/core?1b9efa501cff3cf25dc260b060bf611229e316a4}
     version: 2.4.3
 
+=======
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
     engines: {node: '>=6.9.0'}
@@ -2104,10 +2129,13 @@ packages:
   '@selfxyz/anon-aadhaar-core@0.0.1':
     resolution: {integrity: sha512-fULJGDQsg0fS+ZiGLvb0j+W6NpZHFdLbLTrd0w3ThhcH8pu1unbF/CewpomjWiBVVmBZr/OxsaL7xQXoISa/Sw==}
 
+<<<<<<< HEAD
   '@selfxyz/common@0.0.8':
     resolution: {integrity: sha512-npxx2O/BptBhUxJQBCTSbJPEG9wqahw+KolBKAJDOlaD3ufoZFrnEdlQ8zsBRHIB0CNfZp+hITf8zZjkZg1yGQ==}
     engines: {node: '>=22 <23'}
 
+=======
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
   '@selfxyz/common@0.0.9':
     resolution: {integrity: sha512-DXoDvRSyK3/MdghR2mietlGZXzdpSLU9tg0NUOauO2Ha3J08fXekGBk/zbmlfgSMJ7rxs+yAt7UFJJ84tLrZwA==}
     engines: {node: '>=22 <23'}
@@ -6679,6 +6707,7 @@ snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
 
+<<<<<<< HEAD
   '@anon-aadhaar/core@https://gitpkg.vercel.app/selfxyz/anon-aadhaar/packages/core?1b9efa501cff3cf25dc260b060bf611229e316a4(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
       '@pcd/pcd-types': 0.10.0
@@ -6702,6 +6731,8 @@ snapshots:
       - react-native-b4a
       - utf-8-validate
 
+=======
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
   '@babel/code-frame@7.27.1':
     dependencies:
       '@babel/helper-validator-identifier': 7.27.1
@@ -6952,7 +6983,11 @@ snapshots:
     dependencies:
       '@noble/ciphers': 1.3.0
 
+<<<<<<< HEAD
   '@elizaos/core@1.4.2(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+=======
+  '@elizaos/core@1.4.2(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
     dependencies:
       '@sentry/browser': 9.46.0
       buffer: 6.0.3
@@ -6962,7 +6997,11 @@ snapshots:
       glob: 11.0.3
       handlebars: 4.7.8
       js-sha1: 0.7.0
+<<<<<<< HEAD
       langchain: 0.3.34(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(handlebars@4.7.8)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+=======
+      langchain: 0.3.34(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(handlebars@4.7.8)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       pdfjs-dist: 5.4.149
       pino: 9.11.0
       pino-pretty: 13.1.1
@@ -7409,7 +7448,11 @@ snapshots:
   '@iden3/binfileutils@0.0.11':
     dependencies:
       fastfile: 0.0.20
+<<<<<<< HEAD
       ffjavascript: 0.2.63
+=======
+      ffjavascript: 0.2.56
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
 
   '@iden3/binfileutils@0.0.12':
     dependencies:
@@ -7526,14 +7569,22 @@ snapshots:
 
   '@js-sdsl/ordered-map@4.4.2': {}
 
+<<<<<<< HEAD
   '@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))':
+=======
+  '@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))':
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
     dependencies:
       '@cfworker/json-schema': 4.1.1
       ansi-styles: 5.2.0
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.21
+<<<<<<< HEAD
       langsmith: 0.3.71(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+=======
+      langsmith: 0.3.71(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       mustache: 4.2.0
       p-queue: 6.6.2
       p-retry: 4.6.2
@@ -7546,26 +7597,46 @@ snapshots:
       - '@opentelemetry/sdk-trace-base'
       - openai
 
+<<<<<<< HEAD
   '@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13)':
     dependencies:
       '@langchain/core': 0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+=======
+  '@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13)':
+    dependencies:
+      '@langchain/core': 0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       groq-sdk: 0.29.0(encoding@0.1.13)
       zod: 3.25.67
     transitivePeerDependencies:
       - encoding
 
+<<<<<<< HEAD
   '@langchain/openai@0.6.13(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
       '@langchain/core': 0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
       js-tiktoken: 1.0.21
       openai: 5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)
+=======
+  '@langchain/openai@0.6.13(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@langchain/core': 0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+      js-tiktoken: 1.0.21
+      openai: 5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       zod: 3.25.67
     transitivePeerDependencies:
       - ws
 
+<<<<<<< HEAD
   '@langchain/textsplitters@0.1.0(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))':
     dependencies:
       '@langchain/core': 0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+=======
+  '@langchain/textsplitters@0.1.0(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))':
+    dependencies:
+      '@langchain/core': 0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       js-tiktoken: 1.0.21
 
   '@lit-labs/ssr-dom-shim@1.4.0': {}
@@ -9634,6 +9705,7 @@ snapshots:
       - react-native-b4a
       - utf-8-validate
 
+<<<<<<< HEAD
   '@selfxyz/common@0.0.8(bufferutil@4.0.9)(debug@4.4.1)(utf-8-validate@5.0.10)':
     dependencies:
       '@anon-aadhaar/core': https://gitpkg.vercel.app/selfxyz/anon-aadhaar/packages/core?1b9efa501cff3cf25dc260b060bf611229e316a4(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -9671,6 +9743,8 @@ snapshots:
       - react-native-b4a
       - utf-8-validate
 
+=======
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
   '@selfxyz/common@0.0.9(bufferutil@4.0.9)(debug@4.4.1)(utf-8-validate@5.0.10)':
     dependencies:
       '@anon-aadhaar/core': '@selfxyz/anon-aadhaar-core@0.0.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)'
@@ -12594,11 +12668,19 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
+<<<<<<< HEAD
   hedera-agent-kit@3.3.0(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(bn.js@5.2.2)(bufferutil@4.0.9)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@18.3.24)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10))(react@18.3.1)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)):
     dependencies:
       '@elizaos/core': 1.4.2(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@hashgraph/sdk': 2.73.2(bn.js@5.2.2)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@18.3.24)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10))
       '@langchain/core': 0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+=======
+  hedera-agent-kit@3.3.0(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(bn.js@5.2.2)(bufferutil@4.0.9)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@18.3.24)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10))(react@18.3.1)(utf-8-validate@5.0.10)(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)):
+    dependencies:
+      '@elizaos/core': 1.4.2(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@hashgraph/sdk': 2.73.2(bn.js@5.2.2)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@18.3.24)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10))
+      '@langchain/core': 0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       '@modelcontextprotocol/sdk': 1.18.2
       ai: 4.3.19(react@18.3.1)(zod@3.25.76)
       bignumber.js: 9.3.1
@@ -13082,6 +13164,7 @@ snapshots:
 
   keyvaluestorage-interface@1.0.0: {}
 
+<<<<<<< HEAD
   langchain@0.3.34(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(handlebars@4.7.8)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)):
     dependencies:
       '@langchain/core': 0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
@@ -13091,13 +13174,28 @@ snapshots:
       js-yaml: 4.1.0
       jsonpointer: 5.0.1
       langsmith: 0.3.71(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+=======
+  langchain@0.3.34(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(@langchain/groq@0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13))(@opentelemetry/api@1.9.0)(axios@1.12.2(debug@4.4.1))(handlebars@4.7.8)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)):
+    dependencies:
+      '@langchain/core': 0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+      '@langchain/openai': 0.6.13(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@langchain/textsplitters': 0.1.0(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))
+      js-tiktoken: 1.0.21
+      js-yaml: 4.1.0
+      jsonpointer: 5.0.1
+      langsmith: 0.3.71(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67))
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       openapi-types: 12.1.3
       p-retry: 4.6.2
       uuid: 10.0.0
       yaml: 2.8.1
       zod: 3.25.67
     optionalDependencies:
+<<<<<<< HEAD
       '@langchain/groq': 0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13)
+=======
+      '@langchain/groq': 0.2.4(@langchain/core@0.3.77(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)))(encoding@0.1.13)
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       axios: 1.12.2(debug@4.4.1)
       handlebars: 4.7.8
     transitivePeerDependencies:
@@ -13107,7 +13205,11 @@ snapshots:
       - openai
       - ws
 
+<<<<<<< HEAD
   langsmith@0.3.71(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)):
+=======
+  langsmith@0.3.71(@opentelemetry/api@1.9.0)(openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)):
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
     dependencies:
       '@types/uuid': 10.0.0
       chalk: 4.1.2
@@ -13118,7 +13220,11 @@ snapshots:
       uuid: 10.0.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
+<<<<<<< HEAD
       openai: 5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)
+=======
+      openai: 5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67)
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
 
   leven@3.1.0: {}
 
@@ -13698,9 +13804,15 @@ snapshots:
       is-docker: 2.2.1
       is-wsl: 2.2.0
 
+<<<<<<< HEAD
   openai@5.12.2(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67):
     optionalDependencies:
       ws: 8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+=======
+  openai@5.12.2(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.67):
+    optionalDependencies:
+      ws: 8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+>>>>>>> b0ca492aa78b3025bbac597d4f0369bfecc12504
       zod: 3.25.67
 
   openapi-fetch@0.13.8:

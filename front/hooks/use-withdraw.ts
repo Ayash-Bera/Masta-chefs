@@ -1,16 +1,15 @@
 'use client';
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { useAccount, useChainId, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSignMessage } from 'wagmi';
 import { EERC_CONTRACT, REGISTRAR_CONTRACT } from '../lib/contracts';
 import { sepolia } from 'wagmi/chains';
-import { formatEther, parseEther } from 'viem';
-import { i0 } from '../lib/crypto-utils';
 import { formatPrivKeyForBabyJub } from 'maci-crypto';
 import { subOrder } from '@zk-kit/baby-jubjub';
 import { processPoseidonEncryption } from '../lib/poseidon/poseidon';
-import { getDecryptedBalance } from '../lib/balances/balances';
+import { decryptEGCTBalance } from '../lib/balances/balances';
 import * as snarkjs from 'snarkjs';
+import { getCachedPrivateKey, getDerivedPrivateKey } from '../lib/signing-cache';
 
 export interface WithdrawParams {
   tokenId: bigint;
@@ -49,7 +48,7 @@ export function useWithdraw(tokenAddress?: `0x${string}`, tokenDecimals: number 
     functionName: 'getBalanceFromTokenAddress',
     args: address && tokenAddress ? [address, tokenAddress] : undefined,
     chainId: sepolia.id,
-    query: { enabled: !!address && !!tokenAddress && isOnCorrectChain, scopeKey: tokenAddress }
+    query: { enabled: !!address && !!tokenAddress && isOnCorrectChain }
   });
 
   // Read auditor public key
@@ -82,10 +81,11 @@ export function useWithdraw(tokenAddress?: `0x${string}`, tokenDecimals: number 
     setGeneratedProof(null);
 
     try {
-      // Derive the SAME private key used during registration
-      const message = `eERC\nRegistering user with\n Address:${address.toLowerCase()}`;
-      const signature = await signMessageAsync({ message });
-      const privateKey = i0(signature);
+      // Derive or reuse the SAME deterministic private key used during registration
+      let privateKey = getCachedPrivateKey(address);
+      if (!privateKey) {
+        privateKey = await getDerivedPrivateKey(address, signMessageAsync);
+      }
 
       if (currentBalance < params.amount) {
         throw new Error('Insufficient balance for withdrawal');
@@ -110,11 +110,6 @@ export function useWithdraw(tokenAddress?: `0x${string}`, tokenDecimals: number 
         ? (params.amount / (10n ** diff))
         : (params.amount * (10n ** (-diff)));
 
-      // Scale currentBalance (assumed 18 decimals) down to internal 2 decimals
-      const senderBalanceInternal = diff >= 0n
-        ? (currentBalance / (10n ** diff))
-        : (currentBalance * (10n ** (-diff)));
-
       // Normalize encrypted balance EGCT c1/c2 from possible tuple/object shapes
       const ebAny: any = encryptedBalanceData as any;
       let c1x = "0", c1y = "0", c2x = "0", c2y = "0";
@@ -135,6 +130,13 @@ export function useWithdraw(tokenAddress?: `0x${string}`, tokenDecimals: number 
         throw new Error('Encrypted balance not found for selected token');
       }
 
+      // Decrypt EGCT to get actual sender balance in internal 2 decimals
+      const egctBalanceInternal = decryptEGCTBalance(
+        privateKey,
+        [BigInt(c1x), BigInt(c1y)],
+        [BigInt(c2x), BigInt(c2y)]
+      );
+
       // Generate Auditor PCT payload for the withdrawal amount
       // This produces ciphertext[4], nonce, encRandom, authKey[2]
       const auditorEnc = processPoseidonEncryption(
@@ -148,7 +150,7 @@ export function useWithdraw(tokenAddress?: `0x${string}`, tokenDecimals: number 
         ValueToWithdraw: valueToWithdrawInternal.toString(),
         SenderPrivateKey: formattedPrivateKey.toString(),
         SenderPublicKey: [userPublicKey[0].toString(), userPublicKey[1].toString()],
-        SenderBalance: senderBalanceInternal.toString(),
+        SenderBalance: egctBalanceInternal.toString(),
         SenderBalanceC1: [c1x, c1y],
         SenderBalanceC2: [c2x, c2y],
         AuditorPublicKey: [auditorX, auditorY],
@@ -229,9 +231,15 @@ export function useWithdraw(tokenAddress?: `0x${string}`, tokenDecimals: number 
     try {
       // Generate balance PCT for the new balance after withdrawal
       const newBalance = currentBalance - params.amount;
-      const balancePCT = new Array(7).fill(0n).map((_, i) => 
-        i === 0 ? newBalance : 0n
-      ) as readonly [bigint, bigint, bigint, bigint, bigint, bigint, bigint];
+      const balancePCT = [
+        newBalance,
+        0n,
+        0n,
+        0n,
+        0n,
+        0n,
+        0n,
+      ] as unknown as readonly [bigint, bigint, bigint, bigint, bigint, bigint, bigint];
 
       await writeContract({
         address: EERC_CONTRACT.address,

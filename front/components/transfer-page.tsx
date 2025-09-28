@@ -8,10 +8,8 @@ import {
   Info,
   CheckCircle2,
   AlertTriangle,
-  Search,
   X,
   Loader2,
-  ArrowRight,
   Wallet,
   ArrowLeft,
   Shield,
@@ -21,7 +19,7 @@ import {
 import { useTransfer } from "../hooks/use-transfer"
 import { useEncryptedBalance } from "../hooks/use-encrypted-balance"
 import { useTokens } from "../hooks/use-tokens"
-import { formatEther, parseEther, createPublicClient, http } from "viem"
+import { createPublicClient, http } from "viem"
 import { useReadContract } from "wagmi"
 import { EERC_CONTRACT, REGISTRAR_CONTRACT } from "../lib/contracts"
 import { sepolia } from "wagmi/chains"
@@ -169,6 +167,30 @@ export default function TransferPage() {
   const isValidRecipient = recipientInfo.isRegistered && recipientInfo.publicKey !== null
   const canTransfer = isPositive && isValidRecipient && !insufficient && isReady
 
+  const background = (
+    <>
+      <svg aria-hidden="true" width="0" height="0" className="absolute">
+        <defs>
+          <linearGradient id="metallic-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="45%" stopColor="#d4d4d4" />
+            <stop offset="100%" stopColor="#737373" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage: "url('/back.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      />
+      <div className="pointer-events-none absolute inset-0 bg-black/10" />
+    </>
+  )
+
   // Token selection handlers
   function selectToken(t: Token) {
     setSelectedToken(t)
@@ -240,213 +262,264 @@ export default function TransferPage() {
   // Show connection prompt if not ready
   if (!address || !selectedToken) {
     return (
-      <div className="relative min-h-screen w-full overflow-hidden flex flex-col items-center justify-center bg-black text-white">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 mx-auto bg-white/10 rounded-full flex items-center justify-center">
-            <Wallet className="w-8 h-8 text-white/60" />
+      <div className="relative min-h-screen w-full overflow-hidden flex flex-col items-center justify-center font-sans text-white">
+        {background}
+        <div className="relative z-10 text-center space-y-4 px-6">
+          <div className="w-16 h-16 mx-auto bg-white/10 border border-white/15 rounded-2xl flex items-center justify-center shadow-[0_16px_40px_rgba(0,0,0,0.45)]">
+            <Wallet className="w-8 h-8 text-white/70" />
           </div>
-          <h2 className="text-2xl font-semibold text-white">Connect Your Wallet</h2>
-          <p className="text-white/60">Please connect your wallet to start transferring encrypted tokens</p>
+          <h2 className="text-3xl font-semibold bg-gradient-to-b from-white via-zinc-300 to-zinc-500 bg-clip-text text-transparent tracking-tight">
+            Connect Your Wallet
+          </h2>
+          <p className="text-white/70 text-sm sm:text-base max-w-md mx-auto">
+            Please connect your wallet to start transferring encrypted tokens securely across the Tsunami network.
+          </p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black text-white">
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-10 p-6">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </button>
-          <div className="flex items-center gap-2 text-sm text-white/60">
-            <Wallet className="w-4 h-4" />
-            {address?.slice(0, 6)}...{address?.slice(-4)}
-          </div>
-        </div>
-      </div>
+    <div className="relative min-h-screen w-full overflow-hidden flex flex-col font-sans text-white">
+      {background}
 
-      {/* Main Content */}
-      <div className="flex min-h-screen">
-        {/* Left Panel - Transfer Form */}
-        <div className="flex-1 p-6 pt-24">
-          <div className="max-w-md mx-auto space-y-6">
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold bg-gradient-to-b from-white via-zinc-300 to-zinc-500 bg-clip-text text-transparent">Transfer</h1>
-              <p className="text-white/60">Send encrypted tokens to another registered user</p>
-            </div>
-
-            {/* Token Selection */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/90">Token</label>
-              <button
-                onClick={() => setShowTokenModal(true)}
-                className="w-full p-4 backdrop-blur-xl bg-white/5 border border-white/15 rounded-lg flex items-center justify-between hover:bg-white/10 transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_16px_56px_rgba(0,0,0,0.35)]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-medium text-white">{selectedToken?.symbol}</div>
-                    <div className="text-sm text-white/60">{selectedToken?.name}</div>
-                  </div>
-                </div>
-                <ChevronDown className="w-4 h-4 text-white/60" />
-              </button>
-            </div>
-
-            {/* Amount Input */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-white/90">Amount</label>
-                <button
-                  onClick={setMax}
-                  className="text-xs text-white/60 hover:text-white hover:underline transition-colors"
-                >
-                  Max: {selectedToken?.balance.toFixed(6)} {selectedToken?.symbol}
-                </button>
-              </div>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="w-full p-4 text-lg backdrop-blur-xl bg-white/5 border border-white/15 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 focus:bg-white/10 transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_16px_56px_rgba(0,0,0,0.35)]"
-                />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/60">
-                  {selectedToken?.symbol}
-                </div>
-              </div>
-              {insufficient && (
-                <div className="flex items-center gap-2 text-sm text-red-400">
-                  <AlertTriangle className="w-4 h-4" />
-                  Insufficient balance
-                </div>
-              )}
-            </div>
-
-            {/* Recipient Input */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/90">Recipient Address</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={recipient}
-                  onChange={(e) => setRecipient(e.target.value)}
-                  placeholder="0x..."
-                  className="w-full p-4 backdrop-blur-xl bg-white/5 border border-white/15 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 focus:bg-white/10 transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_16px_56px_rgba(0,0,0,0.35)]"
-                />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                  {recipientInfo.isLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-white/60" />
-                  ) : recipientInfo.isRegistered ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  ) : recipient && recipientInfo.error ? (
-                    <AlertTriangle className="w-4 h-4 text-red-400" />
-                  ) : null}
-                </div>
-              </div>
-              {recipient && !recipientInfo.isLoading && (
-                <div className="text-sm">
-                  {recipientInfo.isRegistered ? (
-                    <span className="text-green-400 flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      Registered user
-                    </span>
-                  ) : recipientInfo.error ? (
-                    <span className="text-red-400">{recipientInfo.error}</span>
-                  ) : (
-                    <span className="text-white/60">User not registered</span>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Transfer Button */}
+      <header className="sticky top-0 z-30 px-4 sm:px-6 pt-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="backdrop-blur-3xl backdrop-saturate-200 border border-white/15 rounded-2xl px-4 sm:px-6 py-3 flex items-center justify-between gap-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_16px_56px_rgba(0,0,0,0.35)]" style={{ background: "rgba(10,11,14,0.35)" }}>
             <button
-              onClick={onConfirmTransfer}
-              disabled={!canTransfer || confirming !== false}
-              className="w-full p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/40 text-white rounded-lg font-medium hover:from-purple-500/30 hover:to-pink-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_16px_56px_rgba(0,0,0,0.35)]"
+              onClick={() => router.back()}
+              className="inline-flex items-center gap-2 text-xs sm:text-sm text-white/75 hover:text-white transition-colors font-medium"
             >
-              {confirming === "proof" ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Generating Proof...
-                </>
-              ) : confirming === "execute" ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Executing Transfer...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  Transfer {selectedToken?.symbol}
-                </>
-              )}
+              <ArrowLeft className="w-4 h-4" />
+              Back
             </button>
-
-            {/* Error Display */}
-            {transferError && (
-              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-400">
-                {transferError}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Panel - Summary */}
-        <div className="w-96 backdrop-blur-xl bg-white/5 border-l border-white/15 p-6 pt-24">
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-white">Transfer Summary</h3>
-            
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-white/60">From</span>
-                <span className="text-sm font-mono text-white">{address?.slice(0, 6)}...{address?.slice(-4)}</span>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-white/60">To</span>
-                <span className="text-sm font-mono text-white">
-                  {recipient ? `${recipient.slice(0, 6)}...${recipient.slice(-4)}` : "0x..."}
-                </span>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-white/60">Amount</span>
-                <span className="text-sm text-white">
-                  {amount || "0.00"} {selectedToken?.symbol}
-                </span>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-white/60">Value</span>
-                <span className="text-sm text-white">${amountUsd.toFixed(2)}</span>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-white/60">Network</span>
-                <span className="text-sm text-white">Sepolia</span>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-white/15">
-              <div className="flex items-center gap-2 text-sm text-white/60">
-                <Info className="w-4 h-4" />
-                <span>Both users must be registered to transfer encrypted tokens</span>
-              </div>
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-white/80 font-mono">
+              <Wallet className="w-4 h-4 text-white" />
+              <span>{address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "0x…"}</span>
             </div>
           </div>
         </div>
-      </div>
+      </header>
+
+      <main className="relative z-10 flex-1 w-full">
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-16 lg:pb-24 space-y-10">
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_340px] gap-6 lg:gap-10 items-start">
+            <section className="relative rounded-[32px] overflow-hidden shadow-[0_24px_70px_rgba(0,0,0,0.55)]">
+              <div className="absolute inset-0 opacity-45 pointer-events-none bg-[radial-gradient(120%_120%_at_50%_0%,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.08)_40%,rgba(255,255,255,0.03)_100%)]" />
+              <div
+                className="absolute -inset-1 rounded-[36px] pointer-events-none"
+                style={{
+                  background: "radial-gradient(80% 50% at 15% 0%, rgba(255,255,255,0.16), rgba(255,255,255,0) 60%)",
+                }}
+              />
+              <div
+                className="relative backdrop-blur-3xl backdrop-saturate-200 border border-white/15 rounded-[32px] p-6 sm:p-8 space-y-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_16px_56px_rgba(0,0,0,0.55)]"
+                style={{ background: "rgba(10,11,14,0.35)" }}
+              >
+                <div className="text-center space-y-3">
+                  <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight bg-gradient-to-b from-white via-zinc-300 to-zinc-500 bg-clip-text text-transparent">
+                    Transfer Privately
+                  </h1>
+                  <p className="text-white/75 text-sm sm:text-base max-w-md mx-auto">
+                    Send encrypted assets to another shielded account with end-to-end privacy protections.
+                  </p>
+                </div>
+
+                <div className="space-y-7">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs sm:text-sm font-medium text-white/85">Token</label>
+                      <span className="text-[11px] sm:text-xs text-white/60">Balance: {selectedToken?.balance.toFixed(6)} {selectedToken?.symbol}</span>
+                    </div>
+                    <button
+                      onClick={() => setShowTokenModal(true)}
+                      className="w-full text-left backdrop-blur-2xl border border-white/15 rounded-2xl px-5 py-4 flex items-center justify-between gap-3 hover:bg-white/10 transition-all duration-300 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)]"
+                      style={{ background: "rgba(255,255,255,0.08)" }}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                          <Shield className="w-4 h-4 text-[#0a0b0e]" />
+                        </div>
+                        <div>
+                          <div className="text-base font-semibold text-white">{selectedToken?.symbol}</div>
+                          <div className="text-xs text-white/65">{selectedToken?.name}</div>
+                        </div>
+                      </div>
+                      <ChevronDown className="w-5 h-5 text-white" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs sm:text-sm font-medium text-white/85">Amount</label>
+                      <button
+                        onClick={setMax}
+                        className="text-[11px] sm:text-xs text-[#e6ff55] font-semibold tracking-wide uppercase hover:brightness-110 transition"
+                      >
+                        Use max
+                      </button>
+                    </div>
+                    <div
+                      className="rounded-2xl backdrop-blur-2xl border border-white/15 p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06),0_10px_28px_rgba(0,0,0,0.45)]"
+                      style={{ background: "rgba(255,255,255,0.08)" }}
+                    >
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                          placeholder="0.00"
+                          className="w-full bg-transparent outline-none text-4xl sm:text-[44px] font-semibold tracking-tight text-white text-center"
+                        />
+                        <div className="absolute inset-x-0 -bottom-2 flex items-center justify-center text-xs text-white/55 uppercase tracking-widest">
+                          {selectedToken?.symbol}
+                        </div>
+                      </div>
+                      <div className="mt-5 flex items-center justify-between text-xs sm:text-sm text-white/70">
+                        <span>≈ ${amountUsd.toFixed(2)}</span>
+                        {insufficient && (
+                          <span className="inline-flex items-center gap-1 text-rose-300 font-medium">
+                            <AlertTriangle className="w-4 h-4" />
+                            Insufficient balance
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-xs sm:text-sm font-medium text-white/85">Recipient address</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={recipient}
+                        onChange={(e) => setRecipient(e.target.value)}
+                        placeholder="0x…"
+                        className="w-full rounded-2xl backdrop-blur-2xl border border-white/15 px-4 sm:px-5 py-4 sm:py-5 text-sm sm:text-base text-white placeholder:text-white/45 focus:outline-none focus:ring-2 focus:ring-white/20 focus:bg-white/10 transition-all duration-300 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)]"
+                        style={{ background: "rgba(255,255,255,0.08)" }}
+                      />
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white">
+                        {recipientInfo.isLoading ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-white/60" />
+                        ) : recipientInfo.isRegistered ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                        ) : recipient && recipientInfo.error ? (
+                          <AlertTriangle className="w-4 h-4 text-rose-300" />
+                        ) : null}
+                      </div>
+                    </div>
+                    {recipient && !recipientInfo.isLoading && (
+                      <div className="text-xs sm:text-sm">
+                        {recipientInfo.isRegistered ? (
+                          <span className="inline-flex items-center gap-1.5 text-emerald-300">
+                            <User className="w-3 h-3" />
+                            Registered shielded user
+                          </span>
+                        ) : recipientInfo.error ? (
+                          <span className="text-rose-300">{recipientInfo.error}</span>
+                        ) : (
+                          <span className="text-white/70">User not registered</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-4">
+                    <button
+                      onClick={onConfirmTransfer}
+                      disabled={!canTransfer || confirming !== false}
+                      className="w-full h-14 rounded-full bg-[#e6ff55] text-[#0a0b0e] font-semibold text-sm sm:text-base tracking-tight hover:brightness-110 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 shadow-[0_12px_30px_rgba(230,255,85,0.35)]"
+                    >
+                      {confirming === "proof" ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Generating zk proof…
+                        </>
+                      ) : confirming === "execute" ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Executing transfer…
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          Transfer {selectedToken?.symbol}
+                        </>
+                      )}
+                    </button>
+                    {transferError && (
+                      <div className="px-4 py-3 rounded-2xl bg-rose-500/15 border border-rose-500/35 text-rose-200 text-sm font-medium">
+                        {transferError}
+                      </div>
+                    )}
+                    <div className="flex items-center justify-center gap-2 text-xs text-white/60">
+                      <Info className="w-4 h-4" />
+                      <span>Transfers stay private with zk shielding and encrypted balances.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <aside className="relative rounded-[28px] overflow-hidden shadow-[0_18px_54px_rgba(0,0,0,0.5)]">
+              <div className="absolute inset-0 opacity-35 pointer-events-none bg-[radial-gradient(120%_120%_at_50%_0%,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.06)_45%,rgba(255,255,255,0.02)_100%)]" />
+              <div
+                className="absolute -inset-1 rounded-[32px] pointer-events-none"
+                style={{
+                  background: "radial-gradient(120% 70% at 0% 0%, rgba(230,255,85,0.22), rgba(230,255,85,0) 65%)",
+                }}
+              />
+              <div
+                className="relative backdrop-blur-3xl border border-white/15 rounded-[28px] p-6 space-y-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_12px_32px_rgba(0,0,0,0.5)]"
+                style={{ background: "rgba(10,11,14,0.4)" }}
+              >
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold bg-gradient-to-b from-white via-zinc-300 to-zinc-500 bg-clip-text text-transparent">
+                    Transfer summary
+                  </h2>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-white/15 text-white/75 text-[11px] uppercase tracking-wide">
+                    Shielded
+                  </span>
+                </div>
+
+                <div className="space-y-4 text-sm text-white/75">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60">From</span>
+                    <span className="font-mono text-white/85">{address?.slice(0, 6)}…{address?.slice(-4)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60">To</span>
+                    <span className="font-mono text-white/85">{recipient ? `${recipient.slice(0, 6)}…${recipient.slice(-4)}` : "0x…"}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60">Amount</span>
+                    <span className="text-white font-semibold">{amount || "0.00"} {selectedToken?.symbol}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60">USD value</span>
+                    <span className="text-white font-semibold">${amountUsd.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60">Network</span>
+                    <span className="text-white font-semibold">Sepolia</span>
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-xs text-white/70">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                    <span>Recipient must be registered to decrypt shielded funds.</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-rose-300" />
+                    <span>Transfers above compliance limits may require attestation review.</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </main>
 
       {/* Token Selection Modal */}
       {showTokenModal && (
