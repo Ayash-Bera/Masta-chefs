@@ -26,7 +26,8 @@ import { useStealthFactory, usePredictStealth } from "../../hooks/use-stealth-fa
 import { useStealthPaymaster, usePaymasterBalance } from "../../hooks/use-stealth-paymaster"
 import { useTokens } from "../../hooks/use-tokens"
 import { useMockStealthSwap } from "../../hooks/use-mock-stealth-swap"
-import { useWithdraw } from "../../hooks/use-withdraw"
+import { useTransfer } from "../../hooks/use-transfer"
+import { EERC_CONTRACT, REGISTRAR_CONTRACT } from "../../lib/contracts"
 
 export default function TsunamiSwap() {
   // Get wallet connection
@@ -56,7 +57,7 @@ export default function TsunamiSwap() {
   const [fromToken, setFromToken] = useState<any>(null)
   const [toToken, setToToken] = useState<any>(null)
   const [fromAmount, setFromAmount] = useState<string>("")
-  const [toAmount, setToAmount] = useState<string>("")  
+  const [toAmount, setToAmount] = useState<string>("")
   const [insufficientBalance, setInsufficientBalance] = useState(false)
   
   // Stealth swap system hooks
@@ -74,28 +75,38 @@ export default function TsunamiSwap() {
     error: swapError 
   } = useMockStealthSwap()
   
-  // eERC withdrawal hook for MetaMask transactions
+  // eERC transfer hook for MetaMask transactions
   const { 
-    withdraw: realWithdraw,
-    isPending: isWithdrawPending,
-    isConfirming: isWithdrawConfirming,
-    isConfirmed: isWithdrawConfirmed,
-    error: withdrawError,
-    txHash: withdrawTxHash
-  } = useWithdraw(fromToken?.address, fromToken?.decimals || 18)
+    transfer: realTransfer,
+    isPending: isTransferPending,
+    isConfirming: isTransferConfirming,
+    isConfirmed: isTransferConfirmed,
+    error: transferError,
+    txHash: transferTxHash
+  } = useTransfer(fromToken?.address, fromToken?.decimals || 18)
   
-  // Encrypted balance hooks
-  const fromBalanceData = fromToken?.address ? getEncryptedBalance(fromToken.address) : { decrypted: BigInt(0), formatted: '0.000000' }
-  const toBalanceData = toToken?.address ? getEncryptedBalance(toToken.address) : { decrypted: BigInt(0), formatted: '0.000000' }
+  // Registration hook for stealth address creation
+  const { 
+    register: registerStealth,
+    isPending: isRegisterPending,
+    isConfirming: isRegisterConfirming,
+    isConfirmed: isRegisterConfirmed,
+    error: registerError,
+    txHash: registerTxHash
+  } = useRegistration()
   
-  const fromBalance = fromBalanceData.decrypted
-  const fromBalanceFormatted = fromBalanceData.formatted
-  const toBalance = toBalanceData.decrypted
-  const toBalanceFormatted = toBalanceData.formatted
+  // Real encrypted balance hooks
+  const { 
+    decryptedBalance: fromBalance, 
+    formattedEncryptedBalance: fromBalanceFormatted, 
+    isLoading: isLoadingFromBalance 
+  } = useEncryptedBalance(fromToken?.address, fromToken?.decimals || 18)
   
-  // Loading states
-  const isLoadingFromBalance = false
-  const isLoadingToBalance = false
+  const { 
+    decryptedBalance: toBalance, 
+    formattedEncryptedBalance: toBalanceFormatted, 
+    isLoading: isLoadingToBalance 
+  } = useEncryptedBalance(toToken?.address, toToken?.decimals || 18)
   
   // Alias functions for user's code compatibility
   const contributeToSwap = contribute
@@ -380,36 +391,73 @@ export default function TsunamiSwap() {
         
         addToast("Intent created! Batching with other users...")
         
-        // Simulate batching and execution
-        setTimeout(async () => {
-          addToast("Executing batched swap via 1inch LOP...")
-          await execute(intentResult.intentId!)
-          addToast("Swap completed successfully!")
-          setSuccessOpen(true)
-        }, 3000)
+        // Execute the swap immediately (no setTimeout)
+        addToast("Executing batched swap via 1inch LOP...")
+        await execute(intentResult.intentId!)
+        addToast("Swap completed successfully!")
+        setSuccessOpen(true)
         
       } else {
-        // Regular swap flow with real eERC withdrawal
-        addToast("Initiating private withdrawal...")
+        // Regular swap flow with real eERC transfer
+        addToast("Initiating private transfer...")
         
         // Convert amount to wei (considering token decimals)
         const amountInWei = BigInt(Math.floor(amt * 10 ** fromToken.decimals))
         
-        // Get token ID for the withdrawal (assuming token ID 1 for now)
-        const tokenId = BigInt(1)
+        // Fetch the actual tokenId from the contract
+        const { createPublicClient, http } = await import('viem')
+        const { sepolia } = await import('wagmi/chains')
+        const client = createPublicClient({
+          chain: sepolia,
+          transport: http()
+        })
         
-        // Execute real withdrawal transaction via MetaMask
-        await realWithdraw({
-          tokenId,
+        const tokenId = await client.readContract({
+          address: EERC_CONTRACT.address,
+          abi: EERC_CONTRACT.abi,
+          functionName: 'tokenIds',
+          args: [fromToken.address as `0x${string}`]
+        })
+        
+        // Get recipient's public key from the registrar contract
+        // Use the same public key as sender for now (stealth address will use same key)
+        const recipientPublicKeyData = await client.readContract({
+          address: REGISTRAR_CONTRACT.address,
+          abi: REGISTRAR_CONTRACT.abi,
+          functionName: 'getUserPublicKey',
+          args: [address as `0x${string}`]
+        })
+        
+        // Convert to proper format for transfer
+        const recipientPublicKey = [
+          BigInt(recipientPublicKeyData[0]),
+          BigInt(recipientPublicKeyData[1])
+        ]
+        
+        // Get encrypted balance data for the transfer
+        const encryptedBalanceData = await client.readContract({
+          address: EERC_CONTRACT.address,
+          abi: EERC_CONTRACT.abi,
+          functionName: 'getBalanceFromTokenAddress',
+          args: [address as `0x${string}`, fromToken.address as `0x${string}`]
+        })
+        
+        const transferParams = {
+          tokenId: tokenId as bigint,
           amount: amountInWei,
-          recipient: address
-        }, fromBalance)
+          recipient: stealthAddress?.address || address // Use stealth address if available, otherwise self
+        }
+
+        // Execute real transfer transaction via MetaMask
+        await realTransfer(transferParams, fromBalance, recipientPublicKey, encryptedBalanceData)
         
-        addToast("Withdrawal transaction submitted to MetaMask...")
+        addToast("Transfer transaction submitted to MetaMask...")
         
-        // Show success after transaction
-        addToast("Swap completed successfully!")
-        setSuccessOpen(true)
+        // Wait for confirmation
+        if (isTransferConfirmed) {
+          addToast("Swap completed successfully!")
+          setSuccessOpen(true)
+        }
       }
       
       setIsSwapping(false)
@@ -582,11 +630,17 @@ export default function TsunamiSwap() {
                       </p>
                     </div>
                     <button
-                      onClick={generateStealthAddress}
-                      disabled={isSwapLoading}
+                      onClick={async () => {
+                        // Only call eERC registration function
+                        await registerStealth()
+                      }}
+                      disabled={isSwapLoading || isRegisterPending || isRegisterConfirming}
                       className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors"
                     >
-                      {stealthAddress ? "Regenerate" : "Generate"}
+                      {isRegisterPending || isRegisterConfirming 
+                        ? "Registering..." 
+                        : "Generate Stealth Address"
+                      }
                     </button>
                   </div>
                 </div>
@@ -847,7 +901,7 @@ export default function TsunamiSwap() {
               <div className="md:ml-auto">
                 <button
                   onClick={onSwap}
-                  disabled={isSwapping || isWithdrawPending || isWithdrawConfirming || !isConnected || (!isRegistered && !isCheckingRegistration) || isLoadingFromBalance || isLoadingToBalance}
+                  disabled={isSwapping || isTransferPending || isTransferConfirming || isRegisterPending || isRegisterConfirming || !isConnected || (!isRegistered && !isCheckingRegistration) || isLoadingFromBalance || isLoadingToBalance}
                   className="h-14 px-8 sm:px-10 bg-[#e6ff55] text-[#0a0b0e] font-bold text-base sm:text-lg rounded-full hover:brightness-110 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {!isConnected 
@@ -858,8 +912,8 @@ export default function TsunamiSwap() {
                     ? "Register First" 
                     : isLoadingFromBalance || isLoadingToBalance 
                     ? "Loading Balances..." 
-                    : isSwapping || isWithdrawPending || isWithdrawConfirming
-                    ? (swapMode === "stealth" ? "Creating Stealth Swap..." : "Withdrawing...")
+                    : isSwapping || isTransferPending || isTransferConfirming || isRegisterPending || isRegisterConfirming
+                    ? (swapMode === "stealth" ? "Creating Stealth Swap..." : "Transferring...")
                     : (swapMode === "stealth" ? "Swap Stealthily" : "Swap Privately")}
                 </button>
               </div>

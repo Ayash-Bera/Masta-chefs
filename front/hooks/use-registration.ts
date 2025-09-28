@@ -32,7 +32,7 @@ export function useRegistration(refetchRegistrationStatus?: () => void) {
         try {
           const privateKey = i0(signature);
           const formattedPrivateKey = formatPrivKeyForBabyJub(privateKey) % subOrder;
-          const publicKey = mulPointEscalar(Base8, formattedPrivateKey).map((x) => BigInt(x)) as [bigint, bigint];
+          const publicKey = mulPointEscalar(Base8, formattedPrivateKey).map((x) => BigInt(x.toString())) as [bigint, bigint];
           
           console.log('🔑 Generated private key:', formattedPrivateKey.toString());
           console.log('🔑 Generated public key:', publicKey.map(k => k.toString()));

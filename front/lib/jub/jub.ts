@@ -41,7 +41,7 @@ export const encryptMessage = (
 ): { cipher: [bigint[], bigint[]]; random: bigint } => {
 	let encRandom = random;
 	if (encRandom >= BASE_POINT_ORDER) {
-		encRandom = genRandomBabyJubValue() / 100n;
+		encRandom = genRandomBabyJubValue() / BigInt(100);
 	}
 	const p = mulPointEscalar(Base8, message);
 
@@ -70,9 +70,10 @@ export const decryptPoint = (
 	const c1x = mulPointEscalar(c1Point, privKey);
 	
 	// Calculate the inverse point by negating the x-coordinate
-	// Convert to field element, negate, then convert back to bigint
-	const negatedX = Fr.neg(Fr.e(c1x[0]));
-	const c1xInverse: Point<bigint> = [BigInt(negatedX.toString()), c1x[1]];
+	// Use simple field negation: -x = p - x where p is the field modulus
+	const fieldModulus = BigInt("21888242871839275222246405745257275088548364400416034343698204186575808495617");
+	const negatedX = (fieldModulus - c1x[0]) % fieldModulus;
+	const c1xInverse: Point<bigint> = [negatedX, c1x[1]];
 	const c2Point: Point<bigint> = [c2[0], c2[1]];
 	
 	return addPoint(c2Point, c1xInverse);

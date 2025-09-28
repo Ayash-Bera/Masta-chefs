@@ -79,7 +79,7 @@ export function useTransfer(tokenAddress?: `0x${string}`, tokenDecimals: number 
         privateKey = await getDerivedPrivateKey(address, signMessageAsync)
       }
       const formattedPrivateKey = formatPrivKeyForBabyJub(privateKey) % subOrder
-      const userPublicKeyArray = mulPointEscalar(Base8, formattedPrivateKey).map((x) => BigInt(x)) as [bigint, bigint]
+      const userPublicKeyArray = mulPointEscalar(Base8, formattedPrivateKey).map((x) => BigInt(x.toString())) as [bigint, bigint]
 
       // Normalize auditor public key (handle both object and array formats)
       const auditorX = BigInt(Array.isArray(auditorPublicKey) ? (auditorPublicKey as any)[0] : (auditorPublicKey as any).x)
@@ -91,12 +91,12 @@ export function useTransfer(tokenAddress?: `0x${string}`, tokenDecimals: number 
       const diff = BigInt(tokenDecimals) - INTERNAL_DECIMALS
       const valueToTransferInternal = diff >= 0n
         ? (params.amount / (10n ** diff))
-        : (params.amount * (10n ** (-diff)))
+        : (params.amount * (10n ** Number(-diff)))
 
       // Scale current balance to internal decimals
       const currentBalanceInternal = diff >= 0n
         ? (currentBalance / (10n ** diff))
-        : (currentBalance * (10n ** (-diff)))
+        : (currentBalance * (10n ** Number(-diff)))
 
       // Check if encrypted balance exists
       const egct = (encryptedBalanceData as any)?.eGCT ?? (encryptedBalanceData as any)?.[0];

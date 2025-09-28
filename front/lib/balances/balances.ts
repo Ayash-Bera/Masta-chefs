@@ -63,7 +63,7 @@ Registering user with
     console.log("Private key (formatted):", formattedPrivateKey.toString());
     
     // Generate public key using BabyJubJub
-    const publicKey = mulPointEscalar(Base8, formattedPrivateKey).map((x) => BigInt(x)) as [bigint, bigint];
+    const publicKey = mulPointEscalar(Base8, formattedPrivateKey).map((x) => BigInt(x.toString())) as [bigint, bigint];
     console.log("Public key X:", publicKey[0].toString());
     console.log("Public key Y:", publicKey[1].toString());
     
@@ -173,12 +173,13 @@ function findDiscreteLogOptimized(targetPoint: [bigint, bigint]): bigint | null 
     // Most balances are likely to be small
     console.log("findDiscreteLogOptimized 2")
     console.log(targetPoint[0], targetPoint[1])
-    for (let i = BigInt(0); i <= BigInt(1000); i++) {
-        const testPoint = mulPointEscalar(Base8, i);
+    for (let i = 0; i <= 1000; i++) {
+        const testPoint = mulPointEscalar(Base8, BigInt(i));
         if (testPoint[0] === targetPoint[0] && testPoint[1] === targetPoint[1]) {
             // Cache the result (with size limit)
-            setCacheWithLimit(cacheKey, i);
-            return i;
+            const result = BigInt(i);
+            setCacheWithLimit(cacheKey, result);
+            return result;
         }
     }
     
@@ -204,16 +205,17 @@ function findDiscreteLogOptimized(targetPoint: [bigint, bigint]): bigint | null 
     // Strategy 3: Binary search-like approach for remaining values
     // Divide the remaining space into chunks and search efficiently
     const chunkSize = BigInt(1000);
-    for (let chunk = BigInt(1000); chunk < maxValue; chunk += chunkSize) {
-        const chunkEnd = chunk + chunkSize > maxValue ? maxValue : chunk + chunkSize;
+    for (let chunk = 1000; chunk < Number(maxValue); chunk += Number(chunkSize)) {
+        const chunkEnd = chunk + Number(chunkSize) > Number(maxValue) ? Number(maxValue) : chunk + Number(chunkSize);
         
         // Check chunk boundaries first
-        for (let i = chunk; i < chunkEnd; i += BigInt(100)) {
-            const testPoint = mulPointEscalar(Base8, i);
+        for (let i = chunk; i < chunkEnd; i += 100) {
+            const testPoint = mulPointEscalar(Base8, BigInt(i));
             if (testPoint[0] === targetPoint[0] && testPoint[1] === targetPoint[1]) {
                 // Cache the result (with size limit)
-                setCacheWithLimit(cacheKey, i);
-                return i;
+                const result = BigInt(i);
+                setCacheWithLimit(cacheKey, result);
+                return result;
             }
         }
         
@@ -223,20 +225,21 @@ function findDiscreteLogOptimized(targetPoint: [bigint, bigint]): bigint | null 
     
     // Strategy 4: Fallback to linear search in remaining space (with early termination)
     // Only search areas we haven't covered yet, with periodic checks
-    for (let i = BigInt(1001); i <= maxValue; i++) {
+    for (let i = 1001; i <= Number(maxValue); i++) {
         // Skip values we already checked in previous strategies
-        if (i % BigInt(100) === BigInt(0)) continue; // Already checked multiples of 100
+        if (i % 100 === 0) continue; // Already checked multiples of 100
         
-        const testPoint = mulPointEscalar(Base8, i);
+        const testPoint = mulPointEscalar(Base8, BigInt(i));
         if (testPoint[0] === targetPoint[0] && testPoint[1] === targetPoint[1]) {
             // Cache the result (with size limit)
-            setCacheWithLimit(cacheKey, i);
-            return i;
+            const result = BigInt(i);
+            setCacheWithLimit(cacheKey, result);
+            return result;
         }
         
         // Early termination: if we've been searching too long, give up
-        if (i > BigInt(50000) && i % BigInt(10000) === BigInt(0)) {
-            console.log(`🔍 Discrete log search progress: ${i}/${maxValue}...`);
+        if (i > 50000 && i % 10000 === 0) {
+            console.log(`🔍 Discrete log search progress: ${i}/${Number(maxValue)}...`);
         }
     }
     

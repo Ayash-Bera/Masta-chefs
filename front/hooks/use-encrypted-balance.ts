@@ -117,7 +117,7 @@ export function useEncryptedBalance(tokenAddress?: `0x${string}`, tokenDecimals:
           console.log('🔍 Decrypted balance result:', balance.toString());
           
           // Convert from BigInt with tokenDecimals to decimal string
-          const balanceInEth = Number(balance) / 10 ** tokenDecimals;
+          const balanceInEth = Number(balance.toString()) / 10 ** tokenDecimals;
           setDecryptedBalance(balanceInEth.toString());
         } catch (err) {
           console.error('Error decrypting balance:', err);
