@@ -576,15 +576,14 @@ export default function TsunamiSwap() {
                     </div>
                     <button
                       onClick={async () => {
-                        // Generate stealth address using mock service (no real contract calls)
-                        const newStealthAddress = generateStealthAddress()
-                        addToast("Stealth address generated!")
+                        // Only call eERC registration function
+                        await registerStealth()
                       }}
-                      disabled={isSwapLoading}
+                      disabled={isSwapLoading || isRegisterPending || isRegisterConfirming}
                       className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors"
                     >
-                      {isSwapLoading 
-                        ? "Generating..." 
+                      {isRegisterPending || isRegisterConfirming 
+                        ? "Registering..." 
                         : "Generate Stealth Address"
                       }
                     </button>
