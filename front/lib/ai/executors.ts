@@ -552,9 +552,9 @@ export class IntentExecutor {
     console.log("Creating KYC verification session...");
 
     const sessionData = {
-      scope: process.env.NEXT_PUBLIC_SELF_SCOPE || "tsunami-wallet-kyc",
+      scope: 'tsunami', // Short scope string for Self.xyz
       configId: process.env.NEXT_PUBLIC_SELF_CONFIG_ID || "1",
-      endpoint: process.env.NEXT_PUBLIC_SELF_ENDPOINT || "https://staging-api.self.xyz",
+      endpoint: '0xb94ecc5a4ca8d7d2749ce8353f03b38372235c26', // Our contract address
       userId: walletAddress,
       requirements: {
         minimumAge: 18,

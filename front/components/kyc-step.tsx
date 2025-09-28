@@ -245,7 +245,7 @@ export function KYCStep({
             <div className="flex justify-center">
               <SelfQRCode
                 sessionData={{
-                  scope: config?.scopeSeed || 'tcash-kyc',
+                  scope: 'tsunami', // Short scope string for Self.xyz
                   configId: config?.configId || '1',
                   endpoint: 'contract', // Direct contract integration
                   userId: walletAddress as string,

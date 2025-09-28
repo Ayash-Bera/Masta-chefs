@@ -2,13 +2,15 @@
 export const CONTRACT_ADDRESSES = {
   // Primary KYC System - StealthKYC with Privacy Features
   STEALTH_KYC_VERIFIER: {
-    SEPOLIA: '0x49f84f8FDeda8dA7403f0d9320670329DeA4290B', // Primary Celo Sepolia
+    SEPOLIA: '0x49f84f8fdeda8da7403f0d9320670329dea4290b', // Primary Celo Sepolia
     ALFAJORES: '0x...', // Legacy - to be deployed if needed
     CELO: '0x...' // Mainnet - to be deployed
   },
   // Simple Compliant Procedure System - Self.xyz Compatible
-  COMPLIANT_PROCEDURE: {
-    SEPOLIA: '0x8aEAaeE4fDBAe89d1907d7C22ee863F3742be4B7', // Self.xyz compatible - Deployed on Celo Sepolia
+          COMPLIANT_PROCEDURE: {
+            SEPOLIA: '0xb94ecc5a4ca8d7d2749ce8353f03b38372235c26', // Self.xyz compatible - Deployed on Celo Sepolia
+    ETHEREUM_SEPOLIA: '0x7f8c63bbcad18155201308c8f3540b07f84f5e', // Same contract on Ethereum Sepolia
+    BASE_MAINNET: '0x0000000000000000000000000000000000000000', // To be deployed on Base Mainnet
     ALFAJORES: '0x0000000000000000000000000000000000000000', // To be deployed if needed
     CELO: '0x0000000000000000000000000000000000000000' // Mainnet - to be deployed
   },
@@ -52,6 +54,28 @@ export const NETWORK_CONFIGS = {
     nativeCurrency: {
       name: 'CELO',
       symbol: 'CELO',
+      decimals: 18
+    }
+  },
+  ETHEREUM_SEPOLIA: {
+    chainId: 11155111,
+    name: 'Ethereum Sepolia',
+    rpcUrl: 'https://sepolia.infura.io/v3/',
+    explorerUrl: 'https://sepolia.etherscan.io',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18
+    }
+  },
+  BASE_MAINNET: {
+    chainId: 8453,
+    name: 'Base Mainnet',
+    rpcUrl: 'https://mainnet.base.org',
+    explorerUrl: 'https://basescan.org',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
       decimals: 18
     }
   },

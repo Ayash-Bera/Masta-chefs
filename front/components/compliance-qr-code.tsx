@@ -78,27 +78,24 @@ export function ComplianceQRCode({
       const app = new SelfAppBuilder({
         version: 2,
         appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || COMPLIANCE_CONFIG.APP_NAME,
-        scope: sessionData?.scope || COMPLIANCE_CONFIG.SCOPE_SEED,
-        endpoint: SELF_HUB_ADDRESSES.SEPOLIA, // Self.xyz Identity Verification Hub for mock passports
+        scope: 'tsunami', // Short scope string for Self.xyz
+        endpoint: '0xb94ecc5a4ca8d7d2749ce8353f03b38372235c26', // Our contract address
         logoBase64: "https://i.postimg.cc/mrmVf9hm/self.png",
         userId: actualUserId,
         endpointType: "staging_celo", // Use contract endpoint type
         userIdType: "hex",
         userDefinedData: COMPLIANCE_CONFIG.USER_DEFINED_DATA,
-        disclosures: {
-          // Required for our contract's verifyCompliance function
-          name: true,              // Required for hashing
-          date_of_birth: true,     // Required for hashing
-          nationality: true,       // Stored on contract
-
-          // Verification requirements
-          minimumAge: sessionData?.requirements?.minimumAge || COMPLIANCE_CONFIG.MINIMUM_AGE,
-          ofac: sessionData?.requirements?.requireOfacCheck || COMPLIANCE_CONFIG.REQUIRE_OFAC_CHECK,
-
-          // Optional disclosures (not required for our simple contract)
-          passport_number: false,
-          expiry_date: false,
-        }
+        chainID: 11142220, // Celo Sepolia chain ID
+              disclosures: {
+                // Use default Self.xyz configuration (matches the default config ID)
+                minimumAge: 18,           // Default minimum age
+                ofac: false,              // Default OFAC setting
+                excludedCountries: [],    // No excluded countries by default
+                
+                // Basic disclosures that work with default config
+                nationality: true,        // Required for basic verification
+                issuing_state: true,      // Required for basic verification
+              }
       }).build();
 
       setSelfApp(app);
