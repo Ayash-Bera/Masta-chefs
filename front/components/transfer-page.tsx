@@ -159,6 +159,16 @@ export default function TransferPage() {
     }
   }, [recipient, isRecipientRegistered, recipientPublicKey, isLoadingRecipientCheck, isLoadingRecipientKey])
 
+  // Handle transaction confirmation
+  useEffect(() => {
+    if (isSuccess) {
+      setSuccessOpen(true)
+      // Reset form
+      setAmount("")
+      setRecipient("")
+    }
+  }, [isSuccess])
+
   // Derived values
   const numericAmount = useMemo(() => Number.parseFloat(amount.replace(/,/g, "")) || 0, [amount])
   const amountUsd = useMemo(() => numericAmount * (selectedToken?.priceUsd ?? 0), [numericAmount, selectedToken])
@@ -246,11 +256,7 @@ export default function TransferPage() {
       await transfer(transferParams, currentBalance, recipientPublicKeyArray, encryptedBalance)
       
       setConfirming(false)
-      setSuccessOpen(true)
-      
-      // Reset form
-      setAmount("")
-      setRecipient("")
+      // Success modal will be shown when isSuccess becomes true
       
     } catch (error) {
       console.error('Transfer failed:', error)
@@ -427,7 +433,7 @@ export default function TransferPage() {
                   <div className="space-y-4">
                     <button
                       onClick={onConfirmTransfer}
-                      disabled={!canTransfer || confirming !== false}
+                      disabled={!canTransfer || confirming !== false || isConfirming}
                       className="w-full h-14 rounded-full bg-[#e6ff55] text-[#0a0b0e] font-semibold text-sm sm:text-base tracking-tight hover:brightness-110 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 shadow-[0_12px_30px_rgba(230,255,85,0.35)]"
                     >
                       {confirming === "proof" ? (
@@ -439,6 +445,11 @@ export default function TransferPage() {
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
                           Executing transfer…
+                        </>
+                      ) : isConfirming ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Confirming transaction…
                         </>
                       ) : (
                         <>

@@ -43,7 +43,6 @@ export default function TZunamiApp() {
   const router = useRouter()
   const { address } = useAccount()
 
-
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden" style={{ scrollBehavior: "smooth" }}>
       {/* Metallic gradient defs (reusable across icons) */}

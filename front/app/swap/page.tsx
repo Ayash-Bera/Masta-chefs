@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { useAccount, useWaitForTransactionReceipt } from "wagmi"
 import { useAccount, useChainId } from "wagmi"
 import {
   ArrowUpDown,
@@ -60,6 +61,20 @@ export default function TsunamiSwap() {
   const [toAmount, setToAmount] = useState<string>("")
   const [insufficientBalance, setInsufficientBalance] = useState(false)
   
+  // Encrypted balance hooks for selected tokens
+  const { decryptedBalance: fromBalance, formattedEncryptedBalance: fromBalanceFormatted, isLoading: isLoadingFromBalance } = useEncryptedBalance(fromToken?.address, fromToken?.decimals || 18)
+  const { decryptedBalance: toBalance, formattedEncryptedBalance: toBalanceFormatted, isLoading: isLoadingToBalance } = useEncryptedBalance(toToken?.address, toToken?.decimals || 18)
+  
+  // Transaction state
+  const [swapTxHash, setSwapTxHash] = useState<`0x${string}` | undefined>(undefined)
+  
+  // Stealth swap hooks
+  const { createIntent, contribute, execute, isLoading: isSwapLoading, error: swapError } = useStealthSwap()
+  
+  // Wait for transaction confirmation
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ 
+    hash: swapTxHash 
+  })
   // Stealth swap system hooks
   const { 
     createIntent, 
@@ -166,14 +181,15 @@ export default function TsunamiSwap() {
     }
   }, [fromToken])
 
-  // Reset transfer states when transaction is confirmed
+  // Handle transaction confirmation
   useEffect(() => {
-    if (isTransferConfirmed) {
-      console.log('✅ Transfer confirmed! Resetting states...')
-      resetTransfer()
+    if (isConfirmed && swapTxHash) {
+      addToast("Swap completed successfully!")
       setIsSwapping(false)
+      setSuccessOpen(true)
+      setSwapTxHash(undefined) // Reset hash
     }
-  }, [isTransferConfirmed, resetTransfer])
+  }, [isConfirmed, swapTxHash])
 
   // Derived quote (fake pricing)
   const price = useMemo(() => {
@@ -375,8 +391,16 @@ export default function TsunamiSwap() {
       setIsSwapping(true)
       
       if (swapMode === "stealth") {
-        // Stealth swap flow - simplified to avoid transaction spam
-        addToast("Creating stealth swap...")
+        // Stealth swap flow with mock service
+        addToast("Getting quote from 1inch LOP...")
+        
+        // Convert amount to wei (considering token decimals)
+        const amountInWei = BigInt(Math.floor(amt * 10 ** fromToken.decimals))
+        
+        // Get quote from 1inch LOP
+        const quote = await getQuote(fromToken.address, toToken.address, amountInWei)
+        
+        addToast("Creating stealth swap intent...")
         
         // Simulate stealth swap without actual contract calls
         await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate processing
@@ -856,6 +880,8 @@ export default function TsunamiSwap() {
               <div className="md:ml-auto">
                 <button
                   onClick={onSwap}
+                  disabled={isSwapping || isConfirming || !isConnected || (!isRegistered && !isCheckingRegistration) || isLoadingFromBalance || isLoadingToBalance}
+                  disabled={isSwapping || isWithdrawPending || isWithdrawConfirming || !isConnected || (!isRegistered && !isCheckingRegistration) || isLoadingFromBalance || isLoadingToBalance}
                   disabled={isSwapping || isTransferPending || isTransferConfirming || isRegisterPending || isRegisterConfirming || !isConnected || (!isRegistered && !isCheckingRegistration) || isLoadingFromBalance || isLoadingToBalance}
                   className="h-14 px-8 sm:px-10 bg-[#e6ff55] text-[#0a0b0e] font-bold text-base sm:text-lg rounded-full hover:brightness-110 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
@@ -867,6 +893,13 @@ export default function TsunamiSwap() {
                     ? "Register First" 
                     : isLoadingFromBalance || isLoadingToBalance 
                     ? "Loading Balances..." 
+                    : isSwapping 
+                    ? "Creating Stealth Swap..." 
+                    : isConfirming
+                    ? "Confirming Transaction..."
+                    : "Swap Privately"}
+                    : isSwapping || isWithdrawPending || isWithdrawConfirming
+                    ? (swapMode === "stealth" ? "Creating Stealth Swap..." : "Withdrawing...")
                     : isSwapping || isTransferPending || isTransferConfirming || isRegisterPending || isRegisterConfirming
                     ? (swapMode === "stealth" ? "Creating Stealth Swap..." : "Transferring...")
                     : (swapMode === "stealth" ? "Swap Stealthily" : "Swap Privately")}
