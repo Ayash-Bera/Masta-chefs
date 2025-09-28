@@ -91,7 +91,7 @@ export default function TZunamiApp() {
               {
                 icon: FileText,
                 title: "Compliance-friendly",
-                description: "zk-attestations and AML/KYC integration for regulatory compliance",
+                description: "zk-attestations and regulatory compliance features",
                 color: "pink",
               },
               {

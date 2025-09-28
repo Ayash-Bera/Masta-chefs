@@ -191,14 +191,7 @@ export default function DepositPage() {
     if (autoRegisterTriggered.current) return
     if (typeof window === "undefined") return
 
-    const kycStatus = window.localStorage.getItem("kycStatus")
-
-    if (kycStatus !== "completed") {
-      return
-    }
-
     if (isRegistered) {
-      window.localStorage.removeItem("kycStatus")
       return
     }
 
@@ -212,8 +205,7 @@ export default function DepositPage() {
     }
 
     autoRegisterTriggered.current = true
-    window.localStorage.removeItem("kycStatus")
-    console.log("🚀 Auto-triggering registration after KYC completion")
+    console.log("🚀 Auto-triggering registration")
     register()
   }, [
     mounted,

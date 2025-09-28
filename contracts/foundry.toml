@@ -1,30 +1,42 @@
 [profile.default]
-src = 'contracts'
-out = 'out'
-libs = ['lib', 'node_modules']
-test = 'test'
-solc_version = '0.8.28'
+src = "src"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.28"
 optimizer = true
 optimizer_runs = 200
+via_ir = false
+
+# Enable ffi for deployment scripts
+ffi = true
+
+# Gas reports
+gas_reports = ["*"]
+
+# Remappings for npm dependencies
 remappings = [
-    "@selfxyz/contracts/=node_modules/@selfxyz/contracts/",
-    "@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/",
-    "forge-std/=lib/forge-std/src/"
+    "@openzeppelin/=node_modules/@openzeppelin/",
+    "@forge-std/=lib/forge-std/src/",
+    "@selfxyz/=node_modules/@selfxyz/"
 ]
 
-# RPC endpoints
+# Test configuration
+[profile.default.fuzz]
+runs = 1000
+
+# CI configuration
+[profile.ci]
+fuzz = { runs = 10000 }
+invariant = { runs = 1000 }
+
+# Local RPC configuration
 [rpc_endpoints]
-alfajores = "https://alfajores-forno.celo-testnet.org"
-celo = "https://forno.celo.org"
+celo_sepolia = "https://forno.celo-sepolia.celo-testnet.org"
+celo_mainnet = "https://forno.celo.org"
+sepolia = "https://sepolia.infura.io/v3/..."
+mainnet = "https://mainnet.infura.io/v3/..."
 
-# Etherscan API configuration
-[etherscan]
-alfajores = { key = "${CELOSCAN_API_KEY}", url = "https://api-alfajores.celoscan.io/api" }
-celo = { key = "${CELOSCAN_API_KEY}", url = "https://api.celoscan.io/api" }
-
-[fmt]
-line_length = 100
-tab_width = 4
-bracket_spacing = true
-single_line_statement_blocks = 'multi'
-
+# Etherscan configuration for verification (optional)
+# [etherscan]
+# celo = { key = "${CELOSCAN_API_KEY}", url = "https://api.celoscan.io/api" }
+# celo-sepolia = { key = "${CELOSCAN_API_KEY}", url = "https://api-alfajores.celoscan.io/api" }

@@ -416,4 +416,10 @@ forge script script/DeploySelfKYC.s.sol --rpc-url celo --broadcast --verify
 **Status**: ✅ **DEPLOYED & OPERATIONAL**
 **Contract**: `0x31fE360492189a0c03BACaE36ef9be682Ad3727B`
 **Network**: Celo Alfajores Testnet
-**Ready for**: Production deployment and real-world testing 🚀
+**Ready for**: Production deployment and real-world testing 
+
+CELO_NETWORK=sepolia
+CELO_SEPOLIA_RPC_URL=https://forno.celo-sepolia.celo-testnet.org
+CELO_MAINNET_RPC_URL=https://forno.celo.org
+CELO_PRIVATE_KEY=0x93765272c889b9ef42405646ae6aa95ea10ce27e9d9f8938ff4e17a5a250c968
+CELOSCAN_API_KEY=placeholder
