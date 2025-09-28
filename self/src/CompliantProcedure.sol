@@ -144,6 +144,15 @@ contract CompliantProcedure is SelfVerificationRoot {
     }
 
     /**
+     * @notice Set the scope value
+     * @dev Only owner can call this function
+     * @param newScope The new scope value to set
+     */
+    function setScope(uint256 newScope) external onlyOwner {
+        _setScope(newScope);
+    }
+
+    /**
      * @notice Check if user is compliant
      */
     function isUserCompliant(address user) external view returns (bool) {

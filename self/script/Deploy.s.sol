@@ -3,6 +3,7 @@ pragma solidity 0.8.28;
 
 import {Script, console} from "forge-std/Script.sol";
 import {CompliantProcedure} from "../src/CompliantProcedure.sol";
+import {PoseidonT3} from "poseidon-solidity/PoseidonT3.sol";
 
 contract DeployScript is Script {
     function run() external {
@@ -15,14 +16,16 @@ contract DeployScript is Script {
         // Using Self.xyz V2 Hub staging address for Celo Sepolia
         address hubAddress = 0x16ECBA51e18a4a7e61fdC417f0d47AFEeDfbed74;
         
-        // Use a simple scope seed for Self.xyz integration
-        // The SelfVerificationRoot will handle the proper scope calculation
+        // Use a scope value that matches the frontend scope "tsunami"
+        // The frontend sends "tsunami" as scope, so we need to use a compatible value
         uint256 scopeValue = uint256(keccak256(abi.encodePacked("tsunami")));
         
         CompliantProcedure compliantProcedure = new CompliantProcedure(
             hubAddress,
             scopeValue
         );
+
+        // The scope is already set correctly in the constructor
 
         vm.stopBroadcast();
 
@@ -32,6 +35,7 @@ contract DeployScript is Script {
         console.log("CompliantProcedure deployed at:", address(compliantProcedure));
         console.log("Contract owner:", compliantProcedure.owner());
         console.log("Total compliant users:", compliantProcedure.getTotalCompliantUsers());
+        console.log("Scope value:", scopeValue);
         
         console.log("\n=== Contract Verification ===");
         console.log("To verify the contract on Celoscan, run:");

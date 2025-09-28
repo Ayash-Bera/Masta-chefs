@@ -554,7 +554,7 @@ export class IntentExecutor {
     const sessionData = {
       scope: 'tsunami', // Short scope string for Self.xyz
       configId: process.env.NEXT_PUBLIC_SELF_CONFIG_ID || "1",
-      endpoint: '0x6420808b3444aC0Ae9adAAf97d2Be5Ac8e6a9b02', // Our contract address
+      endpoint: '0xb94ecc5a4ca8d7d2749ce8353f03b38372235c26', // Our contract address
       userId: walletAddress,
       requirements: {
         minimumAge: 18,

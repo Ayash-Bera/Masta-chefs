@@ -79,7 +79,7 @@ export function ComplianceQRCode({
         version: 2,
         appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || COMPLIANCE_CONFIG.APP_NAME,
         scope: 'tsunami', // Short scope string for Self.xyz
-        endpoint: '0x6420808b3444aC0Ae9adAAf97d2Be5Ac8e6a9b02', // Our contract address
+        endpoint: '0xb94ecc5a4ca8d7d2749ce8353f03b38372235c26', // Our contract address
         logoBase64: "https://i.postimg.cc/mrmVf9hm/self.png",
         userId: actualUserId,
         endpointType: "staging_celo", // Use contract endpoint type
