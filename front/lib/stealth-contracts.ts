@@ -1,6 +1,6 @@
-// Stealth Swap System Contracts (Base Sepolia Testnet)
+// Stealth Swap System Contracts (Base Sepolia Testnet - WORKING)
 export const STEALTH_SWAP_POOL = {
-  address: '0x0e4d945f84cbb445aB0a96974Ef01EbB63343f71' as const,
+  address: '0x8F9Cce60CDa5c3b262c30321f40a180A6A9DA762' as const,
   abi: [
     {
       "inputs": [{"internalType": "address", "name": "tokenIn", "type": "address"}, {"internalType": "address", "name": "tokenOut", "type": "address"}, {"internalType": "uint256", "name": "minOut", "type": "uint256"}, {"internalType": "uint256", "name": "deadline", "type": "uint256"}, {"internalType": "bytes32", "name": "policy", "type": "bytes32"}],
@@ -48,7 +48,7 @@ export const STEALTH_SWAP_POOL = {
 } as const;
 
 export const ONE_INCH_ADAPTER = {
-  address: '0x66cAbbc261AFb45C728CcCCC6e592935d3Ba83ef' as const,
+  address: '0xB94ecC5a4cA8D7D2749cE8353F03B38372235C26' as const,
   abi: [
     {
       "inputs": [{"internalType": "address", "name": "tokenIn", "type": "address"}, {"internalType": "address", "name": "tokenOut", "type": "address"}, {"internalType": "uint256", "name": "amountIn", "type": "uint256"}, {"internalType": "uint256", "name": "minAmountOut", "type": "uint256"}, {"internalType": "bytes", "name": "data", "type": "bytes"}],
@@ -68,7 +68,7 @@ export const ONE_INCH_ADAPTER = {
 } as const;
 
 export const STEALTH_FACTORY = {
-  address: '0xeD539fD12EB44692A935fDA55e24C861639eD074' as const,
+  address: '0x0E37cc3Dc8Fa1675f2748b77dddfF452b63DD4CC' as const,
   abi: [
     {
       "inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "bytes32", "name": "metaSalt", "type": "bytes32"}],
@@ -88,7 +88,7 @@ export const STEALTH_FACTORY = {
 } as const;
 
 export const STEALTH_PAYMASTER = {
-  address: '0x3168D014cD515c0b6E857618680A652E920eFBc7' as const,
+  address: '0x0Ff7d4E7aF64059426F76d2236155ef1655C99D8' as const,
   abi: [
     {
       "inputs": [{"internalType": "address", "name": "token", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
@@ -117,17 +117,17 @@ export const STEALTH_PAYMASTER = {
 // 1inch LOP address on Base Sepolia
 export const LOP_ADDRESS = '0x111111125421cA6dc452d289314280a0f8842A65' as const;
 
-// Test tokens for Base Sepolia
+// Test tokens for Base Sepolia (WORKING)
 export const TEST_TOKENS = {
   TEST_TOKEN_A: {
-    address: '0x18067cb5A4830feEdF7ACdD3dF8d0d084442D3fD' as const,
+    address: '0x406B2ec53e2e01f9E9D056D98295d0cf61694279' as const,
     symbol: 'TESTA',
     name: 'Test Token A',
     decimals: 18
   },
   TEST_TOKEN_B: {
-    address: '0x50989e0C3464C66ae48CF272e972aeeAB9eb05BB' as const,
-    symbol: 'TESTB', 
+    address: '0x3f6f22ADd0b6FEDA58DE416EC347d1747a7908b7' as const,
+    symbol: 'TESTB',
     name: 'Test Token B',
     decimals: 18
   }
