@@ -294,8 +294,8 @@ export async function getDecryptedBalance(
         return BigInt(0);
     }
 
-    const c1: [bigint, bigint] = [BigInt(eGCTObj.c1.x), BigInt(eGCTObj.c1.y)];
-    const c2: [bigint, bigint] = [BigInt(eGCTObj.c2.x), BigInt(eGCTObj.c2.y)];
+    const c1: [bigint, bigint] = [BigInt(eGCTObj.c1.x.toString()), BigInt(eGCTObj.c1.y.toString())];
+    const c2: [bigint, bigint] = [BigInt(eGCTObj.c2.x.toString()), BigInt(eGCTObj.c2.y.toString())];
     console.log("c1:", c1);
     console.log("c2:", c2);
 
@@ -324,7 +324,7 @@ export async function getDecryptedBalance(
     if (Array.isArray(balancePCTLocal) && balancePCTLocal.some((e) => BigInt(e) !== 0n)) {
         console.log("Before balancePCT (local): ", balancePCTLocal)
         try {
-            const decryptedBalancePCT = await decryptPCT(privateKey, balancePCTLocal.map((x) => BigInt(x)) as any);
+            const decryptedBalancePCT = await decryptPCT(privateKey, balancePCTLocal.map((x) => BigInt(x.toString())) as any);
             const diff = BigInt(targetDecimals - INTERNAL_DECIMALS);
             const scaledPCTBalance = diff >= 0n
                 ? BigInt(decryptedBalancePCT[0]) * (10n ** diff)
@@ -340,7 +340,7 @@ export async function getDecryptedBalance(
         const pctArr = amountPCT?.pct as bigint[] | undefined;
         if (pctArr && pctArr.some((e: any) => BigInt(e) !== 0n)) {
             try {
-                const decryptedAmountPCT = await decryptPCT(privateKey, pctArr.map((x: any) => BigInt(x)) as any);
+                const decryptedAmountPCT = await decryptPCT(privateKey, pctArr.map((x: any) => BigInt(x.toString())) as any);
                 const diff = BigInt(targetDecimals - INTERNAL_DECIMALS);
                 const scaledAmountPCT = diff >= 0n
                     ? BigInt(decryptedAmountPCT[0]) * (10n ** diff)

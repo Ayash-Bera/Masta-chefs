@@ -230,12 +230,12 @@ export default function TransferPage() {
       
       const transferParams = {
         tokenId: tokenId as bigint,
-        amount: BigInt(Math.floor(parseFloat(amount) * (10 ** selectedTokenDecimals))),
+        amount: BigInt(Math.floor(parseFloat(amount) * (10 ** selectedTokenDecimals)).toString()),
         recipient: recipient,
       }
 
       // Convert decrypted balance to bigint for transfer function
-      const currentBalance = decryptedBalance ? BigInt(Math.floor(parseFloat(decryptedBalance) * (10 ** selectedTokenDecimals))) : 0n
+      const currentBalance = decryptedBalance ? BigInt(Math.floor(parseFloat(decryptedBalance) * (10 ** selectedTokenDecimals)).toString()) : 0n
       
       // Convert recipient public key to the format expected by the hook
       const recipientPublicKeyArray = [recipientInfo.publicKey[0], recipientInfo.publicKey[1]]

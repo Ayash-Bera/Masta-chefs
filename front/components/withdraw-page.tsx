@@ -212,12 +212,12 @@ function WithdrawPageContent() {
       
       const withdrawParams = {
         tokenId: tokenId as bigint,
-        amount: BigInt(Math.floor(parseFloat(amount) * (10 ** selectedTokenDecimals))),
+        amount: BigInt(Math.floor(parseFloat(amount) * (10 ** selectedTokenDecimals)).toString()),
         recipient: recipient,
       }
 
       // Convert decrypted balance to bigint for withdraw function
-      const currentBalance = decryptedBalance ? BigInt(Math.floor(parseFloat(decryptedBalance) * (10 ** selectedTokenDecimals))) : 0n
+      const currentBalance = decryptedBalance ? BigInt(Math.floor(parseFloat(decryptedBalance) * (10 ** selectedTokenDecimals)).toString()) : 0n
       await withdraw(withdrawParams, currentBalance)
       
       setConfirming(false)

@@ -116,7 +116,7 @@ export function useStealthSwap() {
       setIsLoading(true)
       setError(null)
 
-      const deadline = BigInt(Math.floor(Date.now() / 1000) + params.deadline)
+      const deadline = BigInt((Math.floor(Date.now() / 1000) + params.deadline).toString())
       const slippageBps = params.slippageBps || 50
       
       // Create policy hash (simple version - could be more complex)

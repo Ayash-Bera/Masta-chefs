@@ -151,7 +151,7 @@ class MockStealthService {
   getTokenBalance(tokenAddress: string, userAddress: string): bigint {
     // Mock balances - return random amounts (ensure integer values)
     const baseAmount = BigInt(1000) * BigInt(10**18) // 1000 tokens
-    const randomFactor = BigInt(Math.floor(Math.random() * 1000) + 100) // 100-1100
+    const randomFactor = BigInt((Math.floor(Math.random() * 1000) + 100).toString()) // 100-1100
     return (baseAmount * randomFactor) / BigInt(1000)
   }
 

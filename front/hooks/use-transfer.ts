@@ -82,13 +82,13 @@ export function useTransfer(tokenAddress?: `0x${string}`, tokenDecimals: number 
       const userPublicKeyArray = mulPointEscalar(Base8, formattedPrivateKey).map((x) => BigInt(x.toString())) as [bigint, bigint]
 
       // Normalize auditor public key (handle both object and array formats)
-      const auditorX = BigInt(Array.isArray(auditorPublicKey) ? (auditorPublicKey as any)[0] : (auditorPublicKey as any).x)
-      const auditorY = BigInt(Array.isArray(auditorPublicKey) ? (auditorPublicKey as any)[1] : (auditorPublicKey as any).y)
+      const auditorX = BigInt((Array.isArray(auditorPublicKey) ? (auditorPublicKey as any)[0] : (auditorPublicKey as any).x).toString())
+      const auditorY = BigInt((Array.isArray(auditorPublicKey) ? (auditorPublicKey as any)[1] : (auditorPublicKey as any).y).toString())
       const auditorPublicKeyArray: [bigint, bigint] = [auditorX, auditorY]
 
       // Scale amount from token decimals to circuit's internal decimals (2)
       const INTERNAL_DECIMALS = 2n
-      const diff = BigInt(tokenDecimals) - INTERNAL_DECIMALS
+      const diff = BigInt(tokenDecimals.toString()) - INTERNAL_DECIMALS
       const valueToTransferInternal = diff >= 0n
         ? (params.amount / (10n ** diff))
         : (params.amount * (10n ** Number(-diff)))
@@ -102,14 +102,14 @@ export function useTransfer(tokenAddress?: `0x${string}`, tokenDecimals: number 
       const egct = (encryptedBalanceData as any)?.eGCT ?? (encryptedBalanceData as any)?.[0];
       console.log('🔍 Encrypted balance data structure:', encryptedBalanceData);
       console.log('🔍 Extracted eGCT:', egct);
-      const isEgctZero = BigInt(egct?.c1?.x ?? 0) === 0n && BigInt(egct?.c1?.y ?? 0) === 0n && BigInt(egct?.c2?.x ?? 0) === 0n && BigInt(egct?.c2?.y ?? 0) === 0n;
+      const isEgctZero = BigInt((egct?.c1?.x ?? 0).toString()) === 0n && BigInt((egct?.c1?.y ?? 0).toString()) === 0n && BigInt((egct?.c2?.x ?? 0).toString()) === 0n && BigInt((egct?.c2?.y ?? 0).toString()) === 0n;
       if (isEgctZero) {
         throw new Error('No encrypted balance found for the selected token')
       }
 
       // Decrypt EGCT to derive the sender's balance in internal (2) decimals
-      const c1: [bigint, bigint] = [BigInt(egct.c1.x), BigInt(egct.c1.y)]
-      const c2: [bigint, bigint] = [BigInt(egct.c2.x), BigInt(egct.c2.y)]
+      const c1: [bigint, bigint] = [BigInt(egct.c1.x.toString()), BigInt(egct.c1.y.toString())]
+      const c2: [bigint, bigint] = [BigInt(egct.c2.x.toString()), BigInt(egct.c2.y.toString())]
       const egctBalanceInternal = decryptEGCTBalance(privateKey, c1, c2)
       console.log('🔍 Decrypted EGCT balance (internal 2d):', egctBalanceInternal.toString())
 
@@ -123,8 +123,8 @@ export function useTransfer(tokenAddress?: `0x${string}`, tokenDecimals: number 
       // Generate encrypted amounts for receiver
       // For receiver, we encrypt with receiver's public key
       const recipientPublicKeyBig: [bigint, bigint] = [
-        BigInt((recipientPublicKey as any)[0]),
-        BigInt((recipientPublicKey as any)[1])
+        BigInt((recipientPublicKey as any)[0].toString()),
+        BigInt((recipientPublicKey as any)[1].toString())
       ]
       const { cipher: receiverEncryptedAmount, random: receiverRandom } = encryptMessage(
         recipientPublicKeyBig,
@@ -132,23 +132,29 @@ export function useTransfer(tokenAddress?: `0x${string}`, tokenDecimals: number 
       )
 
       // Generate PCT (Poseidon Ciphertext) for receiver
+      console.log('🔍 About to call processPoseidonEncryption for receiver...');
       const { ciphertext: receiverCiphertext, nonce: receiverNonce, encRandom: receiverEncRandom, authKey: receiverAuthKey } = processPoseidonEncryption(
         [valueToTransferInternal],
         recipientPublicKey
       )
+      console.log('🔍 Receiver poseidon encryption completed');
 
       // Generate PCT for auditor
+      console.log('🔍 About to call processPoseidonEncryption for auditor...');
       const { ciphertext: auditorCiphertext, nonce: auditorNonce, encRandom: auditorEncRandom, authKey: auditorAuthKey } = processPoseidonEncryption(
         [valueToTransferInternal],
         auditorPublicKeyArray
       )
+      console.log('🔍 Auditor poseidon encryption completed');
 
       // Generate sender's new balance PCT
       const senderNewBalance = currentBalanceInternal - valueToTransferInternal
+      console.log('🔍 About to call processPoseidonEncryption for sender...');
       const { ciphertext: senderCiphertext, nonce: senderNonce, encRandom: senderEncRandom, authKey: senderAuthKey } = processPoseidonEncryption(
         [senderNewBalance],
         userPublicKeyArray
       )
+      console.log('🔍 Sender poseidon encryption completed');
 
       const inputs = {
         ValueToTransfer: valueToTransferInternal.toString(),
@@ -177,6 +183,21 @@ export function useTransfer(tokenAddress?: `0x${string}`, tokenDecimals: number 
       console.log('🔐 Generating transfer proof with inputs:', inputs)
       console.log('🔍 SenderBalanceC1:', inputs.SenderBalanceC1);
       console.log('🔍 SenderBalanceC2:', inputs.SenderBalanceC2);
+      
+      // Validate all inputs are strings (no BigInt conversion errors)
+      for (const [key, value] of Object.entries(inputs)) {
+        if (Array.isArray(value)) {
+          for (const item of value) {
+            if (typeof item !== 'string') {
+              console.error(`❌ Input ${key} contains non-string value:`, item, typeof item);
+              throw new Error(`Input ${key} contains non-string value: ${item}`);
+            }
+          }
+        } else if (typeof value !== 'string') {
+          console.error(`❌ Input ${key} is not a string:`, value, typeof value);
+          throw new Error(`Input ${key} is not a string: ${value}`);
+        }
+      }
       console.log('🔍 SenderVTTC1:', inputs.SenderVTTC1);
       console.log('🔍 SenderVTTC2:', inputs.SenderVTTC2);
 
