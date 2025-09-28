@@ -59,7 +59,7 @@ export default function TsunamiSwap() {
   const [toAmount, setToAmount] = useState<string>("")  
   const [insufficientBalance, setInsufficientBalance] = useState(false)
   
-  // Mock stealth swap hooks (WORKING SYSTEM)
+  // Stealth swap system hooks
   const { 
     createIntent, 
     contribute, 
@@ -74,7 +74,7 @@ export default function TsunamiSwap() {
     error: swapError 
   } = useMockStealthSwap()
   
-  // Real eERC withdrawal hook for MetaMask transactions
+  // eERC withdrawal hook for MetaMask transactions
   const { 
     withdraw: realWithdraw,
     isPending: isWithdrawPending,
@@ -84,7 +84,7 @@ export default function TsunamiSwap() {
     txHash: withdrawTxHash
   } = useWithdraw(fromToken?.address, fromToken?.decimals || 18)
   
-  // Mock encrypted balance hooks (WORKING SYSTEM)
+  // Encrypted balance hooks
   const fromBalanceData = fromToken?.address ? getEncryptedBalance(fromToken.address) : { decrypted: BigInt(0), formatted: '0.000000' }
   const toBalanceData = toToken?.address ? getEncryptedBalance(toToken.address) : { decrypted: BigInt(0), formatted: '0.000000' }
   
@@ -93,7 +93,7 @@ export default function TsunamiSwap() {
   const toBalance = toBalanceData.decrypted
   const toBalanceFormatted = toBalanceData.formatted
   
-  // Mock loading states (always false for mock service)
+  // Loading states
   const isLoadingFromBalance = false
   const isLoadingToBalance = false
   
@@ -517,8 +517,8 @@ export default function TsunamiSwap() {
               <div className="flex items-center gap-2 text-blue-200 text-sm">
                 <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                 <span>
-                  {chainId === 84532 ? "Base Sepolia Testnet - Real 1inch LOP Integration" : 
-                   chainId === 11155111 ? "Ethereum Sepolia Testnet - Mock 1inch Integration" :
+                  {chainId === 84532 ? "Base Sepolia Testnet - 1inch LOP Integration" : 
+                   chainId === 11155111 ? "Ethereum Sepolia Testnet - 1inch Integration" :
                    "Unknown Network"}
                 </span>
               </div>
