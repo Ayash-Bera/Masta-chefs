@@ -23,7 +23,7 @@ library RouterConfig {
     address public constant ZKSYNC_ERA = 0x6fd4383cB451173D5f9304F041C7BCBf27d561fF; // LOP on zkSync Era
 
     // Testnets (if available)
-    address public constant SEPOLIA = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Sepolia
+    address public constant SEPOLIA = address(0); // No official LOP on Sepolia - use MockOneInchAdapter
     address public constant BASE_SEPOLIA = 0x111111125421cA6dc452d289314280a0f8842A65; // LOP on Base Sepolia
     
     function getRouterForChain(uint256 chainId) internal pure returns (address) {

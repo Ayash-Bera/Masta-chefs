@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react'
 import { useAccount, useWriteContract, useReadContract } from 'wagmi'
 import { parseEther, formatEther, encodePacked } from 'viem'
-import { sepolia } from 'viem/chains'
+import { baseSepolia } from 'viem/chains'
+import { STEALTH_PAYMASTER } from '../lib/stealth-contracts'
 
 // Contract ABI (minimal)
 const STEALTH_PAYMASTER_ABI = [
@@ -60,8 +61,8 @@ const STEALTH_PAYMASTER_ABI = [
   }
 ] as const
 
-// Contract address (update with deployed address)
-const STEALTH_PAYMASTER_ADDRESS = '0x0000000000000000000000000000000000000000' // TODO: Deploy and update
+// Contract address (Base Sepolia)
+const STEALTH_PAYMASTER_ADDRESS = STEALTH_PAYMASTER.address
 
 export interface DepositForGasParams {
   token: string
@@ -106,7 +107,7 @@ export function useStealthPaymaster() {
         abi: STEALTH_PAYMASTER_ABI,
         functionName: 'depositForGas',
         args: [params.token as `0x${string}`, params.amount],
-        chain: sepolia,
+        chain: baseSepolia,
       })
 
       return { success: true, hash }
@@ -131,7 +132,7 @@ export function useStealthPaymaster() {
         abi: STEALTH_PAYMASTER_ABI,
         functionName: 'withdrawDeposit',
         args: [params.token as `0x${string}`, params.amount],
-        chain: sepolia,
+        chain: baseSepolia,
       })
 
       return { success: true, hash }

@@ -1,5 +1,5 @@
-// Stealth Swap System Contracts (Base Sepolia Testnet)
-export const STEALTH_SWAP_POOL = {
+// Sepolia Testnet Contract Addresses (Mock 1inch for testing)
+export const SEPOLIA_STEALTH_SWAP_POOL = {
   address: '0x0e4d945f84cbb445aB0a96974Ef01EbB63343f71' as const,
   abi: [
     {
@@ -47,7 +47,7 @@ export const STEALTH_SWAP_POOL = {
   ] as const
 } as const;
 
-export const ONE_INCH_ADAPTER = {
+export const SEPOLIA_MOCK_ONE_INCH_ADAPTER = {
   address: '0x66cAbbc261AFb45C728CcCCC6e592935d3Ba83ef' as const,
   abi: [
     {
@@ -58,28 +58,42 @@ export const ONE_INCH_ADAPTER = {
       "type": "function"
     },
     {
+      "inputs": [{"internalType": "address", "name": "token", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
+      "name": "depositTokens",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
-      "name": "lop",
-      "outputs": [{"internalType": "address", "name": "", "type": "address"}],
-      "stateMutability": "view",
+      "name": "getMockExchangeRate",
+      "outputs": [{"internalType": "uint256", "name": "rate", "type": "uint256"}],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "isMockAdapter",
+      "outputs": [{"internalType": "bool", "name": "isMock", "type": "bool"}],
+      "stateMutability": "pure",
       "type": "function"
     }
   ] as const
 } as const;
 
-export const STEALTH_FACTORY = {
+export const SEPOLIA_STEALTH_FACTORY = {
   address: '0xeD539fD12EB44692A935fDA55e24C861639eD074' as const,
   abi: [
     {
       "inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "bytes32", "name": "metaSalt", "type": "bytes32"}],
-      "name": "createStealth",
+      "name": "createStealthAccount",
       "outputs": [{"internalType": "address", "name": "stealth", "type": "address"}],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "bytes32", "name": "metaSalt", "type": "bytes32"}],
-      "name": "predictStealth",
+      "name": "predictStealthAddress",
       "outputs": [{"internalType": "address", "name": "predicted", "type": "address"}],
       "stateMutability": "view",
       "type": "function"
@@ -87,26 +101,26 @@ export const STEALTH_FACTORY = {
   ] as const
 } as const;
 
-export const STEALTH_PAYMASTER = {
+export const SEPOLIA_STEALTH_PAYMASTER = {
   address: '0x3168D014cD515c0b6E857618680A652E920eFBc7' as const,
   abi: [
     {
       "inputs": [{"internalType": "address", "name": "token", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
-      "name": "depositForGas",
+      "name": "depositGasToken",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [{"internalType": "address", "name": "token", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
-      "name": "withdrawDeposit",
+      "name": "withdrawGasToken",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [{"internalType": "address", "name": "user", "type": "address"}, {"internalType": "address", "name": "token", "type": "address"}],
-      "name": "getDepositBalance",
+      "name": "getGasTokenBalance",
       "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
       "stateMutability": "view",
       "type": "function"
@@ -114,11 +128,8 @@ export const STEALTH_PAYMASTER = {
   ] as const
 } as const;
 
-// 1inch LOP address on Base Sepolia
-export const LOP_ADDRESS = '0x111111125421cA6dc452d289314280a0f8842A65' as const;
-
-// Test tokens for Base Sepolia
-export const TEST_TOKENS = {
+// Test tokens for Sepolia
+export const SEPOLIA_TEST_TOKENS = {
   TEST_TOKEN_A: {
     address: '0x18067cb5A4830feEdF7ACdD3dF8d0d084442D3fD' as const,
     symbol: 'TESTA',

@@ -163,23 +163,23 @@
   },
   "compilerOutputFiles": {
     "r1cs": {
-      "fileSourcePath": "/home/agnij/Desktop/tsunami/tcash/fhERC/zkit/artifacts/circom/transfer.circom/TransferCircuit.r1cs",
+      "fileSourcePath": "/home/agnij/Desktop/tsunami/Masta-chefs/fhERC/zkit/artifacts/circom/transfer.circom/TransferCircuit.r1cs",
       "fileHash": "528a9784998e22852f760d724c847b9cd7ac96e4"
     },
     "wasm": {
-      "fileSourcePath": "/home/agnij/Desktop/tsunami/tcash/fhERC/zkit/artifacts/circom/transfer.circom/TransferCircuit_js/TransferCircuit.wasm",
+      "fileSourcePath": "/home/agnij/Desktop/tsunami/Masta-chefs/fhERC/zkit/artifacts/circom/transfer.circom/TransferCircuit_js/TransferCircuit.wasm",
       "fileHash": "7194448079bf4d3b6deed53108b8c9d033698611"
     },
     "sym": {
-      "fileSourcePath": "/home/agnij/Desktop/tsunami/tcash/fhERC/zkit/artifacts/circom/transfer.circom/TransferCircuit.sym",
+      "fileSourcePath": "/home/agnij/Desktop/tsunami/Masta-chefs/fhERC/zkit/artifacts/circom/transfer.circom/TransferCircuit.sym",
       "fileHash": "593cf54e6a4ec01ba00f00f6d67039af1729c5e7"
     },
     "groth16.zkey": {
-      "fileSourcePath": "/home/agnij/Desktop/tsunami/tcash/fhERC/zkit/artifacts/circom/transfer.circom/TransferCircuit.groth16.zkey",
+      "fileSourcePath": "/home/agnij/Desktop/tsunami/Masta-chefs/fhERC/zkit/artifacts/circom/transfer.circom/TransferCircuit.groth16.zkey",
       "fileHash": "2c1b58512399825aa43fa89fea77c67ba8b294e1"
     },
     "groth16.vkey": {
-      "fileSourcePath": "/home/agnij/Desktop/tsunami/tcash/fhERC/zkit/artifacts/circom/transfer.circom/TransferCircuit.groth16.vkey.json",
+      "fileSourcePath": "/home/agnij/Desktop/tsunami/Masta-chefs/fhERC/zkit/artifacts/circom/transfer.circom/TransferCircuit.groth16.vkey.json",
       "fileHash": "5cd9e94836e9cedf768dfbf0ddc4f030f0e99fe6"
     }
   }

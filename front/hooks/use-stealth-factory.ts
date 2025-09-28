@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react'
 import { useAccount, useWriteContract, useReadContract } from 'wagmi'
 import { keccak256, encodePacked, toHex } from 'viem'
-import { sepolia } from 'viem/chains'
+import { baseSepolia } from 'viem/chains'
+import { STEALTH_FACTORY } from '../lib/stealth-contracts'
 
 const STEALTH_FACTORY_ABI = [
   {
@@ -55,8 +56,8 @@ const STEALTH_ACCOUNT_ABI = [
   }
 ] as const
 
-// Contract address (update with deployed address)
-const STEALTH_FACTORY_ADDRESS = '0x0000000000000000000000000000000000000000' // TODO: Deploy and update
+// Contract address (Base Sepolia)
+const STEALTH_FACTORY_ADDRESS = STEALTH_FACTORY.address
 
 export interface CreateStealthParams {
   owner: string
@@ -106,7 +107,7 @@ export function useStealthFactory() {
         abi: STEALTH_FACTORY_ABI,
         functionName: 'createStealth',
         args: [params.owner as `0x${string}`, metaSalt as `0x${string}`],
-        chain: sepolia,
+        chain: baseSepolia,
       })
 
       return { success: true, hash, metaSalt }
@@ -161,7 +162,7 @@ export function useStealthAccount(stealthAddress: string) {
         abi: STEALTH_ACCOUNT_ABI,
         functionName: 'exec',
         args: [action.target as `0x${string}`, action.value, action.data as `0x${string}`],
-        chain: sepolia,
+        chain: baseSepolia,
       })
 
       return { success: true, hash }
@@ -184,7 +185,7 @@ export function useStealthAccount(stealthAddress: string) {
         abi: STEALTH_ACCOUNT_ABI,
         functionName: 'sweep',
         args: [token as `0x${string}`, to as `0x${string}`],
-        chain: sepolia,
+        chain: baseSepolia,
       })
 
       return { success: true, hash }
@@ -207,7 +208,7 @@ export function useStealthAccount(stealthAddress: string) {
         abi: STEALTH_ACCOUNT_ABI,
         functionName: 'destroy',
         args: [to as `0x${string}`],
-        chain: sepolia,
+        chain: baseSepolia,
       })
 
       return { success: true, hash }
