@@ -73,29 +73,24 @@ export function SelfQRCode({
       const app = new SelfAppBuilder({
         version: 2,
         appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || "Tsunami Wallet",
-        scope: sessionData?.scope || 'tsunami',
-        endpoint:'0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6', // Point to our compliant procedure contract
+        scope: 'tsunami', // Short scope string for Self.xyz
+        endpoint: '0x6420808b3444aC0Ae9adAAf97d2Be5Ac8e6a9b02', // Our contract address
         logoBase64: "https://i.postimg.cc/mrmVf9hm/self.png",
         userId: actualUserId,
         endpointType: "staging_celo", // Use contract endpoint type for Celo
         userIdType: "hex",
         userDefinedData: "Tsunami Wallet KYC Verification",
-        // chainID: 11142220, // Celo Sepolia chain ID
-        disclosures: {
-          // // Verification requirements (match contract configuration)
-          // minimumAge: sessionData?.requirements?.minimumAge || DEFAULT_CONFIG.MINIMUM_AGE,
-          // // forbiddenCountries: sessionData?.requirements?.excludedCountries || DEFAULT_CONFIG.EXCLUDED_COUNTRIES,
-          // ofac: sessionData?.requirements?.requireOfacCheck || DEFAULT_CONFIG.REQUIRE_OFAC_CHECK,
-
-          // // Disclosure requests (what users reveal)
-          // nationality: true,
-
-          // // Optional disclosures based on contract requirements
-          // name: false,
-          // date_of_birth: false,
-          // passport_number: false,
-          // expiry_date: false,
-        }
+        chainID: 11142220, // Celo Sepolia chain ID
+              disclosures: {
+                // Use default Self.xyz configuration (matches the default config ID)
+                minimumAge: 18,           // Default minimum age
+                ofac: false,              // Default OFAC setting
+                excludedCountries: [],    // No excluded countries by default
+                
+                // Basic disclosures that work with default config
+                nationality: true,        // Required for basic verification
+                issuing_state: true,      // Required for basic verification
+              }
       }).build();
 
       setSelfApp(app as any);

@@ -7,9 +7,9 @@ export const CONTRACT_ADDRESSES = {
     CELO: '0x...' // Mainnet - to be deployed
   },
   // Simple Compliant Procedure System - Self.xyz Compatible
-  COMPLIANT_PROCEDURE: {
-    SEPOLIA: '0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6', // Self.xyz compatible - Deployed on Celo Sepolia
-    ETHEREUM_SEPOLIA: '0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6', // Same contract on Ethereum Sepolia
+          COMPLIANT_PROCEDURE: {
+            SEPOLIA: '0x6420808b3444aC0Ae9adAAf97d2Be5Ac8e6a9b02', // Self.xyz compatible - Deployed on Celo Sepolia
+    ETHEREUM_SEPOLIA: '0x7f8c63bbcad18155201308c8f3540b07f84f5e', // Same contract on Ethereum Sepolia
     BASE_MAINNET: '0x0000000000000000000000000000000000000000', // To be deployed on Base Mainnet
     ALFAJORES: '0x0000000000000000000000000000000000000000', // To be deployed if needed
     CELO: '0x0000000000000000000000000000000000000000' // Mainnet - to be deployed

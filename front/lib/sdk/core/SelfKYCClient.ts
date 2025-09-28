@@ -16,78 +16,36 @@ const COMPLIANT_PROCEDURE_ABI = [
     "type": "constructor",
     "inputs": [
       {
-        "name": "_identityVerificationHubV2Address",
+        "name": "hubV2",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "_scope",
+        "name": "scopeValue",
         "type": "uint256",
         "internalType": "uint256"
-      },
-      {
-        "name": "_verificationConfigId",
-        "type": "bytes32",
-        "internalType": "bytes32"
       }
     ],
     "stateMutability": "nonpayable"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "dataHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "nationality",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint8",
-        "name": "documentType",
-        "type": "uint8"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "ComplianceVerified",
-    "type": "event"
-  },
-  {
     "type": "function",
-    "name": "generateDataHash",
+    "name": "getConfigId",
     "inputs": [
       {
-        "name": "user",
-        "type": "address",
-        "internalType": "address"
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
       },
       {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
       },
       {
-        "name": "dateOfBirth",
-        "type": "string",
-        "internalType": "string"
+        "name": "",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [
@@ -97,7 +55,258 @@ const COMPLIANT_PROCEDURE_ABI = [
         "internalType": "bytes32"
       }
     ],
-    "stateMutability": "pure"
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTotalCompliantUsers",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserAgeVerification",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserCompliance",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct CompliantProcedure.UserCompliance",
+        "components": [
+          {
+            "name": "dataHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "timestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "isCompliant",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "nationality",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "issuingState",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "name",
+            "type": "string[]",
+            "internalType": "string[]"
+          },
+          {
+            "name": "idNumber",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "dateOfBirth",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "gender",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "expiryDate",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "olderThan",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "ofac",
+            "type": "bool[3]",
+            "internalType": "bool[3]"
+          },
+          {
+            "name": "documentType",
+            "type": "uint8",
+            "internalType": "uint8"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserDateOfBirth",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserGender",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserIssuingState",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserName",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string[]",
+        "internalType": "string[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserNationality",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserOfacVerification",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool[3]",
+        "internalType": "bool[3]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isUserCompliant",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -120,7 +329,7 @@ const COMPLIANT_PROCEDURE_ABI = [
   },
   {
     "type": "function",
-    "name": "manualVerifyCompliance",
+    "name": "verifyCompliance",
     "inputs": [
       {
         "name": "user",
@@ -128,16 +337,6 @@ const COMPLIANT_PROCEDURE_ABI = [
         "internalType": "address"
       },
       {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "dateOfBirth",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
         "name": "nationality",
         "type": "string",
         "internalType": "string"
@@ -153,177 +352,43 @@ const COMPLIANT_PROCEDURE_ABI = [
   },
   {
     "type": "function",
-    "name": "onVerificationSuccess",
-    "inputs": [
-      {
-        "name": "output",
-        "type": "bytes",
-        "internalType": "bytes"
-      },
-      {
-        "name": "userData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "owner",
+    "name": "verifyCompliance",
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "scope",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "totalCompliantUsers",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "usedHashes",
-    "inputs": [
-      {
-        "name": "",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "userCompliance",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "dataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "timestamp",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "isCompliant",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "nationality",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "documentType",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "verificationConfigId",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "verifiedHumans",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "verifySelfProof",
-    "inputs": [
-      {
-        "name": "proofPayload",
-        "type": "bytes",
-        "internalType": "bytes"
-      },
-      {
-        "name": "userContextData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
     "type": "event",
-    "name": "ScopeUpdated",
+    "name": "ComplianceVerified",
     "inputs": [
       {
-        "name": "newScope",
-        "type": "uint256",
+        "name": "user",
+        "type": "address",
         "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "dataHash",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "nationality",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "documentType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
         "internalType": "uint256"
       }
     ],
@@ -415,405 +480,6 @@ const COMPLIANT_PROCEDURE_ABI = [
     ],
     "anonymous": false
   },
-  {
-    "type": "error",
-    "name": "InvalidDataFormat",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "UnauthorizedCaller",
-    "inputs": []
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "nullifier",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "userIdentifier",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "nationality",
-            "type": "string"
-          },
-          {
-            "internalType": "uint8",
-            "name": "documentType",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint256",
-            "name": "olderThan",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool[]",
-            "name": "ofac",
-            "type": "bool[]"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "attestationId",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct CompliantProcedure.GenericDiscloseOutputV2",
-        "name": "output",
-        "type": "tuple"
-      },
-      {
-        "internalType": "bytes",
-        "name": "userData",
-        "type": "bytes"
-      }
-    ],
-    "name": "customVerificationHook",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "dateOfBirth",
-        "type": "string"
-      }
-    ],
-    "name": "generateDataHash",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes",
-        "name": "",
-        "type": "bytes"
-      }
-    ],
-    "name": "getConfigId",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getTotalCompliantUsers",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "getUserCompliance",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "bytes32",
-            "name": "dataHash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timestamp",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isCompliant",
-            "type": "bool"
-          },
-          {
-            "internalType": "string",
-            "name": "nationality",
-            "type": "string"
-          },
-          {
-            "internalType": "uint8",
-            "name": "documentType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct CompliantProcedure.UserCompliance",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "isUserCompliant",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "isVerifiedHuman",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "dateOfBirth",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "nationality",
-        "type": "string"
-      },
-      {
-        "internalType": "uint8",
-        "name": "documentType",
-        "type": "uint8"
-      }
-    ],
-    "name": "manualVerifyCompliance",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalCompliantUsers",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "usedHashes",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "userCompliance",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "dataHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "isCompliant",
-        "type": "bool"
-      },
-      {
-        "internalType": "string",
-        "name": "nationality",
-        "type": "string"
-      },
-      {
-        "internalType": "uint8",
-        "name": "documentType",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "verificationConfigId",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "verifiedHumans",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "verifyCompliance",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "nationality",
-        "type": "string"
-      },
-      {
-        "internalType": "uint8",
-        "name": "documentType",
-        "type": "uint8"
-      }
-    ],
-    "name": "verifyCompliance",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
 ] as const;
 
 export class StealthKYCClient {
@@ -1050,6 +716,91 @@ export class StealthKYCClient {
       args: [user, nationality, documentType],
     };
   }
+
+  /**
+   * Get user's nationality
+   */
+  getUserNationalityConfig(user: string) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'getUserNationality',
+      args: [user],
+    };
+  }
+
+  /**
+   * Get user's issuing state
+   */
+  getUserIssuingStateConfig(user: string) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'getUserIssuingState',
+      args: [user],
+    };
+  }
+
+  /**
+   * Get user's name
+   */
+  getUserNameConfig(user: string) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'getUserName',
+      args: [user],
+    };
+  }
+
+  /**
+   * Get user's date of birth
+   */
+  getUserDateOfBirthConfig(user: string) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'getUserDateOfBirth',
+      args: [user],
+    };
+  }
+
+  /**
+   * Get user's gender
+   */
+  getUserGenderConfig(user: string) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'getUserGender',
+      args: [user],
+    };
+  }
+
+  /**
+   * Get user's age verification result
+   */
+  getUserAgeVerificationConfig(user: string) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'getUserAgeVerification',
+      args: [user],
+    };
+  }
+
+  /**
+   * Get user's OFAC verification result
+   */
+  getUserOfacVerificationConfig(user: string) {
+    return {
+      address: this.contractAddress as `0x${string}`,
+      abi: COMPLIANT_PROCEDURE_ABI,
+      functionName: 'getUserOfacVerification',
+      args: [user],
+    };
+  }
+
 
   // Legacy compatibility - redirect to compliant procedure methods
   getIsVerifiedConfig = this.getIsUserCompliantConfig;

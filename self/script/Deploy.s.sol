@@ -1,44 +1,42 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.28;
+pragma solidity 0.8.28;
 
 import {Script, console} from "forge-std/Script.sol";
 import {CompliantProcedure} from "../src/CompliantProcedure.sol";
 
-contract DeployCompliantProcedure is Script {
-    CompliantProcedure public compliantProcedure;
-
-    function setUp() public {}
-
-    function run() public {
-        uint256 deployerPrivateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
-        address deployer = vm.addr(deployerPrivateKey);
-
-        console.log("Deploying CompliantProcedure contract...");
-        console.log("Deployer address:", deployer);
-        console.log("Deployer balance:", deployer.balance);
-
+contract DeployScript is Script {
+    function run() external {
+        // Use the provided private key for deployment
+        uint256 deployerPrivateKey = 0x95492791d9e40b7771b8b57117c399cc5e27d99d4959b7f9592925a398be7bdb;
+        
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy the CompliantProcedure contract
         // Using Self.xyz V2 Hub staging address for Celo Sepolia
         address hubAddress = 0x16ECBA51e18a4a7e61fdC417f0d47AFEeDfbed74;
-        uint256 scope = uint256(keccak256("tsunami"));
-        bytes32 configId = 0x7b6436b0c98f62380866d9432c2af0ee08ce16a171bda6951aecd95ee1307d61;
         
-        compliantProcedure = new CompliantProcedure(hubAddress, scope, configId);
+        // Use a simple scope seed for Self.xyz integration
+        // The SelfVerificationRoot will handle the proper scope calculation
+        uint256 scopeValue = uint256(keccak256(abi.encodePacked("tsunami")));
+        
+        CompliantProcedure compliantProcedure = new CompliantProcedure(
+            hubAddress,
+            scopeValue
+        );
 
         vm.stopBroadcast();
 
+        console.log("Deploying CompliantProcedure contract...");
+        console.log("Deployer address:", vm.addr(deployerPrivateKey));
+        console.log("Deployer balance:", vm.addr(deployerPrivateKey).balance);
         console.log("CompliantProcedure deployed at:", address(compliantProcedure));
         console.log("Contract owner:", compliantProcedure.owner());
         console.log("Total compliant users:", compliantProcedure.getTotalCompliantUsers());
-
-        // Verification instructions
+        
         console.log("\n=== Contract Verification ===");
         console.log("To verify the contract on Celoscan, run:");
         console.log("forge verify-contract --chain celo_sepolia --constructor-args $(cast abi-encode 'constructor()') --etherscan-api-key $CELOSCAN_API_KEY", address(compliantProcedure), "src/CompliantProcedure.sol:CompliantProcedure");
-
-        // Frontend integration instructions
+        
         console.log("\n=== Frontend Integration ===");
         console.log("Add this contract address to your frontend constants:");
         console.log("COMPLIANT_PROCEDURE_SEPOLIA:", address(compliantProcedure));
