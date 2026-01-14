@@ -5,7 +5,7 @@
 **Tzunami** delivers a privacy-preserving, regulation-compliant financial platform that fuses two cornerstone capabilities:
 
 - **Self.xyz Onchain KYC Integration** – Zero-knowledge identity verification on Celo.
-- **fhERC Universal Encrypted Token Protocol** – Privacy-first ERC20 operations on Sepolia.
+- **fhERC Universal Encrypted Token Protocol** – Privacy-first ERC20 operations on Mantle.
 
 The result is a full-stack solution that lets users transact privately while satisfying compliance mandates, leveraging cutting-edge cryptography, deterministic identity proofs, and production-ready smart contracts.
 
